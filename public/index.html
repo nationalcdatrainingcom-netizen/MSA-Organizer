@@ -117,6 +117,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
 .ph-btn.primary:hover{background:var(--gold-bright);}
 
 /* NOTIFICATION BELL */
+.mob-menu-btn{display:none;background:none;border:1px solid var(--gold-border);border-radius:8px;padding:7px 11px;cursor:pointer;color:var(--text2);font-size:18px;line-height:1;margin-right:4px;}
 .notif-btn{position:relative;background:none;border:1px solid var(--gold-border);border-radius:8px;padding:7px 10px;cursor:pointer;color:var(--text2);font-size:16px;transition:all .15s;}
 .notif-btn:hover{border-color:var(--gold);}
 .notif-dot{position:absolute;top:4px;right:4px;width:8px;height:8px;background:var(--red);border-radius:50%;border:1.5px solid var(--white);display:none;}
@@ -338,9 +339,24 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
 
 @media(max-width:900px){
   :root{--sidebar-w:0px;}
-  .sidebar{display:none;}
+  .sidebar{
+    display:flex;
+    transform:translateX(-100%);
+    transition:transform .3s ease;
+    z-index:400;
+    box-shadow:4px 0 24px rgba(0,0,0,.3);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .mob-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:399;}
+  .mob-backdrop.open{display:block;}
   .stats-row{grid-template-columns:repeat(3,1fr);}
   .g2,.g3{grid-template-columns:1fr;}
+  .main{margin-left:0;}
+  .mob-menu-btn{display:flex!important;}
+}
+@media(min-width:901px){
+  .mob-menu-btn{display:none!important;}
+  .mob-backdrop{display:none!important;}
 }
 </style>
 </head>
@@ -366,6 +382,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
 
   <!-- NOTIFICATION BACKDROP -->
   <div class="notif-backdrop" id="notif-backdrop" onclick="closeNotifPanel()"></div>
+  <!-- MOBILE SIDEBAR BACKDROP -->
+  <div class="mob-backdrop" id="mob-backdrop" onclick="closeMobSidebar()"></div>
 
   <!-- SIDEBAR -->
   <div class="sidebar">
@@ -408,6 +426,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
         <div class="ph-date" id="ph-date"></div>
       </div>
       <div class="ph-right">
+        <button class="mob-menu-btn" onclick="openMobSidebar()" title="Menu">☰</button>
         <div id="ph-actions"></div>
         <button class="notif-btn" onclick="toggleNotifPanel()" title="Notifications">
           🔔<span class="notif-dot" id="notif-dot"></span>
@@ -1853,6 +1872,22 @@ function openGoogleCalendar() {
   const details = encodeURIComponent((e.notes || '') + '\n\nAdded from MSA Organizer');
   const url = `${base}&text=${text}&dates=${dates}&details=${details}`;
   window.open(url, '_blank');
+}
+
+// ═══ MOBILE SIDEBAR ══════════════════════════════════════════════
+function openMobSidebar(){
+  document.querySelector('.sidebar').classList.add('open');
+  document.getElementById('mob-backdrop').classList.add('open');
+}
+function closeMobSidebar(){
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('mob-backdrop').classList.remove('open');
+}
+// Close sidebar when a nav item is tapped on mobile
+const origNav = nav;
+function nav(tab){
+  origNav(tab);
+  closeMobSidebar();
 }
 
 // ═══ SESSION CHECK ════════════════════════════════════════════════
