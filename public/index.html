@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="MSA">
 <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/api/icon">
 <title>MSA Organizer</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -955,8 +955,8 @@ async function uploadIcon(){
   formData.append('icon',file);
   const r=await fetch('/api/upload-icon',{method:'POST',body:formData});
   if(r.ok){
-    document.getElementById('icon-msg').textContent='✓ Icon uploaded! Reinstall the app to see the new icon.';
-    document.getElementById('icon-preview').innerHTML=`<img src="/app-icon.png?t=${Date.now()}" style="width:80px;height:80px;border-radius:16px;border:2px solid var(--gold);margin-top:8px;">`;
+    document.getElementById('icon-msg').textContent='✓ Icon uploaded! Remove the app from your home screen and re-add it to see your logo.';
+    document.getElementById('icon-preview').innerHTML=`<img src="/api/icon?t=${Date.now()}" style="width:80px;height:80px;border-radius:16px;border:2px solid var(--gold);margin-top:8px;">`;
   }
 }
 
@@ -975,8 +975,8 @@ async function startApp(){
   // Poll notifications every 30 seconds
   notifPollInterval=setInterval(pollNotifications,30000);
   // Check for existing icon
-  const iconCheck=await fetch('/app-icon.png',{method:'HEAD'}).catch(()=>null);
-  if(iconCheck&&iconCheck.ok){document.getElementById('icon-preview').innerHTML=`<img src="/app-icon.png?t=${Date.now()}" style="width:80px;height:80px;border-radius:16px;border:2px solid var(--gold);margin-top:8px;">`;}
+  const iconCheck=await fetch('/api/icon',{method:'HEAD'}).catch(()=>null);
+  if(iconCheck&&iconCheck.ok){document.getElementById('icon-preview').innerHTML=`<img src="/api/icon?t=${Date.now()}" style="width:80px;height:80px;border-radius:16px;border:2px solid var(--gold);margin-top:8px;">`;}
   // Request notification permission
   if('Notification' in window && Notification.permission==='default'){
     Notification.requestPermission();
