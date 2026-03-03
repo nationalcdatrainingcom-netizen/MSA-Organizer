@@ -3,2283 +3,1526 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MSA Organizer — Mentoring Success Academy</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>MSA Organizer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --purple: #7C3AED;
-  --purple-light: #A78BFA;
-  --purple-pale: #EDE9FE;
-  --teal: #0F766E;
-  --teal-light: #5EEAD4;
-  --teal-pale: #CCFBF1;
-  --gold: #D97706;
-  --gold-pale: #FEF3C7;
+  --accent: #7C3AED;
+  --accent2: #0F766E;
+  --gold: #B45309;
+  --gold-bg: #FEF3C7;
+  --red: #DC2626;
+  --red-bg: #FEE2E2;
+  --blue: #0369A1;
+  --blue-bg: #E0F2FE;
+  --green: #15803D;
+  --green-bg: #DCFCE7;
   --ink: #1C1917;
   --ink2: #44403C;
   --muted: #78716C;
   --border: #E7E5E4;
-  --bg: #FAFAF9;
+  --bg: #F5F4F2;
   --white: #FFFFFF;
-  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 24px rgba(0,0,0,0.10);
-  --user-color: #7C3AED;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  min-height: 100vh;
-}
-
-/* ── LOGIN ── */
-#login-screen {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #1C1033 0%, #0F2D2A 50%, #1C1917 100%);
-  position: relative;
-  overflow: hidden;
-}
-
-#login-screen::before {
-  content: '';
-  position: absolute;
-  width: 600px; height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
-  top: -200px; right: -100px;
-}
-
-#login-screen::after {
-  content: '';
-  position: absolute;
-  width: 400px; height: 400px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(15,118,110,0.15) 0%, transparent 70%);
-  bottom: -100px; left: -50px;
-}
-
-.login-card {
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 24px;
-  padding: 48px 40px;
-  width: 380px;
-  position: relative;
-  z-index: 1;
-}
-
-.login-logo {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.login-logo .monogram {
-  width: 64px; height: 64px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--purple), var(--teal));
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Playfair Display', serif;
-  font-size: 24px; font-weight: 700;
-  color: white;
-  margin: 0 auto 16px;
-}
-
-.login-logo h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 22px;
-  color: white;
-  font-weight: 600;
-}
-
-.login-logo p {
-  color: rgba(255,255,255,0.5);
-  font-size: 13px;
-  margin-top: 4px;
-}
-
-.login-field { margin-bottom: 16px; }
-.login-field label {
-  display: block;
-  color: rgba(255,255,255,0.6);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-.login-field input {
-  width: 100%;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 12px 16px;
-  color: white;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.login-field input:focus { border-color: var(--purple-light); }
-
-.login-btn {
-  width: 100%;
-  background: linear-gradient(135deg, var(--purple), #6D28D9);
-  border: none;
-  border-radius: 10px;
-  padding: 14px;
-  color: white;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: opacity 0.2s, transform 0.1s;
-}
-.login-btn:hover { opacity: 0.9; }
-.login-btn:active { transform: scale(0.99); }
-.login-error { color: #FC8181; font-size: 13px; margin-top: 10px; text-align: center; }
-
-/* ── APP SHELL ── */
-#app { display: none; }
-
-.app-header {
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 60px;
-  position: sticky; top: 0; z-index: 100;
-  box-shadow: var(--shadow);
-}
-
-.app-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.app-brand .logo-mark {
-  width: 36px; height: 36px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, var(--purple), var(--teal));
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Playfair Display', serif;
-  font-size: 14px; font-weight: 700;
-  color: white;
-}
-
-.app-brand h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.app-brand span {
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 400;
-}
-
-.header-right {
-  display: flex; align-items: center; gap: 16px;
-}
-
-.user-pill {
-  display: flex; align-items: center; gap: 10px;
-  padding: 6px 14px 6px 8px;
-  border-radius: 24px;
-  background: var(--purple-pale);
-  cursor: pointer;
-}
-
-.user-avatar {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: var(--user-color);
-  color: white;
-  font-size: 11px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-}
-
-.user-pill span {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink2);
-}
-
-.logout-btn {
-  background: none; border: none;
-  color: var(--muted); font-size: 13px;
-  cursor: pointer; padding: 4px 8px;
-  border-radius: 6px;
-}
-.logout-btn:hover { background: var(--border); }
-
-/* ── NAV TABS ── */
-.nav-tabs {
-  display: flex;
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  overflow-x: auto;
-  gap: 2px;
-}
-
-.nav-tab {
-  padding: 12px 18px;
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-  transition: color 0.15s, border-color 0.15s;
-  display: flex; align-items: center; gap: 7px;
-}
-
-.nav-tab:hover { color: var(--ink); }
-
-.nav-tab.active {
-  color: var(--user-color);
-  border-bottom-color: var(--user-color);
-}
-
-.tab-icon { font-size: 15px; }
-
-/* ── MAIN CONTENT ── */
-.main-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 28px 24px;
-}
-
-/* ── PANELS ── */
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* ── PAGE TITLE ── */
-.page-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 26px;
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 6px;
-}
-
-.page-subtitle {
-  color: var(--muted);
-  font-size: 14px;
-  margin-bottom: 28px;
-}
-
-/* ── GRID LAYOUTS ── */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-.grid-full { display: grid; grid-template-columns: 1fr; gap: 20px; }
-
-@media (max-width: 900px) {
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
-}
-
-/* ── CARD ── */
-.card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: var(--shadow);
-}
-
-.card-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.card-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
-  display: flex; align-items: center; gap: 8px;
-}
-
-.card-title .dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--user-color);
-  display: inline-block;
-}
-
-.card-add-btn {
-  background: none; border: none;
-  color: var(--user-color);
-  font-size: 18px; line-height: 1;
-  cursor: pointer; padding: 2px 6px;
-  border-radius: 6px;
-  transition: background 0.15s;
-}
-.card-add-btn:hover { background: var(--purple-pale); }
-
-/* ── TASK ITEM ── */
-.task-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-}
-.task-item:last-child { border-bottom: none; }
-
-.task-check {
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  cursor: pointer; flex-shrink: 0; margin-top: 1px;
-  background: white;
-  transition: all 0.15s;
-  appearance: none; -webkit-appearance: none;
-}
-.task-check:checked {
-  background: var(--user-color);
-  border-color: var(--user-color);
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='white' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 10px;
-}
-
-.task-body { flex: 1; min-width: 0; }
-.task-text {
-  font-size: 14px; color: var(--ink2);
-  line-height: 1.4;
-}
-.task-text.done { text-decoration: line-through; color: var(--muted); }
-.task-meta {
-  display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap;
-}
-.task-badge {
-  font-size: 11px; padding: 2px 8px;
-  border-radius: 20px; font-weight: 500;
-}
-.badge-urgent { background: #FEE2E2; color: #DC2626; }
-.badge-today { background: var(--gold-pale); color: var(--gold); }
-.badge-week { background: var(--purple-pale); color: var(--purple); }
-.badge-waiting { background: #E0F2FE; color: #0369A1; }
-.badge-reach { background: #DCFCE7; color: #15803D; }
-.badge-radar { background: #F1F5F9; color: #64748B; }
-
-.task-del {
-  background: none; border: none;
-  color: var(--border); cursor: pointer;
-  font-size: 16px; padding: 2px;
-  transition: color 0.15s;
-}
-.task-del:hover { color: #EF4444; }
-
-.empty-state {
-  text-align: center;
-  padding: 24px 16px;
-  color: var(--muted);
-  font-size: 13px;
-}
-.empty-state .empty-icon { font-size: 28px; margin-bottom: 8px; }
-
-/* ── INLINE FORM ── */
-.inline-form {
-  display: flex; gap: 8px; margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--border);
-}
-.inline-form input, .inline-form select {
-  flex: 1;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  outline: none;
-  background: var(--bg);
-  color: var(--ink);
-}
-.inline-form input:focus, .inline-form select:focus {
-  border-color: var(--user-color);
-}
-.inline-form button {
-  background: var(--user-color);
-  color: white; border: none;
-  border-radius: 8px; padding: 8px 14px;
-  font-size: 13px; cursor: pointer;
-  white-space: nowrap;
-}
-
-/* ── MODAL ── */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1000; padding: 20px;
-  display: none;
-}
-.modal-overlay.open { display: flex; }
-
-.modal {
-  background: white;
-  border-radius: 20px;
-  padding: 28px;
-  width: 100%; max-width: 520px;
-  box-shadow: var(--shadow-md);
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 20px; font-weight: 600;
-  margin-bottom: 20px;
-  color: var(--ink);
-}
-
-.form-group { margin-bottom: 16px; }
-.form-group label {
-  display: block;
-  font-size: 12px; font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.05em;
-  margin-bottom: 6px;
-}
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  outline: none;
-  background: var(--bg);
-  color: var(--ink);
-  transition: border-color 0.15s;
-}
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus { border-color: var(--user-color); }
-.form-group textarea { resize: vertical; min-height: 80px; }
-
-.modal-btns {
-  display: flex; gap: 10px; justify-content: flex-end;
-  margin-top: 20px;
-}
-.btn-cancel {
-  background: none; border: 1px solid var(--border);
-  padding: 10px 20px; border-radius: 10px;
-  cursor: pointer; font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-}
-.btn-save {
-  background: var(--user-color);
-  color: white; border: none;
-  padding: 10px 22px; border-radius: 10px;
-  cursor: pointer; font-family: 'DM Sans', sans-serif;
-  font-size: 14px; font-weight: 600;
-}
-
-/* ── PROJECT CARD ── */
-.project-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px;
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-}
-
-.project-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--purple), var(--teal));
-}
-
-.project-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 16px; font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 6px;
-}
-
-.project-desc {
-  font-size: 13px; color: var(--muted);
-  margin-bottom: 12px;
-  line-height: 1.5;
-}
-
-.project-meta {
-  display: flex; gap: 8px; flex-wrap: wrap;
-  align-items: center; justify-content: space-between;
-}
-
-.status-badge {
-  font-size: 11px; padding: 3px 10px;
-  border-radius: 20px; font-weight: 600;
-}
-.status-active { background: #DCFCE7; color: #15803D; }
-.status-planning { background: var(--purple-pale); color: var(--purple); }
-.status-paused { background: var(--gold-pale); color: var(--gold); }
-.status-complete { background: var(--border); color: var(--muted); }
-
-.project-actions { display: flex; gap: 6px; }
-.icon-btn {
-  background: none; border: 1px solid var(--border);
-  border-radius: 7px; padding: 4px 8px;
-  cursor: pointer; font-size: 13px;
-  transition: background 0.15s;
-}
-.icon-btn:hover { background: var(--bg); }
-
-/* ── MEETING ── */
-.meeting-item {
-  padding: 14px;
-  border-radius: 12px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  margin-bottom: 10px;
-}
-
-.meeting-title {
-  font-weight: 600; font-size: 14px;
-  color: var(--ink); margin-bottom: 4px;
-}
-
-.meeting-meta {
-  font-size: 12px; color: var(--muted);
-  display: flex; gap: 12px; flex-wrap: wrap;
-}
-
-.meeting-notes {
-  font-size: 13px; color: var(--ink2);
-  margin-top: 8px; line-height: 1.5;
-  white-space: pre-wrap;
-}
-
-/* ── LESSON CARD ── */
-.lesson-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px;
-  box-shadow: var(--shadow);
-}
-
-.lesson-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 16px; font-weight: 600;
-  color: var(--ink); margin-bottom: 6px;
-}
-
-.lesson-desc {
-  font-size: 13px; color: var(--ink2);
-  line-height: 1.6;
-  margin-bottom: 12px;
-}
-
-.lesson-tags {
-  display: flex; gap: 6px; flex-wrap: wrap;
-  margin-bottom: 12px;
-}
-
-.lesson-tag {
-  font-size: 11px; padding: 3px 10px;
-  border-radius: 20px;
-  background: var(--teal-pale); color: var(--teal);
-  font-weight: 500;
-}
-
-.lesson-footer {
-  display: flex; align-items: center;
-  justify-content: space-between;
-  font-size: 12px; color: var(--muted);
-}
-
-/* ── LINK ITEM ── */
-.link-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  margin-bottom: 8px;
-  transition: background 0.15s;
-}
-.link-item:hover { background: var(--bg); }
-
-.link-icon {
-  width: 36px; height: 36px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, var(--purple-pale), var(--teal-pale));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-}
-
-.link-info { flex: 1; min-width: 0; }
-.link-name {
-  font-size: 14px; font-weight: 500;
-  color: var(--ink); margin-bottom: 2px;
-}
-.link-url {
-  font-size: 12px; color: var(--muted);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-.link-open {
-  background: none; border: 1px solid var(--border);
-  border-radius: 7px; padding: 5px 10px;
-  font-size: 12px; cursor: pointer;
-  color: var(--purple); font-weight: 500;
-  text-decoration: none;
-  display: inline-block;
-}
-
-/* ── QUIZ BANNER ── */
-.quiz-banner {
-  background: linear-gradient(135deg, #1C1033, #0F2D2A);
-  border-radius: 16px;
-  padding: 28px;
-  color: white;
-  display: flex; align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.quiz-banner h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 20px; font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.quiz-banner p {
-  font-size: 13px;
-  color: rgba(255,255,255,0.65);
-  max-width: 480px;
-  line-height: 1.6;
-}
-
-.quiz-btn {
-  background: linear-gradient(135deg, var(--purple), var(--teal));
-  color: white; border: none;
-  border-radius: 10px; padding: 12px 24px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px; font-weight: 600;
-  cursor: pointer; white-space: nowrap;
-  text-decoration: none;
-  display: inline-block;
-}
-
-/* ── CALENDAR ── */
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 2px;
-  margin-top: 12px;
-}
-
-.cal-day-header {
-  text-align: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  padding: 6px 0;
-}
-
-.cal-day {
-  min-height: 70px;
-  padding: 6px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--white);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.cal-day:hover { background: var(--purple-pale); }
-.cal-day.today { border-color: var(--user-color); background: var(--purple-pale); }
-.cal-day.other-month { opacity: 0.4; }
-
-.cal-day-num {
-  font-size: 12px; font-weight: 600;
-  color: var(--ink2);
-  margin-bottom: 4px;
-}
-
-.cal-day.today .cal-day-num {
-  color: var(--user-color);
-}
-
-.cal-event {
-  font-size: 10px;
-  padding: 1px 5px;
-  border-radius: 3px;
-  background: var(--purple);
-  color: white;
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.cal-event.teal { background: var(--teal); }
-
-.cal-nav {
-  display: flex; align-items: center; gap: 16px;
-}
-
-.cal-nav h3 {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px; min-width: 200px;
-  text-align: center;
-}
-
-.cal-nav-btn {
-  background: none; border: 1px solid var(--border);
-  border-radius: 8px; padding: 6px 12px;
-  cursor: pointer; font-size: 16px;
-}
-
-/* ── PRODUCTIVITY ── */
-.productivity-area {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: var(--shadow);
-}
-
-.prod-section { margin-bottom: 20px; }
-.prod-label {
-  font-size: 12px; font-weight: 600;
-  color: var(--muted); text-transform: uppercase;
-  letter-spacing: 0.05em; margin-bottom: 8px;
-}
-
-.prod-textarea {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  resize: vertical;
-  min-height: 80px;
-  outline: none;
-  background: var(--bg);
-  color: var(--ink);
-}
-.prod-textarea:focus { border-color: var(--user-color); }
-
-.prod-save-btn {
-  background: var(--user-color);
-  color: white; border: none;
-  border-radius: 10px; padding: 10px 24px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px; font-weight: 600;
-  cursor: pointer;
-}
-
-/* ── TODAY CALENDAR WIDGET ── */
-.today-events { }
-.today-event {
-  display: flex; gap: 12px; align-items: flex-start;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-}
-.today-event:last-child { border-bottom: none; }
-.event-time {
-  font-size: 12px; font-weight: 600;
-  color: var(--user-color); min-width: 50px;
-}
-.event-title { font-size: 13px; color: var(--ink2); }
-
-/* ── RECURRING ── */
-.freq-badge {
-  font-size: 11px; padding: 2px 8px;
-  border-radius: 20px; font-weight: 500;
-  background: var(--teal-pale); color: var(--teal);
-}
-
-/* ── SECTION DIVIDER ── */
-.section-label {
-  font-size: 11px; font-weight: 700;
-  color: var(--muted); text-transform: uppercase;
-  letter-spacing: 0.08em; margin: 24px 0 12px;
-  display: flex; align-items: center; gap: 10px;
-}
-.section-label::after {
-  content: ''; flex: 1; height: 1px;
-  background: var(--border);
-}
-
-/* ── COMMAND CENTER USER TOGGLE ── */
-.cc-user-toggle {
-  display: flex; gap: 0;
-  background: var(--border);
-  border-radius: 10px;
-  padding: 3px;
-  margin-bottom: 24px;
-  width: fit-content;
-}
-
-.cc-toggle-btn {
-  background: none; border: none;
-  padding: 8px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px; font-weight: 500;
-  color: var(--muted);
-  transition: all 0.15s;
-}
-
-.cc-toggle-btn.active {
-  background: var(--white);
-  color: var(--ink);
-  box-shadow: var(--shadow);
-}
-
-.command-view { display: none; }
-.command-view.active { display: block; }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 600px) {
-  .main-content { padding: 16px; }
-  .login-card { padding: 32px 24px; width: 100%; }
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  --sidebar-w: 220px;
+  --header-h: 56px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+
+/* LOGIN */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a0b3b 0%,#0a2420 60%,#1C1917 100%);}
+.lc{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:48px 40px;width:360px;}
+.lc-logo{text-align:center;margin-bottom:32px;}
+.lc-mark{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#7C3AED,#0F766E);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;margin:0 auto 14px;}
+.lc-logo h1{font-family:'Playfair Display',serif;font-size:20px;color:#fff;font-weight:600;}
+.lc-logo p{color:rgba(255,255,255,.5);font-size:12px;margin-top:4px;}
+.lf{margin-bottom:14px;}
+.lf label{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:6px;}
+.lf input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.lf input:focus{border-color:#A78BFA;}
+.lbtn{width:100%;background:linear-gradient(135deg,#7C3AED,#5B21B6);border:none;border-radius:10px;padding:13px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;}
+.lerr{color:#FC8181;font-size:13px;margin-top:10px;text-align:center;}
+
+/* APP SHELL */
+#app{display:none;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:linear-gradient(180deg,#1a0b3b 0%,#0d1f1c 100%);display:flex;flex-direction:column;z-index:200;}
+.sb-brand{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sb-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#0F766E);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:10px;}
+.sb-name{font-family:'Playfair Display',serif;font-size:14px;color:#fff;font-weight:600;line-height:1.2;}
+.sb-role{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;}
+
+.sb-nav{flex:1;overflow-y:auto;padding:12px 0;}
+.sb-section{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:12px 16px 6px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;color:rgba(255,255,255,.6);font-size:13px;font-weight:500;transition:all .15s;position:relative;border-radius:0;}
+.sb-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+.sb-item.active{background:rgba(255,255,255,.1);color:#fff;}
+.sb-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#A78BFA,#5EEAD4);border-radius:0 2px 2px 0;}
+.sb-icon{font-size:15px;width:20px;text-align:center;}
+.sb-badge{margin-left:auto;background:#EF4444;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px;min-width:18px;text-align:center;}
+
+.sb-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);}
+.sb-user{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.sb-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;}
+.sb-uname{font-size:13px;color:rgba(255,255,255,.8);font-weight:500;}
+.sb-logout{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px;color:rgba(255,255,255,.5);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.sb-logout:hover{background:rgba(255,255,255,.1);color:#fff;}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
+
+/* PAGE HEADER */
+.page-header{background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:var(--header-h);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.ph-left h1{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--ink);}
+.ph-date{font-size:12px;color:var(--muted);margin-top:1px;}
+.ph-right{display:flex;align-items:center;gap:10px;}
+.ph-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;color:var(--ink2);display:flex;align-items:center;gap:6px;}
+.ph-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* CONTENT AREA */
+.content{padding:24px 28px;flex:1;}
+
+/* TAB PANELS */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* VERSE BANNER */
+.verse-banner{background:linear-gradient(135deg,#1a0b3b,#0d1f1c);border-radius:14px;padding:16px 22px;margin-bottom:20px;display:flex;align-items:center;gap:16px;}
+.verse-icon{font-size:22px;}
+.verse-text{font-size:13px;color:rgba(255,255,255,.85);font-style:italic;line-height:1.6;flex:1;}
+.verse-ref{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;font-style:normal;}
+
+/* BIG GOAL BANNER */
+.goal-banner{background:linear-gradient(135deg,#B45309,#92400E);border-radius:14px;padding:16px 22px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.goal-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:4px;}
+.goal-text{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:#fff;}
+.goal-edit-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:7px 14px;color:#fff;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center;}
+.stat-num{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--accent);line-height:1;}
+.stat-label{font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* DASHBOARD GRID */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
+.dash-full{grid-column:1/-1;}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.card-title{font-weight:600;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.card-title .ct-icon{font-size:16px;}
+.card-add{background:none;border:none;color:var(--accent);font-size:20px;line-height:1;cursor:pointer;padding:0 4px;border-radius:5px;}
+.card-add:hover{background:rgba(124,58,237,.08);}
+
+/* TASK ROW */
+.t-row{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);}
+.t-row:last-child{border-bottom:none;}
+.t-chk{width:17px;height:17px;border-radius:50%;border:2px solid var(--border);cursor:pointer;flex-shrink:0;margin-top:2px;appearance:none;-webkit-appearance:none;transition:all .15s;}
+.t-chk:checked{background:var(--accent);border-color:var(--accent);background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 10 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='white' stroke-width='1.5' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:10px;}
+.t-body{flex:1;min-width:0;}
+.t-text{font-size:13px;color:var(--ink2);line-height:1.4;}
+.t-text.done{text-decoration:line-through;color:var(--muted);}
+.t-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.t-del{background:none;border:none;color:var(--border);cursor:pointer;font-size:16px;padding:0 2px;transition:color .15s;flex-shrink:0;}
+.t-del:hover{color:#EF4444;}
+.empty{text-align:center;padding:18px 12px;color:var(--muted);font-size:13px;}
+.empty-icon{font-size:24px;margin-bottom:6px;}
+
+/* INLINE ADD */
+.iadd{display:flex;gap:7px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);}
+.iadd input{flex:1;border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;background:var(--bg);}
+.iadd input:focus{border-color:var(--accent);}
+.iadd button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 13px;font-size:13px;cursor:pointer;}
+
+/* BADGE */
+.badge{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;display:inline-block;}
+.b-today{background:var(--gold-bg);color:var(--gold);}
+.b-week{background:#EDE9FE;color:#7C3AED;}
+.b-urgent{background:var(--red-bg);color:var(--red);}
+.b-green{background:var(--green-bg);color:var(--green);}
+.b-blue{background:var(--blue-bg);color:var(--blue);}
+.b-gray{background:#F1F5F9;color:#64748B;}
+.b-shared{background:#FEF9C3;color:#854D0E;}
+
+/* CALENDAR WIDGET */
+.cal-event-row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border);}
+.cal-event-row:last-child{border-bottom:none;}
+.cer-time{font-size:11px;font-weight:700;color:var(--accent);min-width:52px;}
+.cer-title{font-size:13px;color:var(--ink2);}
+.cer-who{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* PROJECT CARD */
+.proj-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative;overflow:hidden;}
+.proj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7C3AED,#0F766E);}
+.proj-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.proj-due{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.proj-task{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;color:var(--ink2);}
+.proj-task input[type=checkbox]{accent-color:var(--accent);}
+.proj-task.done-t span{text-decoration:line-through;color:var(--muted);}
+.proj-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.proj-progress{font-size:11px;color:var(--muted);}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;margin-top:6px;}
+.prog-fill{height:4px;background:linear-gradient(90deg,#7C3AED,#0F766E);border-radius:2px;transition:width .3s;}
+
+/* FULL CALENDAR */
+.cal-grid-wrap{overflow-x:auto;}
+.cal-nav{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.cal-nav h3{font-family:'Playfair Display',serif;font-size:18px;min-width:200px;text-align:center;}
+.cal-nav-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:15px;}
+.cal-month{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-dh{text-align:center;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;padding:5px 0;}
+.cal-day{min-height:80px;padding:6px;border:1px solid var(--border);border-radius:8px;background:var(--white);cursor:pointer;transition:background .15s;}
+.cal-day:hover{background:#F5F0FF;}
+.cal-day.today{border-color:var(--accent);background:#F5F0FF;}
+.cal-day.other{opacity:.4;}
+.cal-dn{font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:3px;}
+.cal-day.today .cal-dn{color:var(--accent);}
+.cal-ev{font-size:10px;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ev-mary{background:#0F766E;color:#fff;}
+.ev-rebecca{background:#7C3AED;color:#fff;}
+.ev-both{background:#B45309;color:#fff;}
+.ev-meeting{background:#1e40af;color:#fff;}
+
+/* MEETINGS */
+.mtg-item{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;}
+.mtg-title{font-weight:600;font-size:14px;color:var(--ink);margin-bottom:4px;}
+.mtg-meta{font-size:12px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;}
+.mtg-body{font-size:13px;color:var(--ink2);line-height:1.6;}
+.mtg-actions{margin-top:10px;padding:10px;background:var(--gold-bg);border-radius:8px;font-size:13px;}
+
+/* RECURRING */
+.rec-item{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;}
+.rec-hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;}
+.rec-name{font-weight:600;font-size:14px;color:var(--ink);}
+.rec-task{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);padding:3px 0;}
+
+/* MESSAGES / COMMS */
+.msg-item{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;position:relative;}
+.msg-from{font-weight:600;font-size:13px;color:var(--accent);margin-bottom:4px;}
+.msg-time{font-size:11px;color:var(--muted);}
+.msg-body{font-size:14px;color:var(--ink2);line-height:1.6;margin:8px 0;}
+.msg-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.msg-btn{border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.msg-save{background:var(--green-bg);color:var(--green);}
+.msg-dismiss{background:var(--border);color:var(--muted);}
+.msg-status{font-size:11px;color:var(--muted);margin-left:auto;}
+.msg-compose{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px;}
+.msg-compose textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;resize:vertical;min-height:80px;outline:none;background:var(--bg);}
+.msg-compose textarea:focus{border-color:var(--accent);}
+
+/* GOALS PAGE */
+.goal-item{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:grab;}
+.goal-item.featured-goal{border-color:var(--gold);background:var(--gold-bg);}
+.goal-drag{color:var(--muted);font-size:18px;user-select:none;}
+.goal-info{flex:1;}
+.goal-item-name{font-weight:600;font-size:14px;color:var(--ink);}
+.goal-item-notes{font-size:12px;color:var(--muted);margin-top:2px;}
+.goal-set-featured{background:var(--gold-bg);border:1px solid var(--gold);color:var(--gold);border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+/* RADAR */
+.radar-item{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;}
+.radar-name{font-weight:600;font-size:14px;color:var(--ink);margin-bottom:4px;}
+.radar-notes{font-size:13px;color:var(--muted);}
+
+/* LINKS */
+.link-row{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:10px;margin-bottom:7px;background:var(--white);}
+.link-ico{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#EDE9FE,#CCFBF1);display:flex;align-items:center;justify-content:center;font-size:15px;}
+.link-info{flex:1;min-width:0;}
+.link-name{font-size:13px;font-weight:500;color:var(--ink);}
+.link-url{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:500;padding:20px;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.modal h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;margin-bottom:20px;color:var(--ink);}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.fg input,.fg select,.fg textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;background:var(--bg);color:var(--ink);}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);}
+.fg textarea{resize:vertical;min-height:80px;}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.mbtns{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.btn-c{background:none;border:1px solid var(--border);padding:10px 20px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;}
+.btn-s{background:var(--accent);color:#fff;border:none;padding:10px 22px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;}
+
+/* SECTION DIVIDER */
+.sdiv{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:10px;margin:20px 0 12px;}
+.sdiv::after{content:'';flex:1;height:1px;background:var(--border);}
+
+@media(max-width:900px){
+  :root{--sidebar-w:0px;}
+  .sidebar{display:none;}
+  .stats-row{grid-template-columns:repeat(3,1fr);}
+  .dash-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
 <body>
 
-<!-- ═══ LOGIN SCREEN ═══ -->
+<!-- LOGIN -->
 <div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="monogram">MSA</div>
+  <div class="lc">
+    <div class="lc-logo">
+      <div class="lc-mark">MSA</div>
       <h1>Mentoring Success Academy</h1>
       <p>Co-Founder Organizer</p>
     </div>
-    <div class="login-field">
-      <label>Username</label>
-      <input type="text" id="login-user" placeholder="rebecca or mary" autocomplete="username">
-    </div>
-    <div class="login-field">
-      <label>Password</label>
-      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <button class="login-btn" onclick="doLogin()">Sign In</button>
-    <div class="login-error" id="login-error"></div>
+    <div class="lf"><label>Username</label><input id="li-user" type="text" placeholder="rebecca or mary" autocomplete="username"></div>
+    <div class="lf"><label>Password</label><input id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="lbtn" onclick="doLogin()">Sign In</button>
+    <div class="lerr" id="lerr"></div>
   </div>
 </div>
 
-<!-- ═══ MAIN APP ═══ -->
+<!-- APP -->
 <div id="app">
-  <!-- Header -->
-  <div class="app-header">
-    <div class="app-brand">
-      <div class="logo-mark">MSA</div>
-      <div>
-        <h1>MSA Organizer</h1>
-      </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-mark">MSA</div>
+      <div class="sb-name">Mentoring Success<br>Academy</div>
+      <div class="sb-role">Co-Founder Portal</div>
     </div>
-    <div class="header-right">
-      <div class="user-pill">
-        <div class="user-avatar" id="header-avatar">MW</div>
-        <span id="header-name">Mary Wardlaw</span>
+    <div class="sb-nav">
+      <div class="sb-section">My Workspace</div>
+      <div class="sb-item active" data-tab="command" onclick="nav('command')"><span class="sb-icon">🎯</span>Command Center</div>
+      <div class="sb-item" data-tab="productivity" onclick="nav('productivity')"><span class="sb-icon">⚡</span>Daily Productivity</div>
+      <div class="sb-item" data-tab="projects" onclick="nav('projects')"><span class="sb-icon">🚀</span>Projects</div>
+      <div class="sb-item" data-tab="recurring" onclick="nav('recurring')"><span class="sb-icon">🔄</span>Recurring Tasks</div>
+      <div class="sb-item" data-tab="goals" onclick="nav('goals')"><span class="sb-icon">🏆</span>Goals</div>
+      <div class="sb-section">Shared</div>
+      <div class="sb-item" data-tab="calendar" onclick="nav('calendar')"><span class="sb-icon">📅</span>Calendar</div>
+      <div class="sb-item" data-tab="meetings" onclick="nav('meetings')"><span class="sb-icon">💬</span>Meetings</div>
+      <div class="sb-item" data-tab="comms" onclick="nav('comms')"><span class="sb-icon">✉️</span>Communications<span class="sb-badge" id="msg-badge" style="display:none">0</span></div>
+      <div class="sb-section">Resources</div>
+      <div class="sb-item" data-tab="lessons" onclick="nav('lessons')"><span class="sb-icon">📚</span>Lesson Library</div>
+      <div class="sb-item" data-tab="links" onclick="nav('links')"><span class="sb-icon">🔗</span>Links & Tools</div>
+      <div class="sb-item" data-tab="settings" onclick="nav('settings')"><span class="sb-icon">⚙️</span>Settings</div>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sb-av">MW</div>
+        <div class="sb-uname" id="sb-nm">Mary Wardlaw</div>
       </div>
-      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+      <button class="sb-logout" onclick="doLogout()">Sign Out</button>
     </div>
   </div>
 
-  <!-- Nav -->
-  <div class="nav-tabs">
-    <div class="nav-tab active" data-tab="command" onclick="switchTab('command')">
-      <span class="tab-icon">🎯</span> Command Center
-    </div>
-    <div class="nav-tab" data-tab="productivity" onclick="switchTab('productivity')">
-      <span class="tab-icon">⚡</span> Daily Productivity
-    </div>
-    <div class="nav-tab" data-tab="projects" onclick="switchTab('projects')">
-      <span class="tab-icon">🚀</span> Projects
-    </div>
-    <div class="nav-tab" data-tab="calendar" onclick="switchTab('calendar')">
-      <span class="tab-icon">📅</span> Calendar
-    </div>
-    <div class="nav-tab" data-tab="meetings" onclick="switchTab('meetings')">
-      <span class="tab-icon">💬</span> Meetings
-    </div>
-    <div class="nav-tab" data-tab="recurring" onclick="switchTab('recurring')">
-      <span class="tab-icon">🔄</span> Recurring Tasks
-    </div>
-    <div class="nav-tab" data-tab="lessons" onclick="switchTab('lessons')">
-      <span class="tab-icon">📚</span> Lesson Library
-    </div>
-    <div class="nav-tab" data-tab="links" onclick="switchTab('links')">
-      <span class="tab-icon">🔗</span> Links & Tools
-    </div>
-  </div>
-
-  <!-- Main -->
-  <div class="main-content">
-
-    <!-- ── COMMAND CENTER ── -->
-    <div class="tab-panel active" id="panel-command">
-      <div class="page-title" id="cc-page-title">Command Center</div>
-      <div class="page-subtitle">Your personal dashboard — everything at a glance</div>
-
-      <!-- User Toggle -->
-      <div class="cc-user-toggle">
-        <button class="cc-toggle-btn active" id="cc-btn-self" onclick="switchCommandView('self')">
-          My View
-        </button>
-        <button class="cc-toggle-btn" id="cc-btn-other" onclick="switchCommandView('other')">
-          Partner's View
-        </button>
+  <!-- MAIN -->
+  <div class="main">
+    <div class="page-header">
+      <div class="ph-left">
+        <h1 id="ph-title">Command Center</h1>
+        <div class="ph-date" id="ph-date"></div>
       </div>
+      <div class="ph-right" id="ph-actions"></div>
+    </div>
 
-      <!-- My Command View -->
-      <div class="command-view active" id="cc-view-self">
-        <div class="grid-2">
+    <div class="content">
+
+      <!-- COMMAND CENTER -->
+      <div class="panel active" id="panel-command">
+        <div class="verse-banner">
+          <div class="verse-icon">✨</div>
+          <div>
+            <div class="verse-text" id="verse-text"></div>
+            <div class="verse-ref" id="verse-ref"></div>
+          </div>
+        </div>
+        <div class="goal-banner" id="goal-banner">
+          <div>
+            <div class="goal-label">🏆 Featured Goal</div>
+            <div class="goal-text" id="goal-banner-text">Set your big goal →</div>
+          </div>
+          <button class="goal-edit-btn" onclick="nav('goals')">Manage Goals</button>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-num" id="s-today">0</div><div class="stat-label">Today</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-week">0</div><div class="stat-label">This Week</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-reach">0</div><div class="stat-label">Reach Out</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-waiting">0</div><div class="stat-label">Waiting On</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-cal">0</div><div class="stat-label">On Calendar</div></div>
+          <div class="stat-card"><div class="stat-num" id="s-msgs">0</div><div class="stat-label">Messages</div></div>
+        </div>
+        <div class="dash-grid">
           <!-- Must Do Today -->
           <div class="card">
-            <div class="card-header">
-              <div class="card-title"><span class="dot"></span> Must Do Today</div>
-              <button class="card-add-btn" onclick="openTaskModal('today')">+</button>
-            </div>
-            <div id="tasks-today"></div>
-            <div class="inline-form">
-              <input type="text" id="quick-today" placeholder="Add today's task…" onkeydown="if(event.key==='Enter')quickAdd('today')">
-              <button onclick="quickAdd('today')">Add</button>
-            </div>
+            <div class="card-hdr"><div class="card-title"><span class="ct-icon">⚡</span>Must Do Today</div><button class="card-add" onclick="openTaskQ('today')">+</button></div>
+            <div id="cc-today"></div>
+            <div class="iadd"><input id="qi-today" placeholder="Add today's priority…" onkeydown="if(event.key==='Enter')qiAdd('today')"><button onclick="qiAdd('today')">Add</button></div>
           </div>
-
-          <!-- Must Do This Week -->
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title"><span class="dot"></span> Must Do This Week</div>
-              <button class="card-add-btn" onclick="openTaskModal('week')">+</button>
-            </div>
-            <div id="tasks-week"></div>
-            <div class="inline-form">
-              <input type="text" id="quick-week" placeholder="Add this week's task…" onkeydown="if(event.key==='Enter')quickAdd('week')">
-              <button onclick="quickAdd('week')">Add</button>
-            </div>
-          </div>
-
-          <!-- Reach Out -->
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title"><span class="dot" style="background:#15803D"></span> Reach Out</div>
-              <button class="card-add-btn" onclick="openTaskModal('reach')">+</button>
-            </div>
-            <div id="tasks-reach"></div>
-            <div class="inline-form">
-              <input type="text" id="quick-reach" placeholder="Someone to contact…" onkeydown="if(event.key==='Enter')quickAdd('reach')">
-              <button onclick="quickAdd('reach')">Add</button>
-            </div>
-          </div>
-
-          <!-- Waiting On -->
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title"><span class="dot" style="background:#0369A1"></span> Waiting On</div>
-              <button class="card-add-btn" onclick="openTaskModal('waiting')">+</button>
-            </div>
-            <div id="tasks-waiting"></div>
-            <div class="inline-form">
-              <input type="text" id="quick-waiting" placeholder="What are you waiting on…" onkeydown="if(event.key==='Enter')quickAdd('waiting')">
-              <button onclick="quickAdd('waiting')">Add</button>
-            </div>
-          </div>
-
-          <!-- Coming Due / On the Radar -->
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title"><span class="dot" style="background:#64748B"></span> On the Radar</div>
-              <button class="card-add-btn" onclick="openTaskModal('radar')">+</button>
-            </div>
-            <div id="tasks-radar"></div>
-            <div class="inline-form">
-              <input type="text" id="quick-radar" placeholder="Coming up soon…" onkeydown="if(event.key==='Enter')quickAdd('radar')">
-              <button onclick="quickAdd('radar')">Add</button>
-            </div>
-          </div>
-
           <!-- Today's Calendar -->
           <div class="card">
-            <div class="card-header">
-              <div class="card-title"><span class="dot" style="background:#7C3AED"></span> Today's Calendar</div>
-              <button class="card-add-btn" onclick="openEventModal()">+</button>
-            </div>
-            <div id="today-events-list">
-              <div class="empty-state">
-                <div class="empty-icon">📅</div>
-                <div>No events today</div>
-              </div>
-            </div>
+            <div class="card-hdr"><div class="card-title"><span class="ct-icon">📅</span>Today's Calendar</div><button class="card-add" onclick="openEventModal()">+</button></div>
+            <div id="cc-cal"></div>
           </div>
-        </div>
-
-        <!-- Projects Summary -->
-        <div class="section-label">Active Projects</div>
-        <div id="cc-projects-grid" class="grid-3"></div>
-      </div>
-
-      <!-- Partner Command View (read only) -->
-      <div class="command-view" id="cc-view-other">
-        <div class="page-subtitle" id="partner-view-label" style="margin-bottom:20px; font-style:italic;">Viewing your co-founder's command center</div>
-        <div class="grid-2">
+          <!-- Reach Out -->
           <div class="card">
-            <div class="card-header"><div class="card-title"><span class="dot"></span> Must Do Today</div></div>
-            <div id="partner-tasks-today"></div>
+            <div class="card-hdr"><div class="card-title"><span class="ct-icon">📞</span>Reach Out</div><button class="card-add" onclick="openTaskQ('reach')">+</button></div>
+            <div id="cc-reach"></div>
+            <div class="iadd"><input id="qi-reach" placeholder="Someone to contact…" onkeydown="if(event.key==='Enter')qiAdd('reach')"><button onclick="qiAdd('reach')">Add</button></div>
           </div>
+          <!-- Waiting On -->
           <div class="card">
-            <div class="card-header"><div class="card-title"><span class="dot"></span> Must Do This Week</div></div>
-            <div id="partner-tasks-week"></div>
+            <div class="card-hdr"><div class="card-title"><span class="ct-icon">⏳</span>Waiting On</div><button class="card-add" onclick="openTaskQ('waiting')">+</button></div>
+            <div id="cc-waiting"></div>
+            <div class="iadd"><input id="qi-waiting" placeholder="Waiting on…" onkeydown="if(event.key==='Enter')qiAdd('waiting')"><button onclick="qiAdd('waiting')">Add</button></div>
           </div>
+          <!-- Due This Week -->
           <div class="card">
-            <div class="card-header"><div class="card-title"><span class="dot" style="background:#15803D"></span> Reach Out</div></div>
-            <div id="partner-tasks-reach"></div>
+            <div class="card-hdr"><div class="card-title"><span class="ct-icon">📋</span>Due This Week</div><button class="card-add" onclick="openTaskQ('week')">+</button></div>
+            <div id="cc-week"></div>
+            <div class="iadd"><input id="qi-week" placeholder="Due this week…" onkeydown="if(event.key==='Enter')qiAdd('week')"><button onclick="qiAdd('week')">Add</button></div>
           </div>
+          <!-- Projects Snapshot -->
           <div class="card">
-            <div class="card-header"><div class="card-title"><span class="dot" style="background:#0369A1"></span> Waiting On</div></div>
-            <div id="partner-tasks-waiting"></div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div class="card-title"><span class="dot" style="background:#64748B"></span> On the Radar</div></div>
-            <div id="partner-tasks-radar"></div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div class="card-title"><span class="dot" style="background:#7C3AED"></span> Today's Calendar</div></div>
-            <div id="partner-today-events"></div>
+            <div class="card-hdr"><div class="card-title"><span class="ct-icon">🚀</span>Active Projects</div><button class="card-add" onclick="nav('projects')">→</button></div>
+            <div id="cc-projects"></div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ── PRODUCTIVITY ── -->
-    <div class="tab-panel" id="panel-productivity">
-      <div class="page-title">Daily Productivity</div>
-      <div class="page-subtitle" id="productivity-date"></div>
-      <div class="grid-2">
-        <div>
-          <div class="productivity-area">
-            <div class="prod-section">
-              <div class="prod-label">🌅 Morning Intentions</div>
-              <textarea class="prod-textarea" id="prod-intentions" placeholder="What do you want to accomplish today? What kind of leader will you be today?"></textarea>
+      <!-- DAILY PRODUCTIVITY -->
+      <div class="panel" id="panel-productivity">
+        <div class="dash-grid">
+          <div>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-hdr"><div class="card-title"><span class="ct-icon">📞</span>People I Must Reach Out to Today</div><button class="card-add" onclick="openTaskQ('reach')">+</button></div>
+              <div id="dp-reach"></div>
+              <div class="iadd"><input id="dpi-reach" placeholder="Name / contact…" onkeydown="if(event.key==='Enter')dpAdd('reach')"><button onclick="dpAdd('reach')">Add</button></div>
             </div>
-            <div class="prod-section">
-              <div class="prod-label">🏆 Wins Today</div>
-              <textarea class="prod-textarea" id="prod-wins" placeholder="What went well? Celebrate your progress…"></textarea>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-hdr"><div class="card-title"><span class="ct-icon">⏳</span>People I'm Waiting On</div><button class="card-add" onclick="openTaskQ('waiting')">+</button></div>
+              <div id="dp-waiting"></div>
+              <div class="iadd"><input id="dpi-waiting" placeholder="Waiting on…" onkeydown="if(event.key==='Enter')dpAdd('waiting')"><button onclick="dpAdd('waiting')">Add</button></div>
             </div>
-            <div class="prod-section">
-              <div class="prod-label">🚧 Blockers & Challenges</div>
-              <textarea class="prod-textarea" id="prod-blockers" placeholder="What's in the way? What do you need to resolve?"></textarea>
+            <div class="card">
+              <div class="card-hdr"><div class="card-title"><span class="ct-icon">⚡</span>Today's Priorities — Must Complete</div><button class="card-add" onclick="openTaskQ('today')">+</button></div>
+              <div id="dp-today"></div>
+              <div class="iadd"><input id="dpi-today" placeholder="Non-negotiable task…" onkeydown="if(event.key==='Enter')dpAdd('today')"><button onclick="dpAdd('today')">Add</button></div>
             </div>
-            <div class="prod-section">
-              <div class="prod-label">📓 Notes & Reflections</div>
-              <textarea class="prod-textarea" id="prod-notes" placeholder="Free space — notes, thoughts, insights…" style="min-height:120px;"></textarea>
-            </div>
-            <button class="prod-save-btn" onclick="saveProductivity()">Save Today's Entry</button>
           </div>
-        </div>
-        <div>
-          <div class="card" style="margin-bottom:20px;">
-            <div class="card-header">
-              <div class="card-title">🎯 Today's Focus</div>
+          <div>
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-hdr"><div class="card-title"><span class="ct-icon">📓</span>Notes & Reflections</div></div>
+              <textarea id="dp-notes" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;min-height:140px;outline:none;background:var(--bg);resize:vertical;" placeholder="Thoughts, insights, wins, blockers…"></textarea>
+              <button onclick="saveProductivity()" style="margin-top:10px;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Save Notes</button>
             </div>
-            <div id="prod-today-tasks"></div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">📅 Today's Schedule</div>
+            <div class="card">
+              <div class="card-hdr"><div class="card-title"><span class="ct-icon">📅</span>Today's Schedule</div></div>
+              <div id="dp-cal"></div>
             </div>
-            <div id="prod-today-schedule"></div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ── PROJECTS ── -->
-    <div class="tab-panel" id="panel-projects">
-      <div class="page-title" style="display:flex;align-items:center;justify-content:space-between;">
-        <span>Projects</span>
-        <button class="btn-save" onclick="openProjectModal()">+ New Project</button>
+      <!-- PROJECTS -->
+      <div class="panel" id="panel-projects">
+        <div class="sdiv">Active & Shared Projects</div>
+        <div class="dash-grid-3" id="proj-grid"></div>
+        <div class="sdiv">On the Radar — Future Projects</div>
+        <div id="radar-grid"></div>
       </div>
-      <div class="page-subtitle">Shared project board for Mentoring Success Academy</div>
-      <div class="grid-3" id="projects-grid"></div>
-    </div>
 
-    <!-- ── CALENDAR ── -->
-    <div class="tab-panel" id="panel-calendar">
-      <div class="page-title" style="display:flex;align-items:center;justify-content:space-between;">
-        <span>Calendar</span>
-        <button class="btn-save" onclick="openEventModal()">+ Add Event</button>
+      <!-- RECURRING TASKS -->
+      <div class="panel" id="panel-recurring">
+        <div id="rec-list"></div>
       </div>
-      <div class="page-subtitle">Shared MSA calendar</div>
-      <div class="card">
-        <div class="cal-nav">
-          <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
-          <h3 id="cal-month-label"></h3>
-          <button class="cal-nav-btn" onclick="calNav(1)">›</button>
+
+      <!-- GOALS -->
+      <div class="panel" id="panel-goals">
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-hdr"><div class="card-title">🏆 Featured / Big Goal</div></div>
+          <div id="featured-goal-display" style="padding:10px 0;font-size:14px;color:var(--muted);">No featured goal set. Add a goal below and mark it as featured.</div>
         </div>
-        <div class="cal-grid" id="cal-grid"></div>
-      </div>
-    </div>
-
-    <!-- ── MEETINGS ── -->
-    <div class="tab-panel" id="panel-meetings">
-      <div class="page-title" style="display:flex;align-items:center;justify-content:space-between;">
-        <span>Meetings</span>
-        <button class="btn-save" onclick="openMeetingModal()">+ Log Meeting</button>
-      </div>
-      <div class="page-subtitle">Meeting notes and action items</div>
-      <div id="meetings-list"></div>
-    </div>
-
-    <!-- ── RECURRING ── -->
-    <div class="tab-panel" id="panel-recurring">
-      <div class="page-title" style="display:flex;align-items:center;justify-content:space-between;">
-        <span>Recurring Tasks</span>
-        <button class="btn-save" onclick="openRecurringModal()">+ Add Task</button>
-      </div>
-      <div class="page-subtitle">Your repeating responsibilities — never let these slip</div>
-      <div id="recurring-list"></div>
-    </div>
-
-    <!-- ── LESSON LIBRARY ── -->
-    <div class="tab-panel" id="panel-lessons">
-      <div class="page-title" style="display:flex;align-items:center;justify-content:space-between;">
-        <span>Lesson Library</span>
-        <button class="btn-save" onclick="openLessonModal()">+ Add Lesson</button>
-      </div>
-      <div class="page-subtitle">Store and organize MSA lesson content</div>
-      <div class="grid-3" id="lessons-grid"></div>
-    </div>
-
-    <!-- ── LINKS & TOOLS ── -->
-    <div class="tab-panel" id="panel-links">
-      <div class="page-title">Links & Tools</div>
-      <div class="page-subtitle">Quick access to lessons, resources, and MSA tools</div>
-
-      <!-- Quiz Banner -->
-      <div class="quiz-banner">
-        <div>
-          <h2>🧠 Mentoring Personality & Voice Quiz</h2>
-          <p>Discover your unique mentoring style and communication strengths. Help your mentees understand how to learn from you — and how you can best support them.</p>
-        </div>
-        <div>
-          <div id="quiz-link-display">
-            <a href="#" id="quiz-link-anchor" class="quiz-btn" target="_blank">Take the Quiz →</a>
-          </div>
-          <button onclick="editQuizLink()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;margin-top:8px;display:block;width:100%;">Edit Quiz Link</button>
-        </div>
+        <div class="sdiv">All Goals</div>
+        <div id="goals-list"></div>
+        <div class="sdiv">On the Radar — Future Goals</div>
+        <div id="goal-radar-list"></div>
       </div>
 
-      <div class="grid-2">
-        <!-- Lesson Links -->
+      <!-- CALENDAR -->
+      <div class="panel" id="panel-calendar">
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">📖 Lesson Links</div>
-            <button class="card-add-btn" onclick="openLessonLinkModal()">+</button>
+          <div class="cal-nav">
+            <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
+            <h3 id="cal-month"></h3>
+            <button class="cal-nav-btn" onclick="calNav(1)">›</button>
           </div>
-          <div id="lesson-links-list"></div>
+          <div class="cal-grid-wrap">
+            <div class="cal-month" id="cal-grid"></div>
+          </div>
         </div>
-
-        <!-- Resource Links -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">🔗 Resource Links</div>
-            <button class="card-add-btn" onclick="openResourceLinkModal()">+</button>
-          </div>
-          <div id="resource-links-list"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;font-size:12px;align-items:center;">
+          <span style="background:#0F766E;color:#fff;padding:2px 10px;border-radius:20px;">Mary</span>
+          <span style="background:#7C3AED;color:#fff;padding:2px 10px;border-radius:20px;">Rebecca</span>
+          <span style="background:#B45309;color:#fff;padding:2px 10px;border-radius:20px;">Mary & Rebecca</span>
+          <span style="background:#1e40af;color:#fff;padding:2px 10px;border-radius:20px;">Meeting</span>
         </div>
       </div>
-    </div>
 
-  </div><!-- /main-content -->
+      <!-- MEETINGS -->
+      <div class="panel" id="panel-meetings">
+        <div id="meetings-list"></div>
+      </div>
+
+      <!-- COMMUNICATIONS -->
+      <div class="panel" id="panel-comms">
+        <div class="msg-compose">
+          <div class="card-hdr" style="margin-bottom:12px;"><div class="card-title">✉️ Send Message to <span id="comms-to-name">your co-founder</span></div></div>
+          <textarea id="msg-body" placeholder="Type your message…"></textarea>
+          <button onclick="sendMsg()" style="margin-top:10px;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Send Message</button>
+        </div>
+        <div class="sdiv">Inbox — Messages for Me</div>
+        <div id="msgs-inbox"></div>
+        <div class="sdiv">Sent — My Messages</div>
+        <div id="msgs-sent"></div>
+      </div>
+
+      <!-- LESSONS -->
+      <div class="panel" id="panel-lessons">
+        <div class="dash-grid-3" id="lessons-grid"></div>
+      </div>
+
+      <!-- LINKS -->
+      <div class="panel" id="panel-links">
+        <div style="background:linear-gradient(135deg,#1a0b3b,#0d1f1c);border-radius:14px;padding:24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:#fff;margin-bottom:6px;">🧠 Mentoring Personality & Voice Quiz</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.6);max-width:440px;line-height:1.6;">Discover your unique mentoring style — coming soon!</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <a href="#" id="quiz-anchor" target="_blank" style="background:linear-gradient(135deg,#7C3AED,#0F766E);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;text-align:center;">Take the Quiz →</a>
+            <button onclick="editQuizLink()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Edit Quiz Link</button>
+          </div>
+        </div>
+        <div class="dash-grid">
+          <div class="card"><div class="card-hdr"><div class="card-title">📖 Lesson Links</div><button class="card-add" onclick="openLessonLinkModal()">+</button></div><div id="ll-list"></div></div>
+          <div class="card"><div class="card-hdr"><div class="card-title">🔗 Resource Links</div><button class="card-add" onclick="openRLModal()">+</button></div><div id="rl-list"></div></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="panel" id="panel-settings">
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title">🔑 Change Password</div></div>
+            <div class="fg"><label>Current Password</label><input type="password" id="pw-cur"></div>
+            <div class="fg"><label>New Password</label><input type="password" id="pw-new"></div>
+            <div class="fg"><label>Confirm New Password</label><input type="password" id="pw-confirm"></div>
+            <button onclick="changePassword()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 22px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Update Password</button>
+            <div id="pw-msg" style="margin-top:10px;font-size:13px;"></div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title">ℹ️ About MSA Organizer</div></div>
+            <p style="font-size:13px;color:var(--muted);line-height:1.8;">
+              Built for Rebecca Munlyn &amp; Mary Wardlaw<br>
+              Mentoring Success Academy Co-Founders<br><br>
+              Each co-founder has their own private command center, daily productivity tracker, personal tasks, and projects. Calendar, meetings, and communications are shared.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
 </div><!-- /app -->
 
-<!-- ═══ MODALS ═══ -->
-<div class="modal-overlay" id="modal-task">
-  <div class="modal">
-    <h2 id="task-modal-title">Add Task</h2>
-    <div class="form-group">
-      <label>Task</label>
-      <input type="text" id="task-text" placeholder="Describe the task…">
-    </div>
-    <div class="form-group">
-      <label>Category</label>
-      <select id="task-category">
-        <option value="today">Must Do Today</option>
-        <option value="week">Must Do This Week</option>
-        <option value="reach">Reach Out</option>
-        <option value="waiting">Waiting On</option>
-        <option value="radar">On the Radar</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Due Date (optional)</label>
-      <input type="date" id="task-due">
-    </div>
-    <div class="form-group">
-      <label>Notes</label>
-      <textarea id="task-notes" placeholder="Any additional context…"></textarea>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-task')">Cancel</button>
-      <button class="btn-save" onclick="saveTask()">Save Task</button>
-    </div>
+<!-- MODALS -->
+<div class="overlay" id="m-task"><div class="modal">
+  <h2 id="m-task-title">Add Task</h2>
+  <div class="fg"><label>Task</label><input id="t-text" placeholder="Describe the task…"></div>
+  <div class="fg-row">
+    <div class="fg"><label>Category</label><select id="t-cat"><option value="today">Must Do Today</option><option value="week">Due This Week</option><option value="reach">Reach Out</option><option value="waiting">Waiting On</option></select></div>
+    <div class="fg"><label>Due Date</label><input type="date" id="t-due"></div>
   </div>
-</div>
+  <div class="fg"><label>Notes</label><textarea id="t-notes"></textarea></div>
+  <div class="mbtns"><button class="btn-c" onclick="cm('m-task')">Cancel</button><button class="btn-s" onclick="saveTask()">Save</button></div>
+</div></div>
 
-<div class="modal-overlay" id="modal-project">
-  <div class="modal">
-    <h2>New Project</h2>
-    <div class="form-group">
-      <label>Project Name</label>
-      <input type="text" id="proj-name" placeholder="Project name…">
-    </div>
-    <div class="form-group">
-      <label>Description</label>
-      <textarea id="proj-desc" placeholder="What is this project about?"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Status</label>
-      <select id="proj-status">
-        <option value="planning">Planning</option>
-        <option value="active">Active</option>
-        <option value="paused">Paused</option>
-        <option value="complete">Complete</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Lead</label>
-      <select id="proj-lead">
-        <option value="shared">Both / Shared</option>
-        <option value="rebecca">Rebecca</option>
-        <option value="mary">Mary</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Target Date</label>
-      <input type="date" id="proj-date">
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-project')">Cancel</button>
-      <button class="btn-save" onclick="saveProject()">Save Project</button>
-    </div>
+<div class="overlay" id="m-project"><div class="modal">
+  <h2>New Project</h2>
+  <div class="fg"><label>Project Name</label><input id="pj-name"></div>
+  <div class="fg-row">
+    <div class="fg"><label>Due Date</label><input type="date" id="pj-due"></div>
+    <div class="fg"><label>Visibility</label><select id="pj-shared"><option value="">Personal</option><option value="shared">Shared with co-founder</option></select></div>
   </div>
-</div>
+  <div class="fg"><label>Task 1</label><input id="pj-t1" placeholder="Move the needle…"></div>
+  <div class="fg"><label>Task 2</label><input id="pj-t2" placeholder=""></div>
+  <div class="fg"><label>Task 3</label><input id="pj-t3" placeholder=""></div>
+  <div class="fg"><label>Task 4</label><input id="pj-t4" placeholder=""></div>
+  <div class="fg"><label>Task 5</label><input id="pj-t5" placeholder=""></div>
+  <div class="mbtns"><button class="btn-c" onclick="cm('m-project')">Cancel</button><button class="btn-s" onclick="saveProject()">Save Project</button></div>
+</div></div>
 
-<div class="modal-overlay" id="modal-event">
-  <div class="modal">
-    <h2>Add Calendar Event</h2>
-    <div class="form-group">
-      <label>Event Title</label>
-      <input type="text" id="event-title" placeholder="Event name…">
-    </div>
-    <div class="form-group">
-      <label>Date</label>
-      <input type="date" id="event-date">
-    </div>
-    <div class="form-group">
-      <label>Start Time</label>
-      <input type="time" id="event-start">
-    </div>
-    <div class="form-group">
-      <label>End Time</label>
-      <input type="time" id="event-end">
-    </div>
-    <div class="form-group">
-      <label>Visibility</label>
-      <select id="event-visibility">
-        <option value="shared">Both co-founders</option>
-        <option value="personal">My calendar only</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Notes</label>
-      <textarea id="event-notes" placeholder="Location, dial-in info, agenda…"></textarea>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-event')">Cancel</button>
-      <button class="btn-save" onclick="saveEvent()">Save Event</button>
-    </div>
+<div class="overlay" id="m-event"><div class="modal">
+  <h2>Add Calendar Event</h2>
+  <div class="fg"><label>Event Title</label><input id="ev-title"></div>
+  <div class="fg-row">
+    <div class="fg"><label>Date</label><input type="date" id="ev-date"></div>
+    <div class="fg"><label>Who</label><select id="ev-who"><option value="mary">Mary</option><option value="rebecca">Rebecca</option><option value="both">Mary & Rebecca</option></select></div>
   </div>
-</div>
+  <div class="fg-row">
+    <div class="fg"><label>Start Time</label><input type="time" id="ev-start"></div>
+    <div class="fg"><label>End Time</label><input type="time" id="ev-end"></div>
+  </div>
+  <div class="fg"><label>Notes / Location</label><textarea id="ev-notes" style="min-height:60px;"></textarea></div>
+  <div class="mbtns"><button class="btn-c" onclick="cm('m-event')">Cancel</button><button class="btn-s" onclick="saveEvent()">Save Event</button></div>
+</div></div>
 
-<div class="modal-overlay" id="modal-meeting">
-  <div class="modal">
-    <h2>Log Meeting</h2>
-    <div class="form-group">
-      <label>Meeting Title</label>
-      <input type="text" id="mtg-title" placeholder="What was this meeting about?">
-    </div>
-    <div class="form-group">
-      <label>Date</label>
-      <input type="date" id="mtg-date">
-    </div>
-    <div class="form-group">
-      <label>Attendees</label>
-      <input type="text" id="mtg-attendees" placeholder="Who was there?">
-    </div>
-    <div class="form-group">
-      <label>Notes & Outcomes</label>
-      <textarea id="mtg-notes" placeholder="Key discussion points, decisions made…" style="min-height:120px;"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Action Items</label>
-      <textarea id="mtg-actions" placeholder="What follow-up is needed?"></textarea>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-meeting')">Cancel</button>
-      <button class="btn-save" onclick="saveMeeting()">Save Meeting</button>
-    </div>
+<div class="overlay" id="m-meeting"><div class="modal">
+  <h2>Log Meeting</h2>
+  <div class="fg"><label>Meeting Title</label><input id="mt-title"></div>
+  <div class="fg-row">
+    <div class="fg"><label>Date</label><input type="date" id="mt-date"></div>
+    <div class="fg"><label>Time</label><input type="time" id="mt-time"></div>
   </div>
-</div>
+  <div class="fg"><label>Attendees</label><input id="mt-att" placeholder="Who attended?"></div>
+  <div class="fg"><label>Notes & Outcomes</label><textarea id="mt-notes" style="min-height:100px;"></textarea></div>
+  <div class="fg"><label>Action Items</label><textarea id="mt-actions" style="min-height:60px;" placeholder="Follow-up steps…"></textarea></div>
+  <div class="mbtns"><button class="btn-c" onclick="cm('m-meeting')">Cancel</button><button class="btn-s" onclick="saveMeeting()">Save Meeting</button></div>
+</div></div>
 
-<div class="modal-overlay" id="modal-recurring">
-  <div class="modal">
-    <h2>Add Recurring Task</h2>
-    <div class="form-group">
-      <label>Task Name</label>
-      <input type="text" id="rec-name" placeholder="What needs to be done regularly?">
-    </div>
-    <div class="form-group">
-      <label>Frequency</label>
-      <select id="rec-freq">
-        <option value="daily">Daily</option>
-        <option value="weekly">Weekly</option>
-        <option value="biweekly">Bi-weekly</option>
-        <option value="monthly">Monthly</option>
-        <option value="quarterly">Quarterly</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Notes</label>
-      <textarea id="rec-notes" placeholder="Instructions or context…"></textarea>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-recurring')">Cancel</button>
-      <button class="btn-save" onclick="saveRecurring()">Save Task</button>
-    </div>
+<div class="overlay" id="m-recurring"><div class="modal">
+  <h2>Add Recurring Task</h2>
+  <div class="fg"><label>Task Name</label><input id="rc-name"></div>
+  <div class="fg-row">
+    <div class="fg"><label>Frequency</label><select id="rc-freq" onchange="toggleRecTasks()">
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="biweekly">Bi-Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="quarterly">Quarterly</option>
+      <option value="yearly">Yearly</option>
+    </select></div>
+    <div class="fg"><label>Visibility</label><select id="rc-shared"><option value="">Personal</option><option value="shared">Shared</option></select></div>
   </div>
-</div>
+  <div id="rc-date-row" class="fg" style="display:none;"><label>Next Due Date</label><input type="date" id="rc-due"></div>
+  <div id="rc-tasks-section" style="display:none;">
+    <div class="fg"><label>Action Item 1</label><input id="rc-t1"></div>
+    <div class="fg"><label>Action Item 2</label><input id="rc-t2"></div>
+    <div class="fg"><label>Action Item 3</label><input id="rc-t3"></div>
+    <div class="fg"><label>Action Item 4</label><input id="rc-t4"></div>
+    <div class="fg"><label>Action Item 5</label><input id="rc-t5"></div>
+  </div>
+  <div class="fg"><label>Notes</label><textarea id="rc-notes" style="min-height:60px;"></textarea></div>
+  <div class="mbtns"><button class="btn-c" onclick="cm('m-recurring')">Cancel</button><button class="btn-s" onclick="saveRecurring()">Save Task</button></div>
+</div></div>
 
-<div class="modal-overlay" id="modal-lesson">
-  <div class="modal">
-    <h2>Add Lesson</h2>
-    <div class="form-group">
-      <label>Lesson Title</label>
-      <input type="text" id="les-title" placeholder="Lesson name…">
-    </div>
-    <div class="form-group">
-      <label>Description / Summary</label>
-      <textarea id="les-desc" placeholder="What does this lesson cover?"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Lesson Content / Notes</label>
-      <textarea id="les-content" placeholder="Full lesson content, key points, activities…" style="min-height:120px;"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Tags (comma separated)</label>
-      <input type="text" id="les-tags" placeholder="e.g. communication, leadership, youth">
-    </div>
-    <div class="form-group">
-      <label>Link / URL (optional)</label>
-      <input type="url" id="les-url" placeholder="https://…">
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-lesson')">Cancel</button>
-      <button class="btn-save" onclick="saveLesson()">Save Lesson</button>
-    </div>
-  </div>
-</div>
+<div class="overlay" id="m-goal"><div class="modal">
+  <h2>Add Goal</h2>
+  <div class="fg"><label>Goal</label><input id="gl-name" placeholder="What do you want to achieve?"></div>
+  <div class="fg"><label>Notes / Details</label><textarea id="gl-notes" style="min-height:60px;"></textarea></div>
+  <div class="fg"><label>Type</label><select id="gl-type"><option value="goal">Active Goal</option><option value="radar">On the Radar</option></select></div>
+  <div class="mbtns"><button class="btn-c" onclick="cm('m-goal')">Cancel</button><button class="btn-s" onclick="saveGoal()">Save Goal</button></div>
+</div></div>
 
-<div class="modal-overlay" id="modal-lesson-link">
-  <div class="modal">
-    <h2>Add Lesson Link</h2>
-    <div class="form-group">
-      <label>Link Name</label>
-      <input type="text" id="ll-name" placeholder="Descriptive name…">
-    </div>
-    <div class="form-group">
-      <label>URL</label>
-      <input type="url" id="ll-url" placeholder="https://…">
-    </div>
-    <div class="form-group">
-      <label>Description (optional)</label>
-      <input type="text" id="ll-desc" placeholder="What's at this link?">
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-lesson-link')">Cancel</button>
-      <button class="btn-save" onclick="saveLessonLink()">Save Link</button>
-    </div>
-  </div>
-</div>
+<div class="overlay" id="m-lesson"><div class="modal">
+  <h2>Add Lesson</h2>
+  <div class="fg"><label>Title</label><input id="ls-title"></div>
+  <div class="fg"><label>Description</label><textarea id="ls-desc" style="min-height:60px;"></textarea></div>
+  <div class="fg"><label>Content / Notes</label><textarea id="ls-content" style="min-height:100px;"></textarea></div>
+  <div class="fg"><label>Tags (comma separated)</label><input id="ls-tags" placeholder="communication, leadership…"></div>
+  <div class="fg"><label>Link / URL</label><input type="url" id="ls-url"></div>
+  <div class="mbtns"><button class="btn-c" onclick="cm('m-lesson')">Cancel</button><button class="btn-s" onclick="saveLesson()">Save Lesson</button></div>
+</div></div>
 
-<div class="modal-overlay" id="modal-resource-link">
-  <div class="modal">
-    <h2>Add Resource Link</h2>
-    <div class="form-group">
-      <label>Link Name</label>
-      <input type="text" id="rl-name" placeholder="Descriptive name…">
-    </div>
-    <div class="form-group">
-      <label>URL</label>
-      <input type="url" id="rl-url" placeholder="https://…">
-    </div>
-    <div class="form-group">
-      <label>Category</label>
-      <select id="rl-category">
-        <option value="tool">Tool / App</option>
-        <option value="curriculum">Curriculum</option>
-        <option value="research">Research</option>
-        <option value="partner">Partner Org</option>
-        <option value="admin">Admin / Operations</option>
-        <option value="other">Other</option>
-      </select>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeModal('modal-resource-link')">Cancel</button>
-      <button class="btn-save" onclick="saveResourceLink()">Save Link</button>
-    </div>
-  </div>
-</div>
+<div class="overlay" id="m-lesson-link"><div class="modal">
+  <h2>Add Lesson Link</h2>
+  <div class="fg"><label>Name</label><input id="ll-name"></div>
+  <div class="fg"><label>URL</label><input type="url" id="ll-url"></div>
+  <div class="fg"><label>Description</label><input id="ll-desc"></div>
+  <div class="mbtns"><button class="btn-c" onclick="cm('m-lesson-link')">Cancel</button><button class="btn-s" onclick="saveLessonLink()">Save</button></div>
+</div></div>
+
+<div class="overlay" id="m-rl"><div class="modal">
+  <h2>Add Resource Link</h2>
+  <div class="fg"><label>Name</label><input id="rl-name"></div>
+  <div class="fg"><label>URL</label><input type="url" id="rl-url"></div>
+  <div class="fg"><label>Category</label><select id="rl-cat"><option value="tool">Tool / App</option><option value="curriculum">Curriculum</option><option value="research">Research</option><option value="partner">Partner Org</option><option value="admin">Admin</option><option value="other">Other</option></select></div>
+  <div class="mbtns"><button class="btn-c" onclick="cm('m-rl')">Cancel</button><button class="btn-s" onclick="saveRL()">Save</button></div>
+</div></div>
+
+<div class="overlay" id="m-proj-edit"><div class="modal">
+  <h2>Edit Project Task</h2>
+  <div class="fg"><label>Task</label><input id="pet-text"></div>
+  <input type="hidden" id="pet-proj-id">
+  <input type="hidden" id="pet-task-idx">
+  <div class="mbtns"><button class="btn-c" onclick="cm('m-proj-edit')">Cancel</button><button class="btn-s" onclick="saveProjTask()">Save</button></div>
+</div></div>
 
 <script>
-// ─── STATE ──────────────────────────────────────────────────────
-let currentUser = null;
-let tasks = [];
-let projects = [];
-let meetings = [];
-let recurring = [];
-let lessons = [];
-let links = { lessonLinks: [], quizLink: '', resourceLinks: [] };
-let calendarEvents = [];
-let calYear = new Date().getFullYear();
-let calMonth = new Date().getMonth();
-let taskModalCategory = 'today';
+// ─── STATE ────────────────────────────────────────────────────────
+let user = null;
+let tasks = [], projects = [], meetings = [], recurring = [], lessons = [], links = {lessonLinks:[],quizLink:'',resourceLinks:[]}, calEvents = [], messages = [], goals = {featured:null,goals:[],radar:[]};
+let calY = new Date().getFullYear(), calM = new Date().getMonth();
+const todayStr = () => new Date().toISOString().split('T')[0];
 
-// ─── UTILS ──────────────────────────────────────────────────────
-const today = () => new Date().toISOString().split('T')[0];
-
-function fmt(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+// ─── VERSES ───────────────────────────────────────────────────────
+const verses = [
+  {text:"For we are God's handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do.", ref:"Ephesians 2:10"},
+  {text:"Let us not become weary in doing good, for at the proper time we will reap a harvest if we do not give up.", ref:"Galatians 6:9"},
+  {text:"She is clothed with strength and dignity; she can laugh at the days to come.", ref:"Proverbs 31:25"},
+  {text:"Commit to the Lord whatever you do, and he will establish your plans.", ref:"Proverbs 16:3"},
+  {text:"In the same way, let your light shine before others, that they may see your good deeds and glorify your Father in heaven.", ref:"Matthew 5:16"},
+  {text:"Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.", ref:"Joshua 1:9"},
+  {text:"Whatever you do, work at it with all your heart, as working for the Lord, not for human masters.", ref:"Colossians 3:23"},
+  {text:"Start children off on the way they should go, and even when they are old they will not turn from it.", ref:"Proverbs 22:6"},
+  {text:"I can do all this through him who gives me strength.", ref:"Philippians 4:13"},
+  {text:"Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.", ref:"Proverbs 3:5-6"},
+  {text:"The Lord your God is with you, the Mighty Warrior who saves. He will take great delight in you.", ref:"Zephaniah 3:17"},
+  {text:"For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.", ref:"Jeremiah 29:11"},
+];
+function setVerse() {
+  const idx = (Math.floor(Date.now() / (1000 * 60 * 60 * 4))) % verses.length;
+  const v = verses[idx];
+  document.getElementById('verse-text').textContent = `"${v.text}"`;
+  document.getElementById('verse-ref').textContent = `— ${v.ref}`;
 }
 
-function fmtTime(t) {
-  if (!t) return '';
-  const [h, m] = t.split(':');
-  const hr = parseInt(h);
-  return `${hr > 12 ? hr - 12 : hr || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
-}
-
-// ─── AUTH ────────────────────────────────────────────────────────
+// ─── AUTH ─────────────────────────────────────────────────────────
 async function doLogin() {
-  const username = document.getElementById('login-user').value.trim();
-  const password = document.getElementById('login-pass').value;
-  const res = await fetch('/api/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
-  });
-  if (res.ok) {
-    const data = await res.json();
-    currentUser = data.user;
-    initApp();
+  const username = document.getElementById('li-user').value.trim();
+  const password = document.getElementById('li-pass').value;
+  const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username, password}) });
+  if (r.ok) {
+    const d = await r.json();
+    user = d.user;
+    startApp();
   } else {
-    document.getElementById('login-error').textContent = 'Invalid username or password.';
+    document.getElementById('lerr').textContent = 'Invalid username or password.';
   }
 }
+async function doLogout() { await fetch('/api/logout', {method:'POST'}); location.reload(); }
+document.getElementById('li-pass').onkeydown = e => { if(e.key==='Enter') doLogin(); };
 
-async function doLogout() {
-  await fetch('/api/logout', { method: 'POST' });
-  location.reload();
-}
-
-document.getElementById('login-pass').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLogin();
-});
-
-// ─── INIT ────────────────────────────────────────────────────────
-async function initApp() {
+// ─── STARTUP ──────────────────────────────────────────────────────
+async function startApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
-  // Set user color
-  document.documentElement.style.setProperty('--user-color', currentUser.color);
+  document.getElementById('sb-av').textContent = user.initials;
+  document.getElementById('sb-nm').textContent = user.name;
+  document.getElementById('sb-av').style.background = user.color;
+  document.documentElement.style.setProperty('--accent', user.color);
+  document.getElementById('ph-date').textContent = new Date().toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('comms-to-name').textContent = user.id === 'rebecca' ? 'Mary' : 'Rebecca';
 
-  document.getElementById('header-avatar').textContent = currentUser.initials;
-  document.getElementById('header-name').textContent = currentUser.name;
-  document.getElementById('cc-page-title').textContent = `${currentUser.name.split(' ')[0]}'s Command Center`;
-
-  const otherName = currentUser.id === 'rebecca' ? 'Mary' : 'Rebecca';
-  document.getElementById('cc-btn-self').textContent = 'My View';
-  document.getElementById('cc-btn-other').textContent = `${otherName}'s View`;
-  document.getElementById('partner-view-label').textContent = `Viewing ${otherName}'s command center (read-only)`;
-
-  document.getElementById('productivity-date').textContent =
-    new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-
+  setVerse();
   await loadAll();
   renderAll();
-
-  // check session
-  const me = await fetch('/api/me');
-  if (!me.ok) { location.reload(); }
+  setPageActions('command');
 }
 
 async function loadAll() {
-  const [t, p, m, r, l, lnk, cal] = await Promise.all([
-    fetch('/api/tasks').then(r => r.json()),
-    fetch('/api/projects').then(r => r.json()),
-    fetch('/api/meetings').then(r => r.json()),
-    fetch('/api/recurring').then(r => r.json()),
-    fetch('/api/lessons').then(r => r.json()),
-    fetch('/api/links').then(r => r.json()),
-    fetch('/api/calendar').then(r => r.json())
+  const [t, p, m, r, l, lk, c, ms, g] = await Promise.all([
+    fetch('/api/tasks').then(x=>x.json()),
+    fetch('/api/projects').then(x=>x.json()),
+    fetch('/api/meetings').then(x=>x.json()),
+    fetch('/api/recurring').then(x=>x.json()),
+    fetch('/api/lessons').then(x=>x.json()),
+    fetch('/api/links').then(x=>x.json()),
+    fetch('/api/calendar').then(x=>x.json()),
+    fetch('/api/messages').then(x=>x.json()),
+    fetch('/api/goals').then(x=>x.json()),
   ]);
-  tasks = t;
-  projects = p;
-  meetings = m;
-  recurring = r;
-  lessons = l;
-  links = lnk;
-  calendarEvents = cal;
-
-  // Load productivity
-  const prod = await fetch('/api/productivity').then(r => r.json());
-  document.getElementById('prod-intentions').value = (prod.intentions || []).join('\n');
-  document.getElementById('prod-wins').value = (prod.wins || []).join('\n');
-  document.getElementById('prod-blockers').value = (prod.blockers || []).join('\n');
-  document.getElementById('prod-notes').value = prod.notes || '';
+  tasks = t; projects = p; meetings = m; recurring = r; lessons = l; links = lk; calEvents = c; messages = ms; goals = g;
+  const prod = await fetch('/api/productivity').then(x=>x.json());
+  if (prod.notes) document.getElementById('dp-notes').value = prod.notes;
 }
 
 function renderAll() {
-  renderCommandCenter();
+  renderCommand();
+  renderProductivity();
   renderProjects();
+  renderRecurring();
+  renderGoals();
   renderCalendar();
   renderMeetings();
-  renderRecurring();
+  renderComms();
   renderLessons();
   renderLinks();
-  renderProductivity();
+  updateBadge();
 }
 
-// ─── TABS ────────────────────────────────────────────────────────
-function switchTab(tab) {
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-  document.getElementById(`panel-${tab}`).classList.add('active');
+// ─── NAV ──────────────────────────────────────────────────────────
+const tabTitles = { command:'Command Center', productivity:'Daily Productivity', projects:'Projects', recurring:'Recurring Tasks', goals:'Goals', calendar:'Calendar', meetings:'Meetings', comms:'Communications', lessons:'Lesson Library', links:'Links & Tools', settings:'Settings' };
+function nav(tab) {
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.toggle('active', i.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.getElementById('ph-title').textContent = tabTitles[tab] || tab;
+  setPageActions(tab);
 }
 
-// ─── COMMAND CENTER ──────────────────────────────────────────────
-function switchCommandView(view) {
-  document.getElementById('cc-view-self').classList.toggle('active', view === 'self');
-  document.getElementById('cc-view-other').classList.toggle('active', view === 'other');
-  document.getElementById('cc-btn-self').classList.toggle('active', view === 'self');
-  document.getElementById('cc-btn-other').classList.toggle('active', view === 'other');
-  if (view === 'other') renderPartnerView();
+function setPageActions(tab) {
+  const el = document.getElementById('ph-actions');
+  const btns = {
+    projects: `<button class="ph-btn primary" onclick="om('m-project')">+ New Project</button>`,
+    calendar: `<button class="ph-btn primary" onclick="openEventModal()">+ Add Event</button>`,
+    meetings: `<button class="ph-btn primary" onclick="om('m-meeting')">+ Log Meeting</button>`,
+    recurring: `<button class="ph-btn primary" onclick="om('m-recurring')">+ Add Task</button>`,
+    goals: `<button class="ph-btn primary" onclick="om('m-goal')">+ Add Goal</button>`,
+    lessons: `<button class="ph-btn primary" onclick="om('m-lesson')">+ Add Lesson</button>`,
+  };
+  el.innerHTML = btns[tab] || '';
 }
 
-function renderCommandCenter() {
-  const myTasks = tasks.filter(t => t.userId === currentUser.id);
-  const cats = ['today','week','reach','waiting','radar'];
-  cats.forEach(cat => renderTaskList(myTasks, cat, `tasks-${cat}`));
-  renderTodayEvents('today-events-list', currentUser.id);
+// ─── COMMAND CENTER ───────────────────────────────────────────────
+function renderCommand() {
+  const td = todayStr();
+  const myTasks = tasks.filter(t => !t.done);
+  const todayTasks = myTasks.filter(t => t.cat === 'today');
+  const weekTasks  = myTasks.filter(t => t.cat === 'week');
+  const reachTasks = myTasks.filter(t => t.cat === 'reach');
+  const waitTasks  = myTasks.filter(t => t.cat === 'waiting');
+
+  // Add daily recurring to today
+  const dailyRec = recurring.filter(r => r.frequency === 'daily');
+  // Add weekly/biweekly that are due this week
+  const weeklyRec = recurring.filter(r => ['weekly','biweekly','monthly'].includes(r.frequency) && isDueThisWeek(r));
+  // Add monthly/quarterly/yearly due within 30 days
+  const comingDueRec = recurring.filter(r => ['monthly','quarterly','yearly'].includes(r.frequency) && isDueWithin30Days(r));
+
+  // Stats
+  document.getElementById('s-today').textContent = todayTasks.length + dailyRec.length;
+  document.getElementById('s-week').textContent = weekTasks.length + weeklyRec.length;
+  document.getElementById('s-reach').textContent = reachTasks.length;
+  document.getElementById('s-waiting').textContent = waitTasks.length;
+  const todayEvts = calEvents.filter(e => e.date === td);
+  document.getElementById('s-cal').textContent = todayEvts.length;
+  const unreadMsgs = messages.filter(m => m.toId === user.id && !m.readAt && !m.dismissedByRecipient);
+  document.getElementById('s-msgs').textContent = unreadMsgs.length;
+
+  // Goal banner
+  if (goals.featured) {
+    const fg = goals.goals.find(g => g.id === goals.featured) || goals.radar.find(g => g.id === goals.featured);
+    document.getElementById('goal-banner-text').textContent = fg ? fg.name : 'Set your big goal →';
+  }
+
+  // Today tasks
+  renderTaskSection('cc-today', [...todayTasks, ...dailyRec.map(r => ({...r, text: r.name, isRec: true}))]);
+  // Reach
+  renderTaskSection('cc-reach', reachTasks);
+  // Waiting
+  renderTaskSection('cc-waiting', waitTasks);
+  // Week
+  renderTaskSection('cc-week', [...weekTasks, ...weeklyRec.map(r => ({...r, text: r.name, isRec: true})), ...comingDueRec.map(r => ({...r, text: r.name, isRec: true, badge: 'Coming Due'}))]);
+  // Calendar
+  renderTodayCal('cc-cal', td);
+  // Projects snapshot
   renderCCProjects();
 }
 
-function renderTaskList(taskArr, cat, elId) {
+function isDueThisWeek(rec) {
+  if (!rec.nextDue) return false;
+  const due = new Date(rec.nextDue + 'T00:00:00');
+  const now = new Date();
+  const weekEnd = new Date(now); weekEnd.setDate(weekEnd.getDate() + 7);
+  return due >= now && due <= weekEnd;
+}
+
+function isDueWithin30Days(rec) {
+  if (!rec.nextDue) return false;
+  const due = new Date(rec.nextDue + 'T00:00:00');
+  const now = new Date();
+  const in30 = new Date(now); in30.setDate(in30.getDate() + 30);
+  return due >= now && due <= in30;
+}
+
+function renderTaskSection(elId, taskArr) {
   const el = document.getElementById(elId);
   if (!el) return;
-  const filtered = taskArr.filter(t => t.category === cat && !t.done);
-  if (!filtered.length) {
-    el.innerHTML = `<div class="empty-state"><div>Nothing here yet</div></div>`;
-    return;
-  }
-  el.innerHTML = filtered.map(t => `
-    <div class="task-item">
-      <input type="checkbox" class="task-check" ${t.done?'checked':''} onchange="toggleTask('${t.id}', this.checked)">
-      <div class="task-body">
-        <div class="task-text ${t.done?'done':''}">${t.text}</div>
-        ${t.dueDate ? `<div class="task-meta"><span class="task-badge badge-today">Due ${fmt(t.dueDate)}</span></div>` : ''}
-        ${t.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:3px;">${t.notes}</div>` : ''}
+  if (!taskArr.length) { el.innerHTML = `<div class="empty"><div>All clear ✓</div></div>`; return; }
+  el.innerHTML = taskArr.map(t => `
+    <div class="t-row">
+      ${t.isRec ? '<span style="font-size:16px;color:var(--accent);flex-shrink:0;">🔄</span>' :
+        `<input type="checkbox" class="t-chk" ${t.done?'checked':''} onchange="toggleTask('${t.id}',this.checked)">`}
+      <div class="t-body">
+        <div class="t-text ${t.done?'done':''}">${t.text || t.name}${t.isRec ? `<span class="badge b-blue" style="margin-left:6px;">${t.frequency}</span>` : ''}</div>
+        ${t.dueDate ? `<div class="t-sub">Due ${fmt(t.dueDate)}</div>` : ''}
+        ${t.badge ? `<div class="t-sub">${t.badge}</div>` : ''}
       </div>
-      <button class="task-del" onclick="deleteTask('${t.id}')">×</button>
+      ${!t.isRec ? `<button class="t-del" onclick="delTask('${t.id}')">×</button>` : ''}
     </div>
   `).join('');
 }
 
-function renderTodayEvents(elId, userId) {
+function renderTodayCal(elId, td) {
   const el = document.getElementById(elId);
   if (!el) return;
-  const t = today();
-  const todayEvts = calendarEvents.filter(e =>
-    e.date === t && (e.visibility === 'shared' || e.createdBy === userId)
-  ).sort((a,b) => (a.startTime||'').localeCompare(b.startTime||''));
-
-  if (!todayEvts.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div><div>No events today</div></div>`;
-    return;
-  }
-  el.innerHTML = todayEvts.map(e => `
-    <div class="today-event">
-      <div class="event-time">${e.startTime ? fmtTime(e.startTime) : 'All day'}</div>
-      <div class="event-title">${e.title}${e.notes ? `<br><span style="font-size:11px;color:var(--muted)">${e.notes}</span>` : ''}</div>
+  const evts = calEvents.filter(e => e.date === td).sort((a,b) => (a.startTime||'').localeCompare(b.startTime||''));
+  if (!evts.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">📅</div><div>No events today</div></div>`; return; }
+  el.innerHTML = evts.map(e => `
+    <div class="cal-event-row">
+      <div class="cer-time">${e.startTime ? fmtT(e.startTime) : 'All day'}</div>
+      <div><div class="cer-title">${e.title}</div><div class="cer-who">${e.isMeeting ? '📋 Meeting' : whoLabel(e.who)}</div></div>
     </div>
   `).join('');
+}
+
+function whoLabel(w) {
+  if (w === 'both') return '👥 Mary & Rebecca';
+  if (w === 'mary') return '🟢 Mary';
+  if (w === 'rebecca') return '🟣 Rebecca';
+  return '';
 }
 
 function renderCCProjects() {
-  const activeProjects = projects.filter(p => p.status === 'active' || p.status === 'planning');
-  const el = document.getElementById('cc-projects-grid');
-  if (!activeProjects.length) {
-    el.innerHTML = `<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">🚀</div><div>No active projects yet</div></div></div>`;
-    return;
-  }
-  el.innerHTML = activeProjects.map(p => projectCardHTML(p)).join('');
+  const el = document.getElementById('cc-projects');
+  const active = projects.filter(p => p.status !== 'complete');
+  if (!active.length) { el.innerHTML = `<div class="empty"><div>No active projects</div></div>`; return; }
+  el.innerHTML = active.slice(0,3).map(p => {
+    const done = (p.tasks||[]).filter(t => t.done).length;
+    const total = (p.tasks||[]).length;
+    return `<div style="padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="font-weight:600;font-size:13px;color:var(--ink);">${p.name}</div>
+      <div style="font-size:11px;color:var(--muted);">${done}/${total} tasks · ${p.dueDate ? fmt(p.dueDate) : 'No due date'}</div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${total?Math.round(done/total*100):0}%"></div></div>
+    </div>`;
+  }).join('');
+  if (active.length > 3) el.innerHTML += `<div style="font-size:12px;color:var(--accent);margin-top:8px;cursor:pointer;" onclick="nav('projects')">View all ${active.length} projects →</div>`;
 }
 
-async function renderPartnerView() {
-  const otherId = currentUser.id === 'rebecca' ? 'mary' : 'rebecca';
-  const allTasks = await fetch('/api/tasks').then(r=>r.json()).catch(()=>tasks);
-  const partnerTasks = allTasks.filter(t => t.userId === otherId);
-  const cats = ['today','week','reach','waiting','radar'];
-  cats.forEach(cat => {
-    const el = document.getElementById(`partner-tasks-${cat}`);
-    if (!el) return;
-    const filtered = partnerTasks.filter(t => t.category === cat && !t.done);
-    if (!filtered.length) {
-      el.innerHTML = `<div class="empty-state"><div>Nothing here</div></div>`;
-      return;
-    }
-    el.innerHTML = filtered.map(t => `
-      <div class="task-item">
-        <div class="task-body">
-          <div class="task-text">${t.text}</div>
-          ${t.dueDate ? `<div class="task-meta"><span class="task-badge badge-today">Due ${fmt(t.dueDate)}</span></div>` : ''}
-        </div>
-      </div>
-    `).join('');
-  });
-  renderTodayEvents('partner-today-events', otherId);
+// ─── PRODUCTIVITY ─────────────────────────────────────────────────
+function renderProductivity() {
+  renderTaskSection('dp-reach', tasks.filter(t => t.cat === 'reach' && !t.done));
+  renderTaskSection('dp-waiting', tasks.filter(t => t.cat === 'waiting' && !t.done));
+  renderTaskSection('dp-today', tasks.filter(t => t.cat === 'today' && !t.done));
+  renderTodayCal('dp-cal', todayStr());
 }
 
-// ─── TASKS ───────────────────────────────────────────────────────
-function openTaskModal(cat) {
-  taskModalCategory = cat;
-  document.getElementById('task-category').value = cat;
-  document.getElementById('task-text').value = '';
-  document.getElementById('task-due').value = '';
-  document.getElementById('task-notes').value = '';
-  openModal('modal-task');
+async function saveProductivity() {
+  const notes = document.getElementById('dp-notes').value;
+  await fetch('/api/productivity', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({notes}) });
+  showToast('Notes saved!');
+}
+
+function dpAdd(cat) {
+  const input = document.getElementById('dpi-' + cat);
+  addTask(input.value.trim(), cat);
+  input.value = '';
+}
+
+// ─── TASKS ────────────────────────────────────────────────────────
+let taskQcat = 'today';
+function openTaskQ(cat) { taskQcat = cat; document.getElementById('t-cat').value = cat; document.getElementById('t-text').value=''; document.getElementById('t-due').value=''; document.getElementById('t-notes').value=''; om('m-task'); }
+
+async function addTask(text, cat) {
+  if (!text) return;
+  const t = await fetch('/api/tasks', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text, cat, done: false}) }).then(r=>r.json());
+  tasks.push(t);
+  renderCommand(); renderProductivity();
 }
 
 async function saveTask() {
-  const text = document.getElementById('task-text').value.trim();
+  const text = document.getElementById('t-text').value.trim();
   if (!text) return;
-  const task = await fetch('/api/tasks', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      text,
-      category: document.getElementById('task-category').value,
-      dueDate: document.getElementById('task-due').value,
-      notes: document.getElementById('task-notes').value,
-      done: false
-    })
-  }).then(r=>r.json());
-  tasks.push(task);
-  closeModal('modal-task');
-  renderCommandCenter();
-  renderProductivity();
+  await addTask(text, document.getElementById('t-cat').value);
+  cm('m-task');
 }
 
-async function quickAdd(cat) {
-  const input = document.getElementById(`quick-${cat}`);
-  const text = input.value.trim();
-  if (!text) return;
-  const task = await fetch('/api/tasks', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, category: cat, done: false })
-  }).then(r=>r.json());
-  tasks.push(task);
-  input.value = '';
-  renderCommandCenter();
-  renderProductivity();
-}
+async function qiAdd(cat) { const i = document.getElementById('qi-'+cat); await addTask(i.value.trim(), cat); i.value=''; }
 
 async function toggleTask(id, done) {
-  await fetch(`/api/tasks/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ done })
-  });
-  const t = tasks.find(t=>t.id===id);
-  if (t) t.done = done;
-  renderCommandCenter();
-  renderProductivity();
+  await fetch('/api/tasks/'+id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({done}) });
+  const t = tasks.find(t=>t.id===id); if(t) t.done = done;
+  renderCommand(); renderProductivity();
 }
 
-async function deleteTask(id) {
-  await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
-  tasks = tasks.filter(t => t.id !== id);
-  renderCommandCenter();
-  renderProductivity();
+async function delTask(id) {
+  await fetch('/api/tasks/'+id, {method:'DELETE'});
+  tasks = tasks.filter(t=>t.id!==id);
+  renderCommand(); renderProductivity();
 }
 
-// ─── PROJECTS ────────────────────────────────────────────────────
-function openProjectModal() {
-  document.getElementById('proj-name').value = '';
-  document.getElementById('proj-desc').value = '';
-  document.getElementById('proj-status').value = 'planning';
-  document.getElementById('proj-lead').value = 'shared';
-  document.getElementById('proj-date').value = '';
-  openModal('modal-project');
-}
-
+// ─── PROJECTS ─────────────────────────────────────────────────────
 async function saveProject() {
-  const name = document.getElementById('proj-name').value.trim();
+  const name = document.getElementById('pj-name').value.trim();
   if (!name) return;
-  const proj = await fetch('/api/projects', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name,
-      description: document.getElementById('proj-desc').value,
-      status: document.getElementById('proj-status').value,
-      lead: document.getElementById('proj-lead').value,
-      targetDate: document.getElementById('proj-date').value
-    })
-  }).then(r=>r.json());
-  projects.push(proj);
-  closeModal('modal-project');
-  renderProjects();
-  renderCCProjects();
+  const taskTexts = ['pj-t1','pj-t2','pj-t3','pj-t4','pj-t5'].map(id => document.getElementById(id).value.trim()).filter(Boolean);
+  const p = await fetch('/api/projects', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+    name,
+    dueDate: document.getElementById('pj-due').value,
+    shared: document.getElementById('pj-shared').value === 'shared',
+    status: 'active',
+    tasks: taskTexts.map((text,i) => ({id: Date.now()+i, text, done: false}))
+  })}).then(r=>r.json());
+  projects.push(p);
+  cm('m-project');
+  renderProjects(); renderCommand();
 }
 
-async function deleteProject(id) {
+async function toggleProjTask(projId, taskIdx, done) {
+  const p = projects.find(p=>p.id===projId);
+  if (!p) return;
+  p.tasks[taskIdx].done = done;
+  await fetch('/api/projects/'+projId, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p) });
+  renderProjects(); renderCommand();
+}
+
+async function delProject(id) {
   if (!confirm('Delete this project?')) return;
-  await fetch(`/api/projects/${id}`, { method: 'DELETE' });
-  projects = projects.filter(p => p.id !== id);
-  renderProjects();
-  renderCCProjects();
-}
-
-function projectCardHTML(p) {
-  const statusMap = { active: 'status-active', planning: 'status-planning', paused: 'status-paused', complete: 'status-complete' };
-  const leadLabel = p.lead === 'shared' ? '👥 Both' : p.lead === 'rebecca' ? '🔵 Rebecca' : '🟢 Mary';
-  return `
-    <div class="project-card">
-      <div class="project-name">${p.name}</div>
-      <div class="project-desc">${p.description || 'No description'}</div>
-      <div class="project-meta">
-        <span class="status-badge ${statusMap[p.status]||'status-planning'}">${p.status}</span>
-        <span style="font-size:12px;color:var(--muted)">${leadLabel}</span>
-        ${p.targetDate ? `<span style="font-size:12px;color:var(--muted)">📅 ${fmt(p.targetDate)}</span>` : ''}
-      </div>
-      <div class="project-actions" style="margin-top:12px;">
-        <button class="icon-btn" onclick="deleteProject('${p.id}')">🗑</button>
-      </div>
-    </div>
-  `;
+  await fetch('/api/projects/'+id, {method:'DELETE'});
+  projects = projects.filter(p=>p.id!==id);
+  renderProjects(); renderCommand();
 }
 
 function renderProjects() {
-  const el = document.getElementById('projects-grid');
-  if (!projects.length) {
-    el.innerHTML = `<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">🚀</div><div>No projects yet. Add your first!</div></div></div>`;
-    return;
-  }
-  el.innerHTML = projects.map(p => projectCardHTML(p)).join('');
-}
+  const active = projects.filter(p => p.status !== 'radar');
+  const radarP = projects.filter(p => p.status === 'radar');
 
-// ─── CALENDAR ────────────────────────────────────────────────────
-function openEventModal() {
-  document.getElementById('event-title').value = '';
-  document.getElementById('event-date').value = today();
-  document.getElementById('event-start').value = '';
-  document.getElementById('event-end').value = '';
-  document.getElementById('event-notes').value = '';
-  openModal('modal-event');
-}
+  const el = document.getElementById('proj-grid');
+  if (!active.length) { el.innerHTML = `<div style="grid-column:1/-1"><div class="empty"><div class="empty-icon">🚀</div><div>No projects yet</div></div></div>`; }
+  else el.innerHTML = active.map(p => projCardHTML(p)).join('');
 
-async function saveEvent() {
-  const title = document.getElementById('event-title').value.trim();
-  if (!title) return;
-  const evt = await fetch('/api/calendar', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      title,
-      date: document.getElementById('event-date').value,
-      startTime: document.getElementById('event-start').value,
-      endTime: document.getElementById('event-end').value,
-      notes: document.getElementById('event-notes').value,
-      visibility: document.getElementById('event-visibility').value
-    })
-  }).then(r=>r.json());
-  calendarEvents.push(evt);
-  closeModal('modal-event');
-  renderCalendar();
-  renderCommandCenter();
-  renderProductivity();
-}
-
-async function deleteEvent(id) {
-  await fetch(`/api/calendar/${id}`, { method: 'DELETE' });
-  calendarEvents = calendarEvents.filter(e => e.id !== id);
-  renderCalendar();
-  renderCommandCenter();
-}
-
-function calNav(dir) {
-  calMonth += dir;
-  if (calMonth > 11) { calMonth = 0; calYear++; }
-  if (calMonth < 0) { calMonth = 11; calYear--; }
-  renderCalendar();
-}
-
-function renderCalendar() {
-  const label = new Date(calYear, calMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  document.getElementById('cal-month-label').textContent = label;
-
-  const grid = document.getElementById('cal-grid');
-  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const headers = days.map(d => `<div class="cal-day-header">${d}</div>`).join('');
-
-  const firstDay = new Date(calYear, calMonth, 1).getDay();
-  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
-  const prevDays = new Date(calYear, calMonth, 0).getDate();
-  const todayStr = today();
-
-  let cells = '';
-
-  // Prev month padding
-  for (let i = firstDay - 1; i >= 0; i--) {
-    cells += `<div class="cal-day other-month"><div class="cal-day-num">${prevDays - i}</div></div>`;
-  }
-
-  // Current month
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isToday = dateStr === todayStr;
-    const dayEvents = calendarEvents.filter(e => e.date === dateStr);
-    const evtHTML = dayEvents.slice(0,3).map(e =>
-      `<div class="cal-event ${e.createdBy !== currentUser.id ? 'teal' : ''}" title="${e.title}">${e.title}</div>`
-    ).join('');
-    cells += `<div class="cal-day${isToday?' today':''}" onclick="openEventModalForDate('${dateStr}')">
-      <div class="cal-day-num">${d}</div>
-      ${evtHTML}
-    </div>`;
-  }
-
-  // Next month padding
-  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
-  let nextDay = 1;
-  for (let i = firstDay + daysInMonth; i < totalCells; i++, nextDay++) {
-    cells += `<div class="cal-day other-month"><div class="cal-day-num">${nextDay}</div></div>`;
-  }
-
-  grid.innerHTML = headers + cells;
-}
-
-function openEventModalForDate(dateStr) {
-  document.getElementById('event-title').value = '';
-  document.getElementById('event-date').value = dateStr;
-  document.getElementById('event-start').value = '';
-  document.getElementById('event-end').value = '';
-  document.getElementById('event-notes').value = '';
-  openModal('modal-event');
-}
-
-// ─── MEETINGS ────────────────────────────────────────────────────
-function openMeetingModal() {
-  document.getElementById('mtg-title').value = '';
-  document.getElementById('mtg-date').value = today();
-  document.getElementById('mtg-attendees').value = '';
-  document.getElementById('mtg-notes').value = '';
-  document.getElementById('mtg-actions').value = '';
-  openModal('modal-meeting');
-}
-
-async function saveMeeting() {
-  const title = document.getElementById('mtg-title').value.trim();
-  if (!title) return;
-  const mtg = await fetch('/api/meetings', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      title,
-      date: document.getElementById('mtg-date').value,
-      attendees: document.getElementById('mtg-attendees').value,
-      notes: document.getElementById('mtg-notes').value,
-      actionItems: document.getElementById('mtg-actions').value
-    })
-  }).then(r=>r.json());
-  meetings.unshift(mtg);
-  closeModal('modal-meeting');
-  renderMeetings();
-}
-
-async function deleteMeeting(id) {
-  await fetch(`/api/meetings/${id}`, { method: 'DELETE' });
-  meetings = meetings.filter(m => m.id !== id);
-  renderMeetings();
-}
-
-function renderMeetings() {
-  const el = document.getElementById('meetings-list');
-  if (!meetings.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">💬</div><div>No meetings logged yet</div></div>`;
-    return;
-  }
-  const sorted = [...meetings].sort((a,b) => b.date?.localeCompare(a.date||''));
-  el.innerHTML = sorted.map(m => `
-    <div class="meeting-item">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-        <div>
-          <div class="meeting-title">${m.title}</div>
-          <div class="meeting-meta">
-            <span>📅 ${fmt(m.date)}</span>
-            ${m.attendees ? `<span>👥 ${m.attendees}</span>` : ''}
-          </div>
-        </div>
-        <button class="task-del" onclick="deleteMeeting('${m.id}')">×</button>
+  const rel = document.getElementById('radar-grid');
+  if (!radarP.length) { rel.innerHTML = `<div class="empty"><div>No radar items yet</div></div>`; }
+  else rel.innerHTML = radarP.map(p => `
+    <div class="radar-item">
+      <div class="radar-name">${p.name}</div>
+      <div class="radar-notes">${p.notes||''}</div>
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <button onclick="activateProject('${p.id}')" style="background:var(--green-bg);color:var(--green);border:1px solid var(--green);border-radius:7px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;">Move to Active</button>
+        <button onclick="delProject('${p.id}')" style="background:none;border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">Delete</button>
       </div>
-      ${m.notes ? `<div class="meeting-notes">${m.notes}</div>` : ''}
-      ${m.actionItems ? `<div style="margin-top:8px;padding:8px 12px;background:var(--gold-pale);border-radius:8px;font-size:13px;"><strong>Action items:</strong> ${m.actionItems}</div>` : ''}
     </div>
   `).join('');
 }
 
-// ─── RECURRING ───────────────────────────────────────────────────
-function openRecurringModal() {
-  document.getElementById('rec-name').value = '';
-  document.getElementById('rec-freq').value = 'weekly';
-  document.getElementById('rec-notes').value = '';
-  openModal('modal-recurring');
+async function activateProject(id) {
+  const p = projects.find(p=>p.id===id); if(!p) return;
+  p.status = 'active';
+  await fetch('/api/projects/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(p)});
+  renderProjects();
+}
+
+function projCardHTML(p) {
+  const done = (p.tasks||[]).filter(t=>t.done).length;
+  const total = (p.tasks||[]).length;
+  const pct = total ? Math.round(done/total*100) : 0;
+  return `<div class="proj-card">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;">
+      <div class="proj-name">${p.name}</div>
+      <button onclick="delProject('${p.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 2px;flex-shrink:0;">×</button>
+    </div>
+    <div class="proj-due">📅 ${p.dueDate ? fmt(p.dueDate) : 'No due date'} ${p.shared ? '<span class="badge b-shared">Shared</span>' : ''}</div>
+    ${(p.tasks||[]).map((t,i) => `
+      <div class="proj-task ${t.done?'done-t':''}">
+        <input type="checkbox" ${t.done?'checked':''} onchange="toggleProjTask('${p.id}',${i},this.checked)">
+        <span>${t.text}</span>
+      </div>
+    `).join('')}
+    <div class="proj-footer">
+      <div>
+        <div class="proj-progress">${done}/${total} complete</div>
+        <div class="prog-bar" style="width:120px;"><div class="prog-fill" style="width:${pct}%"></div></div>
+      </div>
+      ${p.shared ? '<span class="badge b-shared">Shared</span>' : ''}
+    </div>
+  </div>`;
+}
+
+// ─── RECURRING ────────────────────────────────────────────────────
+function toggleRecTasks() {
+  const freq = document.getElementById('rc-freq').value;
+  const showTasks = ['monthly','quarterly','yearly'].includes(freq);
+  const showDate = ['monthly','quarterly','yearly','weekly','biweekly'].includes(freq);
+  document.getElementById('rc-tasks-section').style.display = showTasks ? 'block' : 'none';
+  document.getElementById('rc-date-row').style.display = showDate ? 'block' : 'none';
 }
 
 async function saveRecurring() {
-  const name = document.getElementById('rec-name').value.trim();
+  const name = document.getElementById('rc-name').value.trim();
   if (!name) return;
-  const task = await fetch('/api/recurring', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name,
-      frequency: document.getElementById('rec-freq').value,
-      notes: document.getElementById('rec-notes').value
-    })
-  }).then(r=>r.json());
-  recurring.push(task);
-  closeModal('modal-recurring');
+  const freq = document.getElementById('rc-freq').value;
+  const actionItems = ['monthly','quarterly','yearly'].includes(freq)
+    ? ['rc-t1','rc-t2','rc-t3','rc-t4','rc-t5'].map(id=>document.getElementById(id).value.trim()).filter(Boolean)
+    : [];
+  const r = await fetch('/api/recurring', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+    name, frequency: freq,
+    nextDue: document.getElementById('rc-due').value || null,
+    shared: document.getElementById('rc-shared').value === 'shared',
+    notes: document.getElementById('rc-notes').value,
+    actionItems,
+    tasksDone: []
+  })}).then(r=>r.json());
+  recurring.push(r);
+  cm('m-recurring');
+  renderRecurring(); renderCommand();
+}
+
+async function delRecurring(id) {
+  await fetch('/api/recurring/'+id, {method:'DELETE'});
+  recurring = recurring.filter(r=>r.id!==id);
   renderRecurring();
 }
 
-async function deleteRecurring(id) {
-  await fetch(`/api/recurring/${id}`, { method: 'DELETE' });
-  recurring = recurring.filter(r => r.id !== id);
+async function toggleRecTask(recId, idx, done) {
+  const r = recurring.find(r=>r.id===recId); if(!r) return;
+  if (!r.tasksDone) r.tasksDone = [];
+  if (done) r.tasksDone.push(idx); else r.tasksDone = r.tasksDone.filter(i=>i!==idx);
+  await fetch('/api/recurring/'+recId, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(r)});
   renderRecurring();
 }
+
+const freqOrder = ['daily','weekly','biweekly','monthly','quarterly','yearly'];
+const freqColors = {daily:'b-today',weekly:'b-green',biweekly:'b-blue',monthly:'b-week',quarterly:'b-blue',yearly:'b-urgent'};
 
 function renderRecurring() {
-  const el = document.getElementById('recurring-list');
-  if (!recurring.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔄</div><div>No recurring tasks yet</div></div>`;
-    return;
-  }
-  const freqOrder = ['daily','weekly','biweekly','monthly','quarterly'];
+  const el = document.getElementById('rec-list');
+  if (!recurring.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">🔄</div><div>No recurring tasks yet</div></div>`; return; }
   const sorted = [...recurring].sort((a,b) => freqOrder.indexOf(a.frequency) - freqOrder.indexOf(b.frequency));
   const grouped = {};
-  sorted.forEach(r => {
-    if (!grouped[r.frequency]) grouped[r.frequency] = [];
-    grouped[r.frequency].push(r);
-  });
+  sorted.forEach(r => { if(!grouped[r.frequency]) grouped[r.frequency]=[]; grouped[r.frequency].push(r); });
 
   el.innerHTML = Object.entries(grouped).map(([freq, items]) => `
-    <div class="section-label">${freq.charAt(0).toUpperCase()+freq.slice(1)}</div>
+    <div class="sdiv" style="margin-top:10px;">${freq.charAt(0).toUpperCase()+freq.slice(1)}</div>
     ${items.map(r => `
-      <div class="meeting-item" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-        <div>
-          <div class="meeting-title">${r.name}</div>
-          ${r.notes ? `<div style="font-size:13px;color:var(--muted);margin-top:4px;">${r.notes}</div>` : ''}
+      <div class="rec-item">
+        <div class="rec-hdr">
+          <div>
+            <div class="rec-name">${r.name} ${r.shared ? '<span class="badge b-shared">Shared</span>' : ''}</div>
+            ${r.nextDue ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;">Next due: ${fmt(r.nextDue)}</div>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge ${freqColors[r.frequency]||'b-gray'}">${freq}</span>
+            <button class="t-del" onclick="delRecurring('${r.id}')">×</button>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span class="freq-badge">${freq}</span>
-          <button class="task-del" onclick="deleteRecurring('${r.id}')">×</button>
-        </div>
+        ${r.notes ? `<div style="font-size:12px;color:var(--muted);margin-bottom:6px;">${r.notes}</div>` : ''}
+        ${(r.actionItems||[]).map((ai,i) => `
+          <div class="rec-task">
+            <input type="checkbox" ${(r.tasksDone||[]).includes(i)?'checked':''} onchange="toggleRecTask('${r.id}',${i},this.checked)" style="accent-color:var(--accent);">
+            <span ${(r.tasksDone||[]).includes(i)?'style="text-decoration:line-through;color:var(--muted)"':''}>${ai}</span>
+          </div>
+        `).join('')}
       </div>
     `).join('')}
   `).join('');
 }
 
-// ─── LESSONS ─────────────────────────────────────────────────────
-function openLessonModal() {
-  ['les-title','les-desc','les-content','les-tags','les-url'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  openModal('modal-lesson');
+// ─── GOALS ────────────────────────────────────────────────────────
+async function saveGoal() {
+  const name = document.getElementById('gl-name').value.trim();
+  if (!name) return;
+  const goal = { id: Date.now().toString(), name, notes: document.getElementById('gl-notes').value };
+  const type = document.getElementById('gl-type').value;
+  if (type === 'radar') goals.radar.push(goal);
+  else goals.goals.push(goal);
+  await fetch('/api/goals', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(goals)});
+  cm('m-goal');
+  renderGoals(); renderCommand();
 }
 
-async function saveLesson() {
-  const title = document.getElementById('les-title').value.trim();
+async function setFeaturedGoal(id) {
+  goals.featured = id;
+  await fetch('/api/goals', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(goals)});
+  renderGoals(); renderCommand();
+}
+
+async function delGoal(id, type) {
+  if (type === 'radar') goals.radar = goals.radar.filter(g=>g.id!==id);
+  else goals.goals = goals.goals.filter(g=>g.id!==id);
+  if (goals.featured === id) goals.featured = null;
+  await fetch('/api/goals', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(goals)});
+  renderGoals(); renderCommand();
+}
+
+function renderGoals() {
+  // Featured
+  const fd = document.getElementById('featured-goal-display');
+  if (goals.featured) {
+    const fg = goals.goals.find(g=>g.id===goals.featured) || goals.radar.find(g=>g.id===goals.featured);
+    if (fg) fd.innerHTML = `<div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--gold);margin-bottom:6px;">${fg.name}</div>${fg.notes ? `<div style="font-size:13px;color:var(--muted);">${fg.notes}</div>` : ''}`;
+    else fd.textContent = 'No featured goal set.';
+  } else fd.textContent = 'No featured goal set. Add a goal below and mark it as featured.';
+
+  // Goals list
+  const el = document.getElementById('goals-list');
+  if (!goals.goals.length) { el.innerHTML = `<div class="empty"><div>No goals yet</div></div>`; }
+  else el.innerHTML = goals.goals.map(g => `
+    <div class="goal-item ${goals.featured===g.id?'featured-goal':''}">
+      <div class="goal-info">
+        <div class="goal-item-name">${g.name} ${goals.featured===g.id ? '<span class="badge b-today">⭐ Featured</span>' : ''}</div>
+        ${g.notes ? `<div class="goal-item-notes">${g.notes}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        ${goals.featured!==g.id ? `<button class="goal-set-featured" onclick="setFeaturedGoal('${g.id}')">Set Featured</button>` : ''}
+        <button onclick="delGoal('${g.id}','goal')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;">×</button>
+      </div>
+    </div>
+  `).join('');
+
+  // Radar
+  const rel = document.getElementById('goal-radar-list');
+  if (!goals.radar.length) { rel.innerHTML = `<div class="empty"><div>No radar goals yet</div></div>`; }
+  else rel.innerHTML = goals.radar.map(g => `
+    <div class="goal-item">
+      <div class="goal-info">
+        <div class="goal-item-name">${g.name}</div>
+        ${g.notes ? `<div class="goal-item-notes">${g.notes}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="promoteGoal('${g.id}')" style="background:var(--green-bg);color:var(--green);border:1px solid var(--green);border-radius:7px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;">Move to Active</button>
+        <button onclick="delGoal('${g.id}','radar')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;">×</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function promoteGoal(id) {
+  const g = goals.radar.find(g=>g.id===id); if(!g) return;
+  goals.radar = goals.radar.filter(g=>g.id!==id);
+  goals.goals.push(g);
+  await fetch('/api/goals', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(goals)});
+  renderGoals();
+}
+
+// ─── CALENDAR ─────────────────────────────────────────────────────
+function openEventModal(dateStr) {
+  document.getElementById('ev-title').value='';
+  document.getElementById('ev-date').value = dateStr || todayStr();
+  document.getElementById('ev-start').value='';
+  document.getElementById('ev-end').value='';
+  document.getElementById('ev-notes').value='';
+  document.getElementById('ev-who').value = user.id;
+  om('m-event');
+}
+
+async function saveEvent() {
+  const title = document.getElementById('ev-title').value.trim();
   if (!title) return;
-  const lesson = await fetch('/api/lessons', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      title,
-      description: document.getElementById('les-desc').value,
-      content: document.getElementById('les-content').value,
-      tags: document.getElementById('les-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
-      url: document.getElementById('les-url').value
-    })
-  }).then(r=>r.json());
-  lessons.push(lesson);
-  closeModal('modal-lesson');
-  renderLessons();
+  const e = await fetch('/api/calendar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+    title,
+    date: document.getElementById('ev-date').value,
+    startTime: document.getElementById('ev-start').value,
+    endTime: document.getElementById('ev-end').value,
+    who: document.getElementById('ev-who').value,
+    notes: document.getElementById('ev-notes').value
+  })}).then(r=>r.json());
+  calEvents.push(e);
+  cm('m-event'); renderCalendar(); renderCommand(); renderProductivity();
 }
 
-async function deleteLesson(id) {
-  await fetch(`/api/lessons/${id}`, { method: 'DELETE' });
-  lessons = lessons.filter(l => l.id !== id);
+async function delEvent(id) {
+  await fetch('/api/calendar/'+id, {method:'DELETE'});
+  calEvents = calEvents.filter(e=>e.id!==id);
+  renderCalendar(); renderCommand();
+}
+
+function calNav(dir) {
+  calM += dir;
+  if (calM > 11) { calM=0; calY++; }
+  if (calM < 0) { calM=11; calY--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  document.getElementById('cal-month').textContent = new Date(calY, calM).toLocaleDateString('en-US', {month:'long',year:'numeric'});
+  const grid = document.getElementById('cal-grid');
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let html = days.map(d=>`<div class="cal-dh">${d}</div>`).join('');
+  const firstDay = new Date(calY, calM, 1).getDay();
+  const daysInMonth = new Date(calY, calM+1, 0).getDate();
+  const prev = new Date(calY, calM, 0).getDate();
+  const td = todayStr();
+  for (let i=firstDay-1; i>=0; i--) html += `<div class="cal-day other"><div class="cal-dn">${prev-i}</div></div>`;
+  for (let d=1; d<=daysInMonth; d++) {
+    const ds = `${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayEvts = calEvents.filter(e=>e.date===ds);
+    html += `<div class="cal-day${ds===td?' today':''}" onclick="openEventModal('${ds}')">
+      <div class="cal-dn">${d}</div>
+      ${dayEvts.slice(0,3).map(e=>`<div class="cal-ev ${e.isMeeting?'ev-meeting':'ev-'+e.who}" title="${e.title}">${e.title}</div>`).join('')}
+    </div>`;
+  }
+  const total = Math.ceil((firstDay+daysInMonth)/7)*7;
+  for (let i=firstDay+daysInMonth,nd=1; i<total; i++,nd++) html += `<div class="cal-day other"><div class="cal-dn">${nd}</div></div>`;
+  grid.innerHTML = html;
+}
+
+// ─── MEETINGS ─────────────────────────────────────────────────────
+async function saveMeeting() {
+  const title = document.getElementById('mt-title').value.trim();
+  if (!title) return;
+  const m = await fetch('/api/meetings', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+    title,
+    date: document.getElementById('mt-date').value,
+    time: document.getElementById('mt-time').value,
+    attendees: document.getElementById('mt-att').value,
+    notes: document.getElementById('mt-notes').value,
+    actionItems: document.getElementById('mt-actions').value
+  })}).then(r=>r.json());
+  meetings.unshift(m);
+  calEvents = await fetch('/api/calendar').then(r=>r.json());
+  cm('m-meeting'); renderMeetings(); renderCalendar(); renderCommand();
+}
+
+async function delMeeting(id) {
+  await fetch('/api/meetings/'+id, {method:'DELETE'});
+  meetings = meetings.filter(m=>m.id!==id);
+  calEvents = await fetch('/api/calendar').then(r=>r.json());
+  renderMeetings(); renderCalendar();
+}
+
+function renderMeetings() {
+  const el = document.getElementById('meetings-list');
+  if (!meetings.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">💬</div><div>No meetings yet</div></div>`; return; }
+  const sorted = [...meetings].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  el.innerHTML = sorted.map(m => `
+    <div class="mtg-item">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+        <div>
+          <div class="mtg-title">${m.title}</div>
+          <div class="mtg-meta">
+            <span>📅 ${fmt(m.date)}</span>
+            ${m.time ? `<span>🕐 ${fmtT(m.time)}</span>` : ''}
+            ${m.attendees ? `<span>👥 ${m.attendees}</span>` : ''}
+          </div>
+        </div>
+        <button class="t-del" onclick="delMeeting('${m.id}')">×</button>
+      </div>
+      ${m.notes ? `<div class="mtg-body">${m.notes}</div>` : ''}
+      ${m.actionItems ? `<div class="mtg-actions"><strong>Action Items:</strong> ${m.actionItems}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ─── MESSAGES ─────────────────────────────────────────────────────
+async function sendMsg() {
+  const body = document.getElementById('msg-body').value.trim();
+  if (!body) return;
+  const toId = user.id === 'rebecca' ? 'mary' : 'rebecca';
+  const m = await fetch('/api/messages', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({toId, body})}).then(r=>r.json());
+  messages.push(m);
+  document.getElementById('msg-body').value = '';
+  renderComms(); updateBadge();
+}
+
+async function markRead(id) {
+  await fetch('/api/messages/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({readAt: new Date().toISOString()})});
+  const m = messages.find(m=>m.id===id); if(m) m.readAt = new Date().toISOString();
+  renderComms(); updateBadge();
+}
+
+async function saveMsg(id) {
+  await fetch('/api/messages/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({savedByRecipient: true, readAt: new Date().toISOString()})});
+  const m = messages.find(m=>m.id===id); if(m) { m.savedByRecipient=true; m.readAt=new Date().toISOString(); }
+  renderComms(); updateBadge();
+}
+
+async function dismissMsg(id) {
+  const m = messages.find(m=>m.id===id); if(!m) return;
+  const isRecipient = m.toId === user.id;
+  const update = isRecipient ? {dismissedByRecipient: true} : {dismissedBySender: true};
+  await fetch('/api/messages/'+id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(update)});
+  if (isRecipient) m.dismissedByRecipient = true; else m.dismissedBySender = true;
+  renderComms(); updateBadge();
+}
+
+function updateBadge() {
+  const unread = messages.filter(m=>m.toId===user.id && !m.readAt && !m.dismissedByRecipient).length;
+  const badge = document.getElementById('msg-badge');
+  badge.textContent = unread;
+  badge.style.display = unread > 0 ? 'inline-block' : 'none';
+  document.getElementById('s-msgs').textContent = unread;
+}
+
+function fmtMsgTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+
+function renderComms() {
+  const inbox = messages.filter(m => m.toId === user.id && !m.dismissedByRecipient);
+  const sent = messages.filter(m => m.fromId === user.id && !m.dismissedBySender);
+  const otherName = user.id === 'rebecca' ? 'Mary' : 'Rebecca';
+
+  const inboxEl = document.getElementById('msgs-inbox');
+  if (!inbox.length) { inboxEl.innerHTML = `<div class="empty"><div>No messages yet</div></div>`; }
+  else inboxEl.innerHTML = inbox.sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).map(m => `
+    <div class="msg-item" ${!m.readAt?'style="border-left:3px solid var(--accent);"':''}>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div class="msg-from">${otherName}</div>
+        <div class="msg-time">${fmtMsgTime(m.createdAt)}</div>
+      </div>
+      <div class="msg-body">${m.body}</div>
+      <div class="msg-footer">
+        ${!m.readAt ? `<button class="msg-btn msg-save" onclick="markRead('${m.id}')">Mark Read</button>` : ''}
+        <button class="msg-btn msg-save" onclick="saveMsg('${m.id}')" ${m.savedByRecipient?'disabled style="opacity:.5"':''}>💾 ${m.savedByRecipient?'Saved':'Save'}</button>
+        <button class="msg-btn msg-dismiss" onclick="dismissMsg('${m.id}')">Dismiss</button>
+        <div class="msg-status">${m.savedByRecipient ? '✓ Saved' : ''} ${m.readAt ? '· Read' : '· Unread'}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const sentEl = document.getElementById('msgs-sent');
+  if (!sent.length) { sentEl.innerHTML = `<div class="empty"><div>No sent messages</div></div>`; }
+  else sentEl.innerHTML = sent.sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).map(m => `
+    <div class="msg-item" style="opacity:${m.dismissedBySender?.8:1}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div class="msg-from" style="color:var(--muted);">To ${otherName}</div>
+        <div class="msg-time">${fmtMsgTime(m.createdAt)}</div>
+      </div>
+      <div class="msg-body">${m.body}</div>
+      <div class="msg-footer">
+        <div class="msg-status">${m.readAt ? '✓ Read' : '○ Unread'} ${m.savedByRecipient ? '· 💾 Saved by recipient' : ''}</div>
+        <button class="msg-btn msg-dismiss" onclick="dismissMsg('${m.id}')">Dismiss</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── LESSONS ─────────────────────────────────────────────────────
+async function saveLesson() {
+  const title = document.getElementById('ls-title').value.trim();
+  if (!title) return;
+  const l = await fetch('/api/lessons', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+    title,
+    description: document.getElementById('ls-desc').value,
+    content: document.getElementById('ls-content').value,
+    tags: document.getElementById('ls-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    url: document.getElementById('ls-url').value
+  })}).then(r=>r.json());
+  lessons.push(l);
+  cm('m-lesson'); renderLessons();
+}
+
+async function delLesson(id) {
+  await fetch('/api/lessons/'+id, {method:'DELETE'});
+  lessons = lessons.filter(l=>l.id!==id);
   renderLessons();
 }
 
 function renderLessons() {
   const el = document.getElementById('lessons-grid');
-  if (!lessons.length) {
-    el.innerHTML = `<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">📚</div><div>No lessons added yet</div></div></div>`;
-    return;
-  }
+  if (!lessons.length) { el.innerHTML = `<div style="grid-column:1/-1"><div class="empty"><div class="empty-icon">📚</div><div>No lessons yet</div></div></div>`; return; }
   el.innerHTML = lessons.map(l => `
-    <div class="lesson-card">
-      <div class="lesson-title">${l.title}</div>
-      <div class="lesson-desc">${l.description || l.content?.substring(0,120) || 'No description'}</div>
-      ${l.tags?.length ? `<div class="lesson-tags">${l.tags.map(t=>`<span class="lesson-tag">${t}</span>`).join('')}</div>` : ''}
-      <div class="lesson-footer">
-        <span>Added ${fmt(l.createdAt?.split('T')[0])}</span>
+    <div class="card">
+      <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px;">${l.title}</div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.5;margin-bottom:10px;">${l.description||''}</div>
+      ${(l.tags||[]).length ? `<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;">${l.tags.map(t=>`<span class="badge b-green">${t}</span>`).join('')}</div>` : ''}
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:11px;color:var(--muted);">${fmt(l.createdAt?.split('T')[0])}</span>
         <div style="display:flex;gap:6px;">
-          ${l.url ? `<a href="${l.url}" target="_blank" class="link-open">Open →</a>` : ''}
-          <button class="task-del" onclick="deleteLesson('${l.id}')">×</button>
+          ${l.url ? `<a href="${l.url}" target="_blank" style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:12px;text-decoration:none;color:var(--accent);">Open →</a>` : ''}
+          <button onclick="delLesson('${l.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;">×</button>
         </div>
       </div>
     </div>
   `).join('');
 }
 
-// ─── LINKS ───────────────────────────────────────────────────────
+// ─── LINKS ────────────────────────────────────────────────────────
 async function editQuizLink() {
-  const url = prompt('Enter Quiz URL:', links.quizLink || '');
+  const url = prompt('Quiz URL:', links.quizLink||'');
   if (url === null) return;
   links.quizLink = url;
-  await fetch('/api/links', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(links)
-  });
+  await fetch('/api/links', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(links)});
   renderLinks();
 }
 
-function openLessonLinkModal() {
-  document.getElementById('ll-name').value = '';
-  document.getElementById('ll-url').value = '';
-  document.getElementById('ll-desc').value = '';
-  openModal('modal-lesson-link');
-}
-
+function openLessonLinkModal() { document.getElementById('ll-name').value=''; document.getElementById('ll-url').value=''; document.getElementById('ll-desc').value=''; om('m-lesson-link'); }
 async function saveLessonLink() {
   const name = document.getElementById('ll-name').value.trim();
   const url = document.getElementById('ll-url').value.trim();
-  if (!name || !url) return;
-  const link = await fetch('/api/links/lesson', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, url, description: document.getElementById('ll-desc').value })
-  }).then(r=>r.json());
-  links.lessonLinks.push(link);
-  closeModal('modal-lesson-link');
+  if (!name||!url) return;
+  const l = await fetch('/api/links/lesson', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name,url,description:document.getElementById('ll-desc').value})}).then(r=>r.json());
+  links.lessonLinks.push(l);
+  cm('m-lesson-link'); renderLinks();
+}
+async function delLessonLink(id) {
+  await fetch('/api/links/lesson/'+id, {method:'DELETE'});
+  links.lessonLinks = links.lessonLinks.filter(l=>l.id!==id);
   renderLinks();
 }
 
-async function deleteLessonLink(id) {
-  await fetch(`/api/links/lesson/${id}`, { method: 'DELETE' });
-  links.lessonLinks = links.lessonLinks.filter(l => l.id !== id);
-  renderLinks();
-}
-
-function openResourceLinkModal() {
-  document.getElementById('rl-name').value = '';
-  document.getElementById('rl-url').value = '';
-  openModal('modal-resource-link');
-}
-
-async function saveResourceLink() {
+function openRLModal() { document.getElementById('rl-name').value=''; document.getElementById('rl-url').value=''; om('m-rl'); }
+async function saveRL() {
   const name = document.getElementById('rl-name').value.trim();
   const url = document.getElementById('rl-url').value.trim();
-  if (!name || !url) return;
-  if (!links.resourceLinks) links.resourceLinks = [];
-  const link = { id: Date.now().toString(), name, url, category: document.getElementById('rl-category').value };
-  links.resourceLinks.push(link);
-  await fetch('/api/links', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(links)
-  });
-  closeModal('modal-resource-link');
+  if (!name||!url) return;
+  if (!links.resourceLinks) links.resourceLinks=[];
+  links.resourceLinks.push({id:Date.now().toString(),name,url,category:document.getElementById('rl-cat').value});
+  await fetch('/api/links', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(links)});
+  cm('m-rl'); renderLinks();
+}
+async function delRL(id) {
+  links.resourceLinks = links.resourceLinks.filter(l=>l.id!==id);
+  await fetch('/api/links', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(links)});
   renderLinks();
 }
 
-async function deleteResourceLink(id) {
-  links.resourceLinks = links.resourceLinks.filter(l => l.id !== id);
-  await fetch('/api/links', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(links)
-  });
-  renderLinks();
-}
-
-const catIcons = { tool:'🛠', curriculum:'📖', research:'🔬', partner:'🤝', admin:'📋', other:'🔗' };
+const catIco = {tool:'🛠',curriculum:'📖',research:'🔬',partner:'🤝',admin:'📋',other:'🔗'};
 
 function renderLinks() {
-  // Quiz link
-  const anchor = document.getElementById('quiz-link-anchor');
-  if (links.quizLink) {
-    anchor.href = links.quizLink;
-    anchor.textContent = 'Take the Quiz →';
-  } else {
-    anchor.href = '#';
-    anchor.textContent = 'Set Quiz Link →';
-  }
+  const qa = document.getElementById('quiz-anchor');
+  if (links.quizLink) { qa.href=links.quizLink; qa.textContent='Take the Quiz →'; }
+  else { qa.href='#'; qa.textContent='Set Quiz Link →'; }
 
-  // Lesson links
-  const llEl = document.getElementById('lesson-links-list');
-  if (!links.lessonLinks?.length) {
-    llEl.innerHTML = `<div class="empty-state"><div>No lesson links yet</div></div>`;
-  } else {
-    llEl.innerHTML = links.lessonLinks.map(l => `
-      <div class="link-item">
-        <div class="link-icon">📖</div>
-        <div class="link-info">
-          <div class="link-name">${l.name}</div>
-          <div class="link-url">${l.url}</div>
-        </div>
-        <a href="${l.url}" target="_blank" class="link-open">Open</a>
-        <button class="task-del" onclick="deleteLessonLink('${l.id}')">×</button>
-      </div>
-    `).join('');
-  }
+  const llEl = document.getElementById('ll-list');
+  if (!links.lessonLinks?.length) llEl.innerHTML=`<div class="empty"><div>No lesson links yet</div></div>`;
+  else llEl.innerHTML = links.lessonLinks.map(l=>`
+    <div class="link-row">
+      <div class="link-ico">📖</div>
+      <div class="link-info"><div class="link-name">${l.name}</div><div class="link-url">${l.url}</div></div>
+      <a href="${l.url}" target="_blank" style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:12px;text-decoration:none;color:var(--accent);">Open</a>
+      <button onclick="delLessonLink('${l.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;">×</button>
+    </div>
+  `).join('');
 
-  // Resource links
-  const rlEl = document.getElementById('resource-links-list');
-  if (!links.resourceLinks?.length) {
-    rlEl.innerHTML = `<div class="empty-state"><div>No resource links yet</div></div>`;
-  } else {
-    rlEl.innerHTML = links.resourceLinks.map(l => `
-      <div class="link-item">
-        <div class="link-icon">${catIcons[l.category]||'🔗'}</div>
-        <div class="link-info">
-          <div class="link-name">${l.name}</div>
-          <div class="link-url">${l.url}</div>
-        </div>
-        <a href="${l.url}" target="_blank" class="link-open">Open</a>
-        <button class="task-del" onclick="deleteResourceLink('${l.id}')">×</button>
-      </div>
-    `).join('');
-  }
+  const rlEl = document.getElementById('rl-list');
+  if (!links.resourceLinks?.length) rlEl.innerHTML=`<div class="empty"><div>No resource links yet</div></div>`;
+  else rlEl.innerHTML = links.resourceLinks.map(l=>`
+    <div class="link-row">
+      <div class="link-ico">${catIco[l.category]||'🔗'}</div>
+      <div class="link-info"><div class="link-name">${l.name}</div><div class="link-url">${l.url}</div></div>
+      <a href="${l.url}" target="_blank" style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:12px;text-decoration:none;color:var(--accent);">Open</a>
+      <button onclick="delRL('${l.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;">×</button>
+    </div>
+  `).join('');
 }
 
-// ─── PRODUCTIVITY ────────────────────────────────────────────────
-async function saveProductivity() {
-  const data = {
-    intentions: document.getElementById('prod-intentions').value.split('\n').filter(Boolean),
-    wins: document.getElementById('prod-wins').value.split('\n').filter(Boolean),
-    blockers: document.getElementById('prod-blockers').value.split('\n').filter(Boolean),
-    notes: document.getElementById('prod-notes').value
-  };
-  await fetch('/api/productivity', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-  alert('Saved!');
+// ─── SETTINGS ─────────────────────────────────────────────────────
+async function changePassword() {
+  const cur = document.getElementById('pw-cur').value;
+  const nw = document.getElementById('pw-new').value;
+  const conf = document.getElementById('pw-confirm').value;
+  const msg = document.getElementById('pw-msg');
+  if (nw !== conf) { msg.style.color='#DC2626'; msg.textContent='New passwords do not match.'; return; }
+  if (nw.length < 6) { msg.style.color='#DC2626'; msg.textContent='Password must be at least 6 characters.'; return; }
+  const r = await fetch('/api/change-password', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({currentPassword:cur,newPassword:nw})});
+  if (r.ok) { msg.style.color='#15803D'; msg.textContent='Password updated successfully!'; document.getElementById('pw-cur').value=''; document.getElementById('pw-new').value=''; document.getElementById('pw-confirm').value=''; }
+  else { msg.style.color='#DC2626'; msg.textContent='Current password is incorrect.'; }
 }
 
-function renderProductivity() {
-  // Today tasks sidebar
-  const el = document.getElementById('prod-today-tasks');
-  if (el) {
-    const todayTasks = tasks.filter(t => t.userId === currentUser.id && t.category === 'today' && !t.done);
-    if (!todayTasks.length) {
-      el.innerHTML = `<div class="empty-state"><div>No tasks for today</div></div>`;
-    } else {
-      el.innerHTML = todayTasks.map(t => `
-        <div class="task-item">
-          <input type="checkbox" class="task-check" onchange="toggleTask('${t.id}', this.checked)">
-          <div class="task-text">${t.text}</div>
-        </div>
-      `).join('');
-    }
-  }
+// ─── MODAL HELPERS ────────────────────────────────────────────────
+function om(id) { document.getElementById(id).classList.add('open'); }
+function cm(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); }));
 
-  const schEl = document.getElementById('prod-today-schedule');
-  if (schEl) renderTodayEvents('prod-today-schedule', currentUser.id);
+// ─── UTILS ────────────────────────────────────────────────────────
+function fmt(ds) { if(!ds) return ''; const d=new Date(ds+'T00:00:00'); return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+function fmtT(t) { if(!t) return ''; const [h,m]=t.split(':'); const hr=parseInt(h); return `${hr>12?hr-12:hr||12}:${m} ${hr>=12?'PM':'AM'}`; }
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText='position:fixed;bottom:24px;right:24px;background:#1C1917;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2500);
 }
 
-// ─── MODAL HELPERS ───────────────────────────────────────────────
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-}
-
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
-// Close on overlay click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.classList.remove('open');
-  });
-});
-
-// ─── CHECK SESSION ───────────────────────────────────────────────
+// ─── SESSION CHECK ────────────────────────────────────────────────
 fetch('/api/me').then(async r => {
-  if (r.ok) {
-    const user = await r.json();
-    currentUser = user;
-    initApp();
-  }
+  if (r.ok) { const u = await r.json(); user = u; startApp(); }
 });
 </script>
 </body>
