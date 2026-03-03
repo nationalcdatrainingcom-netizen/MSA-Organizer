@@ -108,7 +108,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
 /* MAIN */
 .main{margin-left:var(--sidebar-w);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 .ph{background:var(--header-bg);border-bottom:1px solid var(--gold-border);padding:0 24px;padding-top:env(safe-area-inset-top,0px);height:calc(var(--header-h) + env(safe-area-inset-top,0px));display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.ph-left h1{font-family:'Playfair Display',serif;font-size:19px;font-weight:600;color:var(--gold-dim);}
+.ph-left h1{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--text);}
 .ph-date{font-size:11px;color:var(--muted);margin-top:1px;}
 .ph-right{display:flex;align-items:center;gap:8px;}
 .ph-btn{background:none;border:1px solid var(--gold-border);border-radius:8px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;color:var(--text2);transition:all .15s;}
@@ -166,11 +166,19 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
 
 /* GRID */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.gfull{grid-column:1/-1;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
 .gfull{grid-column:1/-1;}
 
 /* CARD */
 .card{background:var(--card-bg);border:1px solid var(--gold-border);border-radius:var(--radius);padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.card-gold{background:linear-gradient(135deg,#fffdf5,#fdf8e8)!important;border-color:rgba(201,168,76,.4)!important;}
+.card-rose{background:linear-gradient(135deg,#fff5f5,#fdecea)!important;border-color:rgba(220,120,100,.25)!important;}
+.card-sage{background:linear-gradient(135deg,#f5fbf7,#eaf5ee)!important;border-color:rgba(100,180,120,.25)!important;}
+.card-sky{background:linear-gradient(135deg,#f5f9ff,#eaf2ff)!important;border-color:rgba(100,150,220,.25)!important;}
+.card-lavender{background:linear-gradient(135deg,#f8f5ff,#f0ebff)!important;border-color:rgba(150,100,220,.25)!important;}
+.card-peach{background:linear-gradient(135deg,#fff8f2,#feeee0)!important;border-color:rgba(220,150,80,.25)!important;}
+.card-slate{background:linear-gradient(135deg,#f6f7f9,#eef0f4)!important;border-color:rgba(100,120,150,.2)!important;}
 .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .card-title{font-weight:600;font-size:13px;color:var(--gold-dim);display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.05em;}
 .card-add{background:none;border:none;color:var(--gold);font-size:22px;line-height:1;cursor:pointer;padding:0 4px;border-radius:5px;transition:background .15s;}
@@ -341,17 +349,18 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
   :root{--sidebar-w:0px;}
   .sidebar{
     display:flex;
+    width:260px;
     transform:translateX(-100%);
     transition:transform .3s ease;
     z-index:400;
-    box-shadow:4px 0 24px rgba(0,0,0,.3);
+    box-shadow:4px 0 24px rgba(0,0,0,.5);
   }
   .sidebar.open{transform:translateX(0);}
-  .mob-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:399;}
+  .mob-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:399;}
   .mob-backdrop.open{display:block;}
   .stats-row{grid-template-columns:repeat(3,1fr);}
   .g2,.g3{grid-template-columns:1fr;}
-  .main{margin-left:0;}
+  .main{margin-left:0!important;}
   .mob-menu-btn{display:flex!important;}
 }
 @media(min-width:901px){
@@ -422,6 +431,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
     <!-- PAGE HEADER -->
     <div class="ph">
       <div class="ph-left">
+        <div style="font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;line-height:1;margin-bottom:3px;">MSA · Mentor Success Academy</div>
         <h1 id="ph-title">Command Center</h1>
         <div class="ph-date" id="ph-date"></div>
       </div>
@@ -456,33 +466,37 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
           <div class="stat-card" onclick="openNotifPanel()"><div class="stat-num" id="s-notif">0</div><div class="stat-label">Alerts</div></div>
         </div>
         <div class="g2">
-          <div class="card">
+          <div class="card card-gold">
             <div class="card-h"><div class="card-title">⚡ Must Do Today</div><button class="card-add" onclick="openTaskQ('today')">+</button></div>
             <div id="cc-today"></div>
             <div class="iadd"><input id="qi-today" placeholder="Add today's priority…" onkeydown="if(event.key==='Enter')qiAdd('today')"><button onclick="qiAdd('today')">Add</button></div>
           </div>
-          <div class="card">
+          <div class="card card-sky">
             <div class="card-h"><div class="card-title">📅 Today's Calendar</div><button class="card-add" onclick="openEventModal()">+</button></div>
             <div id="cc-cal"></div>
           </div>
-          <div class="card">
+          <div class="card card-sage">
             <div class="card-h"><div class="card-title">📞 Reach Out</div><button class="card-add" onclick="openTaskQ('reach')">+</button></div>
             <div id="cc-reach"></div>
             <div class="iadd"><input id="qi-reach" placeholder="Someone to contact…" onkeydown="if(event.key==='Enter')qiAdd('reach')"><button onclick="qiAdd('reach')">Add</button></div>
           </div>
-          <div class="card">
+          <div class="card card-peach">
             <div class="card-h"><div class="card-title">⏳ Waiting On</div><button class="card-add" onclick="openTaskQ('waiting')">+</button></div>
             <div id="cc-wait"></div>
             <div class="iadd"><input id="qi-wait" placeholder="Waiting on…" onkeydown="if(event.key==='Enter')qiAdd('waiting')"><button onclick="qiAdd('waiting')">Add</button></div>
           </div>
-          <div class="card">
+          <div class="card card-rose">
             <div class="card-h"><div class="card-title">📋 Due This Week</div><button class="card-add" onclick="openTaskQ('week')">+</button></div>
             <div id="cc-week"></div>
             <div class="iadd"><input id="qi-week" placeholder="Due this week…" onkeydown="if(event.key==='Enter')qiAdd('week')"><button onclick="qiAdd('week')">Add</button></div>
           </div>
-          <div class="card">
+          <div class="card card-slate">
             <div class="card-h"><div class="card-title">🚀 Active Projects</div><button class="card-add" onclick="nav('projects')">→</button></div>
             <div id="cc-projects"></div>
+          </div>
+          <div class="card card-lavender gfull">
+            <div class="card-h"><div class="card-title">✉️ Unread Messages</div><button class="card-add" onclick="nav('comms')">→</button></div>
+            <div id="cc-comms"></div>
           </div>
         </div>
         <!-- COMING UP -->
@@ -1026,6 +1040,11 @@ function nav(tab){
   document.getElementById('panel-'+tab).classList.add('active');
   document.getElementById('ph-title').textContent=TAB_TITLES[tab]||tab;
   setPageActions(tab);
+  // Close mobile sidebar if open
+  const sb=document.querySelector('.sidebar');
+  const bd=document.getElementById('mob-backdrop');
+  if(sb)sb.classList.remove('open');
+  if(bd)bd.classList.remove('open');
 }
 function setPageActions(tab){
   const el=document.getElementById('ph-actions');
@@ -1115,6 +1134,7 @@ function renderCommand(){
   renderTaskSection('cc-week',[...weekTasks,...weekRec.map(r=>({...r,text:r.name,isRec:true})),...comingDue.map(r=>({...r,text:r.name,isRec:true,dueSoon:true}))]);
   renderTodayCal('cc-cal',today);
   renderCCProjects();
+  renderCCComms();
   renderComingUp();
 }
 
@@ -1177,6 +1197,44 @@ function renderCCProjects(){
     </div>`;
   }).join('');
   if(active.length>3)el.innerHTML+=`<div style="font-size:12px;color:var(--gold);margin-top:8px;cursor:pointer;" onclick="nav('projects')">View all ${active.length} →</div>`;
+}
+
+// UNREAD COMMS on command center
+function renderCCComms(){
+  const el=document.getElementById('cc-comms');
+  if(!el)return;
+  const otherName=user.id==='rebecca'?'Rebecca':'Mary';
+  const senderName=user.id==='rebecca'?'Mary':'Rebecca';
+
+  // Unread received = messages to me, not read
+  const unreadInbox=messages.filter(m=>m.toId===user.id&&!m.readAt&&!m.dismissedByRecipient);
+  // Unread sent = messages I sent, not yet read by recipient
+  const unreadSent=messages.filter(m=>m.fromId===user.id&&!m.readAt&&!m.dismissedBySender);
+
+  if(!unreadInbox.length&&!unreadSent.length){
+    el.innerHTML=`<div class="empty">No unread messages</div>`;
+    return;
+  }
+  let html='';
+  if(unreadInbox.length){
+    html+=`<div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">📥 From ${senderName}</div>`;
+    html+=unreadInbox.slice(0,3).map(m=>`
+      <div style="padding:8px 10px;background:rgba(66,153,225,0.07);border:1px solid rgba(66,153,225,0.2);border-radius:8px;margin-bottom:6px;cursor:pointer;" onclick="nav('comms')">
+        <div style="font-size:12px;color:var(--text);line-height:1.5;">${m.body.length>80?m.body.slice(0,80)+'…':m.body}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">${fmtAgo(m.createdAt)}</div>
+      </div>`).join('');
+    if(unreadInbox.length>3)html+=`<div style="font-size:11px;color:var(--blue);cursor:pointer;margin-bottom:8px;" onclick="nav('comms')">+${unreadInbox.length-3} more →</div>`;
+  }
+  if(unreadSent.length){
+    html+=`<div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;margin-top:${unreadInbox.length?'10px':'0'};">📤 Sent — awaiting read</div>`;
+    html+=unreadSent.slice(0,2).map(m=>`
+      <div style="padding:8px 10px;background:rgba(0,0,0,0.03);border:1px solid var(--border2);border-radius:8px;margin-bottom:6px;cursor:pointer;" onclick="nav('comms')">
+        <div style="font-size:12px;color:var(--muted2);line-height:1.5;">${m.body.length>80?m.body.slice(0,80)+'…':m.body}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">${fmtAgo(m.createdAt)}</div>
+      </div>`).join('');
+    if(unreadSent.length>2)html+=`<div style="font-size:11px;color:var(--muted);cursor:pointer;" onclick="nav('comms')">+${unreadSent.length-2} more →</div>`;
+  }
+  el.innerHTML=html;
 }
 
 // COMING UP — next 30 days of calendar events + recurring meetings
@@ -1576,7 +1634,7 @@ async function sendMsg(){
   // Re-fetch all messages so sent shows up correctly
   messages=await fetch('/api/messages').then(r=>r.json());
   notifications=await fetch('/api/notifications').then(r=>r.json());
-  renderComms();updateNotifBadge();toast('Message sent!');
+  renderComms();renderCCComms();updateNotifBadge();toast('Message sent!');
 }
 async function markRead(id){await fetch('/api/messages/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({readAt:new Date().toISOString()})});const m=messages.find(m=>m.id===id);if(m)m.readAt=new Date().toISOString();renderComms();updateNotifBadge();}
 async function saveMsg(id){await fetch('/api/messages/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({savedByRecipient:true,readAt:new Date().toISOString()})});const m=messages.find(m=>m.id===id);if(m){m.savedByRecipient=true;m.readAt=new Date().toISOString();}renderComms();updateNotifBadge();}
@@ -1882,12 +1940,6 @@ function openMobSidebar(){
 function closeMobSidebar(){
   document.querySelector('.sidebar').classList.remove('open');
   document.getElementById('mob-backdrop').classList.remove('open');
-}
-// Close sidebar when a nav item is tapped on mobile
-const origNav = nav;
-function nav(tab){
-  origNav(tab);
-  closeMobSidebar();
 }
 
 // ═══ SESSION CHECK ════════════════════════════════════════════════
