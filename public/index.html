@@ -1,0 +1,2286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSA Organizer — Mentoring Success Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple: #7C3AED;
+  --purple-light: #A78BFA;
+  --purple-pale: #EDE9FE;
+  --teal: #0F766E;
+  --teal-light: #5EEAD4;
+  --teal-pale: #CCFBF1;
+  --gold: #D97706;
+  --gold-pale: #FEF3C7;
+  --ink: #1C1917;
+  --ink2: #44403C;
+  --muted: #78716C;
+  --border: #E7E5E4;
+  --bg: #FAFAF9;
+  --white: #FFFFFF;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 24px rgba(0,0,0,0.10);
+  --user-color: #7C3AED;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── LOGIN ── */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1C1033 0%, #0F2D2A 50%, #1C1917 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+#login-screen::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
+  top: -200px; right: -100px;
+}
+
+#login-screen::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(15,118,110,0.15) 0%, transparent 70%);
+  bottom: -100px; left: -50px;
+}
+
+.login-card {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 380px;
+  position: relative;
+  z-index: 1;
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-logo .monogram {
+  width: 64px; height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--purple), var(--teal));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 24px; font-weight: 700;
+  color: white;
+  margin: 0 auto 16px;
+}
+
+.login-logo h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: white;
+  font-weight: 600;
+}
+
+.login-logo p {
+  color: rgba(255,255,255,0.5);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.login-field { margin-bottom: 16px; }
+.login-field label {
+  display: block;
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.login-field input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.login-field input:focus { border-color: var(--purple-light); }
+
+.login-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--purple), #6D28D9);
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.login-btn:hover { opacity: 0.9; }
+.login-btn:active { transform: scale(0.99); }
+.login-error { color: #FC8181; font-size: 13px; margin-top: 10px; text-align: center; }
+
+/* ── APP SHELL ── */
+#app { display: none; }
+
+.app-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-brand .logo-mark {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--purple), var(--teal));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 14px; font-weight: 700;
+  color: white;
+}
+
+.app-brand h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.app-brand span {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.header-right {
+  display: flex; align-items: center; gap: 16px;
+}
+
+.user-pill {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px 6px 8px;
+  border-radius: 24px;
+  background: var(--purple-pale);
+  cursor: pointer;
+}
+
+.user-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--user-color);
+  color: white;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.user-pill span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink2);
+}
+
+.logout-btn {
+  background: none; border: none;
+  color: var(--muted); font-size: 13px;
+  cursor: pointer; padding: 4px 8px;
+  border-radius: 6px;
+}
+.logout-btn:hover { background: var(--border); }
+
+/* ── NAV TABS ── */
+.nav-tabs {
+  display: flex;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  overflow-x: auto;
+  gap: 2px;
+}
+
+.nav-tab {
+  padding: 12px 18px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex; align-items: center; gap: 7px;
+}
+
+.nav-tab:hover { color: var(--ink); }
+
+.nav-tab.active {
+  color: var(--user-color);
+  border-bottom-color: var(--user-color);
+}
+
+.tab-icon { font-size: 15px; }
+
+/* ── MAIN CONTENT ── */
+.main-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 24px;
+}
+
+/* ── PANELS ── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── PAGE TITLE ── */
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.page-subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+/* ── GRID LAYOUTS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.grid-full { display: grid; grid-template-columns: 1fr; gap: 20px; }
+
+@media (max-width: 900px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex; align-items: center; gap: 8px;
+}
+
+.card-title .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--user-color);
+  display: inline-block;
+}
+
+.card-add-btn {
+  background: none; border: none;
+  color: var(--user-color);
+  font-size: 18px; line-height: 1;
+  cursor: pointer; padding: 2px 6px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.card-add-btn:hover { background: var(--purple-pale); }
+
+/* ── TASK ITEM ── */
+.task-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.task-item:last-child { border-bottom: none; }
+
+.task-check {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  cursor: pointer; flex-shrink: 0; margin-top: 1px;
+  background: white;
+  transition: all 0.15s;
+  appearance: none; -webkit-appearance: none;
+}
+.task-check:checked {
+  background: var(--user-color);
+  border-color: var(--user-color);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='white' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px;
+}
+
+.task-body { flex: 1; min-width: 0; }
+.task-text {
+  font-size: 14px; color: var(--ink2);
+  line-height: 1.4;
+}
+.task-text.done { text-decoration: line-through; color: var(--muted); }
+.task-meta {
+  display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap;
+}
+.task-badge {
+  font-size: 11px; padding: 2px 8px;
+  border-radius: 20px; font-weight: 500;
+}
+.badge-urgent { background: #FEE2E2; color: #DC2626; }
+.badge-today { background: var(--gold-pale); color: var(--gold); }
+.badge-week { background: var(--purple-pale); color: var(--purple); }
+.badge-waiting { background: #E0F2FE; color: #0369A1; }
+.badge-reach { background: #DCFCE7; color: #15803D; }
+.badge-radar { background: #F1F5F9; color: #64748B; }
+
+.task-del {
+  background: none; border: none;
+  color: var(--border); cursor: pointer;
+  font-size: 16px; padding: 2px;
+  transition: color 0.15s;
+}
+.task-del:hover { color: #EF4444; }
+
+.empty-state {
+  text-align: center;
+  padding: 24px 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.empty-state .empty-icon { font-size: 28px; margin-bottom: 8px; }
+
+/* ── INLINE FORM ── */
+.inline-form {
+  display: flex; gap: 8px; margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+.inline-form input, .inline-form select {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  background: var(--bg);
+  color: var(--ink);
+}
+.inline-form input:focus, .inline-form select:focus {
+  border-color: var(--user-color);
+}
+.inline-form button {
+  background: var(--user-color);
+  color: white; border: none;
+  border-radius: 8px; padding: 8px 14px;
+  font-size: 13px; cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 20px;
+  display: none;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: white;
+  border-radius: 20px;
+  padding: 28px;
+  width: 100%; max-width: 520px;
+  box-shadow: var(--shadow-md);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--ink);
+}
+
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 12px; font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  background: var(--bg);
+  color: var(--ink);
+  transition: border-color 0.15s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--user-color); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+
+.modal-btns {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 20px;
+}
+.btn-cancel {
+  background: none; border: 1px solid var(--border);
+  padding: 10px 20px; border-radius: 10px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+}
+.btn-save {
+  background: var(--user-color);
+  color: white; border: none;
+  padding: 10px 22px; border-radius: 10px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600;
+}
+
+/* ── PROJECT CARD ── */
+.project-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--purple), var(--teal));
+}
+
+.project-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.project-desc {
+  font-size: 13px; color: var(--muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.project-meta {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  align-items: center; justify-content: space-between;
+}
+
+.status-badge {
+  font-size: 11px; padding: 3px 10px;
+  border-radius: 20px; font-weight: 600;
+}
+.status-active { background: #DCFCE7; color: #15803D; }
+.status-planning { background: var(--purple-pale); color: var(--purple); }
+.status-paused { background: var(--gold-pale); color: var(--gold); }
+.status-complete { background: var(--border); color: var(--muted); }
+
+.project-actions { display: flex; gap: 6px; }
+.icon-btn {
+  background: none; border: 1px solid var(--border);
+  border-radius: 7px; padding: 4px 8px;
+  cursor: pointer; font-size: 13px;
+  transition: background 0.15s;
+}
+.icon-btn:hover { background: var(--bg); }
+
+/* ── MEETING ── */
+.meeting-item {
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.meeting-title {
+  font-weight: 600; font-size: 14px;
+  color: var(--ink); margin-bottom: 4px;
+}
+
+.meeting-meta {
+  font-size: 12px; color: var(--muted);
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+
+.meeting-notes {
+  font-size: 13px; color: var(--ink2);
+  margin-top: 8px; line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+/* ── LESSON CARD ── */
+.lesson-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.lesson-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px; font-weight: 600;
+  color: var(--ink); margin-bottom: 6px;
+}
+
+.lesson-desc {
+  font-size: 13px; color: var(--ink2);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.lesson-tags {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.lesson-tag {
+  font-size: 11px; padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--teal-pale); color: var(--teal);
+  font-weight: 500;
+}
+
+.lesson-footer {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  font-size: 12px; color: var(--muted);
+}
+
+/* ── LINK ITEM ── */
+.link-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+  transition: background 0.15s;
+}
+.link-item:hover { background: var(--bg); }
+
+.link-icon {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--purple-pale), var(--teal-pale));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+.link-info { flex: 1; min-width: 0; }
+.link-name {
+  font-size: 14px; font-weight: 500;
+  color: var(--ink); margin-bottom: 2px;
+}
+.link-url {
+  font-size: 12px; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.link-open {
+  background: none; border: 1px solid var(--border);
+  border-radius: 7px; padding: 5px 10px;
+  font-size: 12px; cursor: pointer;
+  color: var(--purple); font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* ── QUIZ BANNER ── */
+.quiz-banner {
+  background: linear-gradient(135deg, #1C1033, #0F2D2A);
+  border-radius: 16px;
+  padding: 28px;
+  color: white;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.quiz-banner h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.quiz-banner p {
+  font-size: 13px;
+  color: rgba(255,255,255,0.65);
+  max-width: 480px;
+  line-height: 1.6;
+}
+
+.quiz-btn {
+  background: linear-gradient(135deg, var(--purple), var(--teal));
+  color: white; border: none;
+  border-radius: 10px; padding: 12px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  text-decoration: none;
+  display: inline-block;
+}
+
+/* ── CALENDAR ── */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-top: 12px;
+}
+
+.cal-day-header {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  padding: 6px 0;
+}
+
+.cal-day {
+  min-height: 70px;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cal-day:hover { background: var(--purple-pale); }
+.cal-day.today { border-color: var(--user-color); background: var(--purple-pale); }
+.cal-day.other-month { opacity: 0.4; }
+
+.cal-day-num {
+  font-size: 12px; font-weight: 600;
+  color: var(--ink2);
+  margin-bottom: 4px;
+}
+
+.cal-day.today .cal-day-num {
+  color: var(--user-color);
+}
+
+.cal-event {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--purple);
+  color: white;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-event.teal { background: var(--teal); }
+
+.cal-nav {
+  display: flex; align-items: center; gap: 16px;
+}
+
+.cal-nav h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; min-width: 200px;
+  text-align: center;
+}
+
+.cal-nav-btn {
+  background: none; border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 12px;
+  cursor: pointer; font-size: 16px;
+}
+
+/* ── PRODUCTIVITY ── */
+.productivity-area {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.prod-section { margin-bottom: 20px; }
+.prod-label {
+  font-size: 12px; font-weight: 600;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: 8px;
+}
+
+.prod-textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+  background: var(--bg);
+  color: var(--ink);
+}
+.prod-textarea:focus { border-color: var(--user-color); }
+
+.prod-save-btn {
+  background: var(--user-color);
+  color: white; border: none;
+  border-radius: 10px; padding: 10px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── TODAY CALENDAR WIDGET ── */
+.today-events { }
+.today-event {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.today-event:last-child { border-bottom: none; }
+.event-time {
+  font-size: 12px; font-weight: 600;
+  color: var(--user-color); min-width: 50px;
+}
+.event-title { font-size: 13px; color: var(--ink2); }
+
+/* ── RECURRING ── */
+.freq-badge {
+  font-size: 11px; padding: 2px 8px;
+  border-radius: 20px; font-weight: 500;
+  background: var(--teal-pale); color: var(--teal);
+}
+
+/* ── SECTION DIVIDER ── */
+.section-label {
+  font-size: 11px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.08em; margin: 24px 0 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--border);
+}
+
+/* ── COMMAND CENTER USER TOGGLE ── */
+.cc-user-toggle {
+  display: flex; gap: 0;
+  background: var(--border);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 24px;
+  width: fit-content;
+}
+
+.cc-toggle-btn {
+  background: none; border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: var(--muted);
+  transition: all 0.15s;
+}
+
+.cc-toggle-btn.active {
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.command-view { display: none; }
+.command-view.active { display: block; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .main-content { padding: 16px; }
+  .login-card { padding: 32px 24px; width: 100%; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="monogram">MSA</div>
+      <h1>Mentoring Success Academy</h1>
+      <p>Co-Founder Organizer</p>
+    </div>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="rebecca or mary" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app">
+  <!-- Header -->
+  <div class="app-header">
+    <div class="app-brand">
+      <div class="logo-mark">MSA</div>
+      <div>
+        <h1>MSA Organizer</h1>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="user-pill">
+        <div class="user-avatar" id="header-avatar">MW</div>
+        <span id="header-name">Mary Wardlaw</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav-tabs">
+    <div class="nav-tab active" data-tab="command" onclick="switchTab('command')">
+      <span class="tab-icon">🎯</span> Command Center
+    </div>
+    <div class="nav-tab" data-tab="productivity" onclick="switchTab('productivity')">
+      <span class="tab-icon">⚡</span> Daily Productivity
+    </div>
+    <div class="nav-tab" data-tab="projects" onclick="switchTab('projects')">
+      <span class="tab-icon">🚀</span> Projects
+    </div>
+    <div class="nav-tab" data-tab="calendar" onclick="switchTab('calendar')">
+      <span class="tab-icon">📅</span> Calendar
+    </div>
+    <div class="nav-tab" data-tab="meetings" onclick="switchTab('meetings')">
+      <span class="tab-icon">💬</span> Meetings
+    </div>
+    <div class="nav-tab" data-tab="recurring" onclick="switchTab('recurring')">
+      <span class="tab-icon">🔄</span> Recurring Tasks
+    </div>
+    <div class="nav-tab" data-tab="lessons" onclick="switchTab('lessons')">
+      <span class="tab-icon">📚</span> Lesson Library
+    </div>
+    <div class="nav-tab" data-tab="links" onclick="switchTab('links')">
+      <span class="tab-icon">🔗</span> Links & Tools
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- ── COMMAND CENTER ── -->
+    <div class="tab-panel active" id="panel-command">
+      <div class="page-title" id="cc-page-title">Command Center</div>
+      <div class="page-subtitle">Your personal dashboard — everything at a glance</div>
+
+      <!-- User Toggle -->
+      <div class="cc-user-toggle">
+        <button class="cc-toggle-btn active" id="cc-btn-self" onclick="switchCommandView('self')">
+          My View
+        </button>
+        <button class="cc-toggle-btn" id="cc-btn-other" onclick="switchCommandView('other')">
+          Partner's View
+        </button>
+      </div>
+
+      <!-- My Command View -->
+      <div class="command-view active" id="cc-view-self">
+        <div class="grid-2">
+          <!-- Must Do Today -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="dot"></span> Must Do Today</div>
+              <button class="card-add-btn" onclick="openTaskModal('today')">+</button>
+            </div>
+            <div id="tasks-today"></div>
+            <div class="inline-form">
+              <input type="text" id="quick-today" placeholder="Add today's task…" onkeydown="if(event.key==='Enter')quickAdd('today')">
+              <button onclick="quickAdd('today')">Add</button>
+            </div>
+          </div>
+
+          <!-- Must Do This Week -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="dot"></span> Must Do This Week</div>
+              <button class="card-add-btn" onclick="openTaskModal('week')">+</button>
+            </div>
+            <div id="tasks-week"></div>
+            <div class="inline-form">
+              <input type="text" id="quick-week" placeholder="Add this week's task…" onkeydown="if(event.key==='Enter')quickAdd('week')">
+              <button onclick="quickAdd('week')">Add</button>
+            </div>
+          </div>
+
+          <!-- Reach Out -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="dot" style="background:#15803D"></span> Reach Out</div>
+              <button class="card-add-btn" onclick="openTaskModal('reach')">+</button>
+            </div>
+            <div id="tasks-reach"></div>
+            <div class="inline-form">
+              <input type="text" id="quick-reach" placeholder="Someone to contact…" onkeydown="if(event.key==='Enter')quickAdd('reach')">
+              <button onclick="quickAdd('reach')">Add</button>
+            </div>
+          </div>
+
+          <!-- Waiting On -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="dot" style="background:#0369A1"></span> Waiting On</div>
+              <button class="card-add-btn" onclick="openTaskModal('waiting')">+</button>
+            </div>
+            <div id="tasks-waiting"></div>
+            <div class="inline-form">
+              <input type="text" id="quick-waiting" placeholder="What are you waiting on…" onkeydown="if(event.key==='Enter')quickAdd('waiting')">
+              <button onclick="quickAdd('waiting')">Add</button>
+            </div>
+          </div>
+
+          <!-- Coming Due / On the Radar -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="dot" style="background:#64748B"></span> On the Radar</div>
+              <button class="card-add-btn" onclick="openTaskModal('radar')">+</button>
+            </div>
+            <div id="tasks-radar"></div>
+            <div class="inline-form">
+              <input type="text" id="quick-radar" placeholder="Coming up soon…" onkeydown="if(event.key==='Enter')quickAdd('radar')">
+              <button onclick="quickAdd('radar')">Add</button>
+            </div>
+          </div>
+
+          <!-- Today's Calendar -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span class="dot" style="background:#7C3AED"></span> Today's Calendar</div>
+              <button class="card-add-btn" onclick="openEventModal()">+</button>
+            </div>
+            <div id="today-events-list">
+              <div class="empty-state">
+                <div class="empty-icon">📅</div>
+                <div>No events today</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projects Summary -->
+        <div class="section-label">Active Projects</div>
+        <div id="cc-projects-grid" class="grid-3"></div>
+      </div>
+
+      <!-- Partner Command View (read only) -->
+      <div class="command-view" id="cc-view-other">
+        <div class="page-subtitle" id="partner-view-label" style="margin-bottom:20px; font-style:italic;">Viewing your co-founder's command center</div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="dot"></span> Must Do Today</div></div>
+            <div id="partner-tasks-today"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="dot"></span> Must Do This Week</div></div>
+            <div id="partner-tasks-week"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="dot" style="background:#15803D"></span> Reach Out</div></div>
+            <div id="partner-tasks-reach"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="dot" style="background:#0369A1"></span> Waiting On</div></div>
+            <div id="partner-tasks-waiting"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="dot" style="background:#64748B"></span> On the Radar</div></div>
+            <div id="partner-tasks-radar"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="dot" style="background:#7C3AED"></span> Today's Calendar</div></div>
+            <div id="partner-today-events"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PRODUCTIVITY ── -->
+    <div class="tab-panel" id="panel-productivity">
+      <div class="page-title">Daily Productivity</div>
+      <div class="page-subtitle" id="productivity-date"></div>
+      <div class="grid-2">
+        <div>
+          <div class="productivity-area">
+            <div class="prod-section">
+              <div class="prod-label">🌅 Morning Intentions</div>
+              <textarea class="prod-textarea" id="prod-intentions" placeholder="What do you want to accomplish today? What kind of leader will you be today?"></textarea>
+            </div>
+            <div class="prod-section">
+              <div class="prod-label">🏆 Wins Today</div>
+              <textarea class="prod-textarea" id="prod-wins" placeholder="What went well? Celebrate your progress…"></textarea>
+            </div>
+            <div class="prod-section">
+              <div class="prod-label">🚧 Blockers & Challenges</div>
+              <textarea class="prod-textarea" id="prod-blockers" placeholder="What's in the way? What do you need to resolve?"></textarea>
+            </div>
+            <div class="prod-section">
+              <div class="prod-label">📓 Notes & Reflections</div>
+              <textarea class="prod-textarea" id="prod-notes" placeholder="Free space — notes, thoughts, insights…" style="min-height:120px;"></textarea>
+            </div>
+            <button class="prod-save-btn" onclick="saveProductivity()">Save Today's Entry</button>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:20px;">
+            <div class="card-header">
+              <div class="card-title">🎯 Today's Focus</div>
+            </div>
+            <div id="prod-today-tasks"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📅 Today's Schedule</div>
+            </div>
+            <div id="prod-today-schedule"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROJECTS ── -->
+    <div class="tab-panel" id="panel-projects">
+      <div class="page-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Projects</span>
+        <button class="btn-save" onclick="openProjectModal()">+ New Project</button>
+      </div>
+      <div class="page-subtitle">Shared project board for Mentoring Success Academy</div>
+      <div class="grid-3" id="projects-grid"></div>
+    </div>
+
+    <!-- ── CALENDAR ── -->
+    <div class="tab-panel" id="panel-calendar">
+      <div class="page-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Calendar</span>
+        <button class="btn-save" onclick="openEventModal()">+ Add Event</button>
+      </div>
+      <div class="page-subtitle">Shared MSA calendar</div>
+      <div class="card">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
+          <h3 id="cal-month-label"></h3>
+          <button class="cal-nav-btn" onclick="calNav(1)">›</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── MEETINGS ── -->
+    <div class="tab-panel" id="panel-meetings">
+      <div class="page-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Meetings</span>
+        <button class="btn-save" onclick="openMeetingModal()">+ Log Meeting</button>
+      </div>
+      <div class="page-subtitle">Meeting notes and action items</div>
+      <div id="meetings-list"></div>
+    </div>
+
+    <!-- ── RECURRING ── -->
+    <div class="tab-panel" id="panel-recurring">
+      <div class="page-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Recurring Tasks</span>
+        <button class="btn-save" onclick="openRecurringModal()">+ Add Task</button>
+      </div>
+      <div class="page-subtitle">Your repeating responsibilities — never let these slip</div>
+      <div id="recurring-list"></div>
+    </div>
+
+    <!-- ── LESSON LIBRARY ── -->
+    <div class="tab-panel" id="panel-lessons">
+      <div class="page-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Lesson Library</span>
+        <button class="btn-save" onclick="openLessonModal()">+ Add Lesson</button>
+      </div>
+      <div class="page-subtitle">Store and organize MSA lesson content</div>
+      <div class="grid-3" id="lessons-grid"></div>
+    </div>
+
+    <!-- ── LINKS & TOOLS ── -->
+    <div class="tab-panel" id="panel-links">
+      <div class="page-title">Links & Tools</div>
+      <div class="page-subtitle">Quick access to lessons, resources, and MSA tools</div>
+
+      <!-- Quiz Banner -->
+      <div class="quiz-banner">
+        <div>
+          <h2>🧠 Mentoring Personality & Voice Quiz</h2>
+          <p>Discover your unique mentoring style and communication strengths. Help your mentees understand how to learn from you — and how you can best support them.</p>
+        </div>
+        <div>
+          <div id="quiz-link-display">
+            <a href="#" id="quiz-link-anchor" class="quiz-btn" target="_blank">Take the Quiz →</a>
+          </div>
+          <button onclick="editQuizLink()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;margin-top:8px;display:block;width:100%;">Edit Quiz Link</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Lesson Links -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📖 Lesson Links</div>
+            <button class="card-add-btn" onclick="openLessonLinkModal()">+</button>
+          </div>
+          <div id="lesson-links-list"></div>
+        </div>
+
+        <!-- Resource Links -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🔗 Resource Links</div>
+            <button class="card-add-btn" onclick="openResourceLinkModal()">+</button>
+          </div>
+          <div id="resource-links-list"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<!-- ═══ MODALS ═══ -->
+<div class="modal-overlay" id="modal-task">
+  <div class="modal">
+    <h2 id="task-modal-title">Add Task</h2>
+    <div class="form-group">
+      <label>Task</label>
+      <input type="text" id="task-text" placeholder="Describe the task…">
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="task-category">
+        <option value="today">Must Do Today</option>
+        <option value="week">Must Do This Week</option>
+        <option value="reach">Reach Out</option>
+        <option value="waiting">Waiting On</option>
+        <option value="radar">On the Radar</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Due Date (optional)</label>
+      <input type="date" id="task-due">
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="task-notes" placeholder="Any additional context…"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-task')">Cancel</button>
+      <button class="btn-save" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-project">
+  <div class="modal">
+    <h2>New Project</h2>
+    <div class="form-group">
+      <label>Project Name</label>
+      <input type="text" id="proj-name" placeholder="Project name…">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="proj-desc" placeholder="What is this project about?"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="proj-status">
+        <option value="planning">Planning</option>
+        <option value="active">Active</option>
+        <option value="paused">Paused</option>
+        <option value="complete">Complete</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Lead</label>
+      <select id="proj-lead">
+        <option value="shared">Both / Shared</option>
+        <option value="rebecca">Rebecca</option>
+        <option value="mary">Mary</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Target Date</label>
+      <input type="date" id="proj-date">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-project')">Cancel</button>
+      <button class="btn-save" onclick="saveProject()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-event">
+  <div class="modal">
+    <h2>Add Calendar Event</h2>
+    <div class="form-group">
+      <label>Event Title</label>
+      <input type="text" id="event-title" placeholder="Event name…">
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="event-date">
+    </div>
+    <div class="form-group">
+      <label>Start Time</label>
+      <input type="time" id="event-start">
+    </div>
+    <div class="form-group">
+      <label>End Time</label>
+      <input type="time" id="event-end">
+    </div>
+    <div class="form-group">
+      <label>Visibility</label>
+      <select id="event-visibility">
+        <option value="shared">Both co-founders</option>
+        <option value="personal">My calendar only</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="event-notes" placeholder="Location, dial-in info, agenda…"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-event')">Cancel</button>
+      <button class="btn-save" onclick="saveEvent()">Save Event</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-meeting">
+  <div class="modal">
+    <h2>Log Meeting</h2>
+    <div class="form-group">
+      <label>Meeting Title</label>
+      <input type="text" id="mtg-title" placeholder="What was this meeting about?">
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="mtg-date">
+    </div>
+    <div class="form-group">
+      <label>Attendees</label>
+      <input type="text" id="mtg-attendees" placeholder="Who was there?">
+    </div>
+    <div class="form-group">
+      <label>Notes & Outcomes</label>
+      <textarea id="mtg-notes" placeholder="Key discussion points, decisions made…" style="min-height:120px;"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Action Items</label>
+      <textarea id="mtg-actions" placeholder="What follow-up is needed?"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-meeting')">Cancel</button>
+      <button class="btn-save" onclick="saveMeeting()">Save Meeting</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-recurring">
+  <div class="modal">
+    <h2>Add Recurring Task</h2>
+    <div class="form-group">
+      <label>Task Name</label>
+      <input type="text" id="rec-name" placeholder="What needs to be done regularly?">
+    </div>
+    <div class="form-group">
+      <label>Frequency</label>
+      <select id="rec-freq">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="biweekly">Bi-weekly</option>
+        <option value="monthly">Monthly</option>
+        <option value="quarterly">Quarterly</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="rec-notes" placeholder="Instructions or context…"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-recurring')">Cancel</button>
+      <button class="btn-save" onclick="saveRecurring()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-lesson">
+  <div class="modal">
+    <h2>Add Lesson</h2>
+    <div class="form-group">
+      <label>Lesson Title</label>
+      <input type="text" id="les-title" placeholder="Lesson name…">
+    </div>
+    <div class="form-group">
+      <label>Description / Summary</label>
+      <textarea id="les-desc" placeholder="What does this lesson cover?"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Lesson Content / Notes</label>
+      <textarea id="les-content" placeholder="Full lesson content, key points, activities…" style="min-height:120px;"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Tags (comma separated)</label>
+      <input type="text" id="les-tags" placeholder="e.g. communication, leadership, youth">
+    </div>
+    <div class="form-group">
+      <label>Link / URL (optional)</label>
+      <input type="url" id="les-url" placeholder="https://…">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-lesson')">Cancel</button>
+      <button class="btn-save" onclick="saveLesson()">Save Lesson</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-lesson-link">
+  <div class="modal">
+    <h2>Add Lesson Link</h2>
+    <div class="form-group">
+      <label>Link Name</label>
+      <input type="text" id="ll-name" placeholder="Descriptive name…">
+    </div>
+    <div class="form-group">
+      <label>URL</label>
+      <input type="url" id="ll-url" placeholder="https://…">
+    </div>
+    <div class="form-group">
+      <label>Description (optional)</label>
+      <input type="text" id="ll-desc" placeholder="What's at this link?">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-lesson-link')">Cancel</button>
+      <button class="btn-save" onclick="saveLessonLink()">Save Link</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-resource-link">
+  <div class="modal">
+    <h2>Add Resource Link</h2>
+    <div class="form-group">
+      <label>Link Name</label>
+      <input type="text" id="rl-name" placeholder="Descriptive name…">
+    </div>
+    <div class="form-group">
+      <label>URL</label>
+      <input type="url" id="rl-url" placeholder="https://…">
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="rl-category">
+        <option value="tool">Tool / App</option>
+        <option value="curriculum">Curriculum</option>
+        <option value="research">Research</option>
+        <option value="partner">Partner Org</option>
+        <option value="admin">Admin / Operations</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-resource-link')">Cancel</button>
+      <button class="btn-save" onclick="saveResourceLink()">Save Link</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ──────────────────────────────────────────────────────
+let currentUser = null;
+let tasks = [];
+let projects = [];
+let meetings = [];
+let recurring = [];
+let lessons = [];
+let links = { lessonLinks: [], quizLink: '', resourceLinks: [] };
+let calendarEvents = [];
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let taskModalCategory = 'today';
+
+// ─── UTILS ──────────────────────────────────────────────────────
+const today = () => new Date().toISOString().split('T')[0];
+
+function fmt(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function fmtTime(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':');
+  const hr = parseInt(h);
+  return `${hr > 12 ? hr - 12 : hr || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+}
+
+// ─── AUTH ────────────────────────────────────────────────────────
+async function doLogin() {
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value;
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+  if (res.ok) {
+    const data = await res.json();
+    currentUser = data.user;
+    initApp();
+  } else {
+    document.getElementById('login-error').textContent = 'Invalid username or password.';
+  }
+}
+
+async function doLogout() {
+  await fetch('/api/logout', { method: 'POST' });
+  location.reload();
+}
+
+document.getElementById('login-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ─── INIT ────────────────────────────────────────────────────────
+async function initApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // Set user color
+  document.documentElement.style.setProperty('--user-color', currentUser.color);
+
+  document.getElementById('header-avatar').textContent = currentUser.initials;
+  document.getElementById('header-name').textContent = currentUser.name;
+  document.getElementById('cc-page-title').textContent = `${currentUser.name.split(' ')[0]}'s Command Center`;
+
+  const otherName = currentUser.id === 'rebecca' ? 'Mary' : 'Rebecca';
+  document.getElementById('cc-btn-self').textContent = 'My View';
+  document.getElementById('cc-btn-other').textContent = `${otherName}'s View`;
+  document.getElementById('partner-view-label').textContent = `Viewing ${otherName}'s command center (read-only)`;
+
+  document.getElementById('productivity-date').textContent =
+    new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+  await loadAll();
+  renderAll();
+
+  // check session
+  const me = await fetch('/api/me');
+  if (!me.ok) { location.reload(); }
+}
+
+async function loadAll() {
+  const [t, p, m, r, l, lnk, cal] = await Promise.all([
+    fetch('/api/tasks').then(r => r.json()),
+    fetch('/api/projects').then(r => r.json()),
+    fetch('/api/meetings').then(r => r.json()),
+    fetch('/api/recurring').then(r => r.json()),
+    fetch('/api/lessons').then(r => r.json()),
+    fetch('/api/links').then(r => r.json()),
+    fetch('/api/calendar').then(r => r.json())
+  ]);
+  tasks = t;
+  projects = p;
+  meetings = m;
+  recurring = r;
+  lessons = l;
+  links = lnk;
+  calendarEvents = cal;
+
+  // Load productivity
+  const prod = await fetch('/api/productivity').then(r => r.json());
+  document.getElementById('prod-intentions').value = (prod.intentions || []).join('\n');
+  document.getElementById('prod-wins').value = (prod.wins || []).join('\n');
+  document.getElementById('prod-blockers').value = (prod.blockers || []).join('\n');
+  document.getElementById('prod-notes').value = prod.notes || '';
+}
+
+function renderAll() {
+  renderCommandCenter();
+  renderProjects();
+  renderCalendar();
+  renderMeetings();
+  renderRecurring();
+  renderLessons();
+  renderLinks();
+  renderProductivity();
+}
+
+// ─── TABS ────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById(`panel-${tab}`).classList.add('active');
+}
+
+// ─── COMMAND CENTER ──────────────────────────────────────────────
+function switchCommandView(view) {
+  document.getElementById('cc-view-self').classList.toggle('active', view === 'self');
+  document.getElementById('cc-view-other').classList.toggle('active', view === 'other');
+  document.getElementById('cc-btn-self').classList.toggle('active', view === 'self');
+  document.getElementById('cc-btn-other').classList.toggle('active', view === 'other');
+  if (view === 'other') renderPartnerView();
+}
+
+function renderCommandCenter() {
+  const myTasks = tasks.filter(t => t.userId === currentUser.id);
+  const cats = ['today','week','reach','waiting','radar'];
+  cats.forEach(cat => renderTaskList(myTasks, cat, `tasks-${cat}`));
+  renderTodayEvents('today-events-list', currentUser.id);
+  renderCCProjects();
+}
+
+function renderTaskList(taskArr, cat, elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const filtered = taskArr.filter(t => t.category === cat && !t.done);
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-state"><div>Nothing here yet</div></div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(t => `
+    <div class="task-item">
+      <input type="checkbox" class="task-check" ${t.done?'checked':''} onchange="toggleTask('${t.id}', this.checked)">
+      <div class="task-body">
+        <div class="task-text ${t.done?'done':''}">${t.text}</div>
+        ${t.dueDate ? `<div class="task-meta"><span class="task-badge badge-today">Due ${fmt(t.dueDate)}</span></div>` : ''}
+        ${t.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:3px;">${t.notes}</div>` : ''}
+      </div>
+      <button class="task-del" onclick="deleteTask('${t.id}')">×</button>
+    </div>
+  `).join('');
+}
+
+function renderTodayEvents(elId, userId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const t = today();
+  const todayEvts = calendarEvents.filter(e =>
+    e.date === t && (e.visibility === 'shared' || e.createdBy === userId)
+  ).sort((a,b) => (a.startTime||'').localeCompare(b.startTime||''));
+
+  if (!todayEvts.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div><div>No events today</div></div>`;
+    return;
+  }
+  el.innerHTML = todayEvts.map(e => `
+    <div class="today-event">
+      <div class="event-time">${e.startTime ? fmtTime(e.startTime) : 'All day'}</div>
+      <div class="event-title">${e.title}${e.notes ? `<br><span style="font-size:11px;color:var(--muted)">${e.notes}</span>` : ''}</div>
+    </div>
+  `).join('');
+}
+
+function renderCCProjects() {
+  const activeProjects = projects.filter(p => p.status === 'active' || p.status === 'planning');
+  const el = document.getElementById('cc-projects-grid');
+  if (!activeProjects.length) {
+    el.innerHTML = `<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">🚀</div><div>No active projects yet</div></div></div>`;
+    return;
+  }
+  el.innerHTML = activeProjects.map(p => projectCardHTML(p)).join('');
+}
+
+async function renderPartnerView() {
+  const otherId = currentUser.id === 'rebecca' ? 'mary' : 'rebecca';
+  const allTasks = await fetch('/api/tasks').then(r=>r.json()).catch(()=>tasks);
+  const partnerTasks = allTasks.filter(t => t.userId === otherId);
+  const cats = ['today','week','reach','waiting','radar'];
+  cats.forEach(cat => {
+    const el = document.getElementById(`partner-tasks-${cat}`);
+    if (!el) return;
+    const filtered = partnerTasks.filter(t => t.category === cat && !t.done);
+    if (!filtered.length) {
+      el.innerHTML = `<div class="empty-state"><div>Nothing here</div></div>`;
+      return;
+    }
+    el.innerHTML = filtered.map(t => `
+      <div class="task-item">
+        <div class="task-body">
+          <div class="task-text">${t.text}</div>
+          ${t.dueDate ? `<div class="task-meta"><span class="task-badge badge-today">Due ${fmt(t.dueDate)}</span></div>` : ''}
+        </div>
+      </div>
+    `).join('');
+  });
+  renderTodayEvents('partner-today-events', otherId);
+}
+
+// ─── TASKS ───────────────────────────────────────────────────────
+function openTaskModal(cat) {
+  taskModalCategory = cat;
+  document.getElementById('task-category').value = cat;
+  document.getElementById('task-text').value = '';
+  document.getElementById('task-due').value = '';
+  document.getElementById('task-notes').value = '';
+  openModal('modal-task');
+}
+
+async function saveTask() {
+  const text = document.getElementById('task-text').value.trim();
+  if (!text) return;
+  const task = await fetch('/api/tasks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      text,
+      category: document.getElementById('task-category').value,
+      dueDate: document.getElementById('task-due').value,
+      notes: document.getElementById('task-notes').value,
+      done: false
+    })
+  }).then(r=>r.json());
+  tasks.push(task);
+  closeModal('modal-task');
+  renderCommandCenter();
+  renderProductivity();
+}
+
+async function quickAdd(cat) {
+  const input = document.getElementById(`quick-${cat}`);
+  const text = input.value.trim();
+  if (!text) return;
+  const task = await fetch('/api/tasks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, category: cat, done: false })
+  }).then(r=>r.json());
+  tasks.push(task);
+  input.value = '';
+  renderCommandCenter();
+  renderProductivity();
+}
+
+async function toggleTask(id, done) {
+  await fetch(`/api/tasks/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ done })
+  });
+  const t = tasks.find(t=>t.id===id);
+  if (t) t.done = done;
+  renderCommandCenter();
+  renderProductivity();
+}
+
+async function deleteTask(id) {
+  await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+  tasks = tasks.filter(t => t.id !== id);
+  renderCommandCenter();
+  renderProductivity();
+}
+
+// ─── PROJECTS ────────────────────────────────────────────────────
+function openProjectModal() {
+  document.getElementById('proj-name').value = '';
+  document.getElementById('proj-desc').value = '';
+  document.getElementById('proj-status').value = 'planning';
+  document.getElementById('proj-lead').value = 'shared';
+  document.getElementById('proj-date').value = '';
+  openModal('modal-project');
+}
+
+async function saveProject() {
+  const name = document.getElementById('proj-name').value.trim();
+  if (!name) return;
+  const proj = await fetch('/api/projects', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name,
+      description: document.getElementById('proj-desc').value,
+      status: document.getElementById('proj-status').value,
+      lead: document.getElementById('proj-lead').value,
+      targetDate: document.getElementById('proj-date').value
+    })
+  }).then(r=>r.json());
+  projects.push(proj);
+  closeModal('modal-project');
+  renderProjects();
+  renderCCProjects();
+}
+
+async function deleteProject(id) {
+  if (!confirm('Delete this project?')) return;
+  await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+  projects = projects.filter(p => p.id !== id);
+  renderProjects();
+  renderCCProjects();
+}
+
+function projectCardHTML(p) {
+  const statusMap = { active: 'status-active', planning: 'status-planning', paused: 'status-paused', complete: 'status-complete' };
+  const leadLabel = p.lead === 'shared' ? '👥 Both' : p.lead === 'rebecca' ? '🔵 Rebecca' : '🟢 Mary';
+  return `
+    <div class="project-card">
+      <div class="project-name">${p.name}</div>
+      <div class="project-desc">${p.description || 'No description'}</div>
+      <div class="project-meta">
+        <span class="status-badge ${statusMap[p.status]||'status-planning'}">${p.status}</span>
+        <span style="font-size:12px;color:var(--muted)">${leadLabel}</span>
+        ${p.targetDate ? `<span style="font-size:12px;color:var(--muted)">📅 ${fmt(p.targetDate)}</span>` : ''}
+      </div>
+      <div class="project-actions" style="margin-top:12px;">
+        <button class="icon-btn" onclick="deleteProject('${p.id}')">🗑</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderProjects() {
+  const el = document.getElementById('projects-grid');
+  if (!projects.length) {
+    el.innerHTML = `<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">🚀</div><div>No projects yet. Add your first!</div></div></div>`;
+    return;
+  }
+  el.innerHTML = projects.map(p => projectCardHTML(p)).join('');
+}
+
+// ─── CALENDAR ────────────────────────────────────────────────────
+function openEventModal() {
+  document.getElementById('event-title').value = '';
+  document.getElementById('event-date').value = today();
+  document.getElementById('event-start').value = '';
+  document.getElementById('event-end').value = '';
+  document.getElementById('event-notes').value = '';
+  openModal('modal-event');
+}
+
+async function saveEvent() {
+  const title = document.getElementById('event-title').value.trim();
+  if (!title) return;
+  const evt = await fetch('/api/calendar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title,
+      date: document.getElementById('event-date').value,
+      startTime: document.getElementById('event-start').value,
+      endTime: document.getElementById('event-end').value,
+      notes: document.getElementById('event-notes').value,
+      visibility: document.getElementById('event-visibility').value
+    })
+  }).then(r=>r.json());
+  calendarEvents.push(evt);
+  closeModal('modal-event');
+  renderCalendar();
+  renderCommandCenter();
+  renderProductivity();
+}
+
+async function deleteEvent(id) {
+  await fetch(`/api/calendar/${id}`, { method: 'DELETE' });
+  calendarEvents = calendarEvents.filter(e => e.id !== id);
+  renderCalendar();
+  renderCommandCenter();
+}
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const label = new Date(calYear, calMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  document.getElementById('cal-month-label').textContent = label;
+
+  const grid = document.getElementById('cal-grid');
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const headers = days.map(d => `<div class="cal-day-header">${d}</div>`).join('');
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const prevDays = new Date(calYear, calMonth, 0).getDate();
+  const todayStr = today();
+
+  let cells = '';
+
+  // Prev month padding
+  for (let i = firstDay - 1; i >= 0; i--) {
+    cells += `<div class="cal-day other-month"><div class="cal-day-num">${prevDays - i}</div></div>`;
+  }
+
+  // Current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr === todayStr;
+    const dayEvents = calendarEvents.filter(e => e.date === dateStr);
+    const evtHTML = dayEvents.slice(0,3).map(e =>
+      `<div class="cal-event ${e.createdBy !== currentUser.id ? 'teal' : ''}" title="${e.title}">${e.title}</div>`
+    ).join('');
+    cells += `<div class="cal-day${isToday?' today':''}" onclick="openEventModalForDate('${dateStr}')">
+      <div class="cal-day-num">${d}</div>
+      ${evtHTML}
+    </div>`;
+  }
+
+  // Next month padding
+  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+  let nextDay = 1;
+  for (let i = firstDay + daysInMonth; i < totalCells; i++, nextDay++) {
+    cells += `<div class="cal-day other-month"><div class="cal-day-num">${nextDay}</div></div>`;
+  }
+
+  grid.innerHTML = headers + cells;
+}
+
+function openEventModalForDate(dateStr) {
+  document.getElementById('event-title').value = '';
+  document.getElementById('event-date').value = dateStr;
+  document.getElementById('event-start').value = '';
+  document.getElementById('event-end').value = '';
+  document.getElementById('event-notes').value = '';
+  openModal('modal-event');
+}
+
+// ─── MEETINGS ────────────────────────────────────────────────────
+function openMeetingModal() {
+  document.getElementById('mtg-title').value = '';
+  document.getElementById('mtg-date').value = today();
+  document.getElementById('mtg-attendees').value = '';
+  document.getElementById('mtg-notes').value = '';
+  document.getElementById('mtg-actions').value = '';
+  openModal('modal-meeting');
+}
+
+async function saveMeeting() {
+  const title = document.getElementById('mtg-title').value.trim();
+  if (!title) return;
+  const mtg = await fetch('/api/meetings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title,
+      date: document.getElementById('mtg-date').value,
+      attendees: document.getElementById('mtg-attendees').value,
+      notes: document.getElementById('mtg-notes').value,
+      actionItems: document.getElementById('mtg-actions').value
+    })
+  }).then(r=>r.json());
+  meetings.unshift(mtg);
+  closeModal('modal-meeting');
+  renderMeetings();
+}
+
+async function deleteMeeting(id) {
+  await fetch(`/api/meetings/${id}`, { method: 'DELETE' });
+  meetings = meetings.filter(m => m.id !== id);
+  renderMeetings();
+}
+
+function renderMeetings() {
+  const el = document.getElementById('meetings-list');
+  if (!meetings.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">💬</div><div>No meetings logged yet</div></div>`;
+    return;
+  }
+  const sorted = [...meetings].sort((a,b) => b.date?.localeCompare(a.date||''));
+  el.innerHTML = sorted.map(m => `
+    <div class="meeting-item">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+        <div>
+          <div class="meeting-title">${m.title}</div>
+          <div class="meeting-meta">
+            <span>📅 ${fmt(m.date)}</span>
+            ${m.attendees ? `<span>👥 ${m.attendees}</span>` : ''}
+          </div>
+        </div>
+        <button class="task-del" onclick="deleteMeeting('${m.id}')">×</button>
+      </div>
+      ${m.notes ? `<div class="meeting-notes">${m.notes}</div>` : ''}
+      ${m.actionItems ? `<div style="margin-top:8px;padding:8px 12px;background:var(--gold-pale);border-radius:8px;font-size:13px;"><strong>Action items:</strong> ${m.actionItems}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ─── RECURRING ───────────────────────────────────────────────────
+function openRecurringModal() {
+  document.getElementById('rec-name').value = '';
+  document.getElementById('rec-freq').value = 'weekly';
+  document.getElementById('rec-notes').value = '';
+  openModal('modal-recurring');
+}
+
+async function saveRecurring() {
+  const name = document.getElementById('rec-name').value.trim();
+  if (!name) return;
+  const task = await fetch('/api/recurring', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name,
+      frequency: document.getElementById('rec-freq').value,
+      notes: document.getElementById('rec-notes').value
+    })
+  }).then(r=>r.json());
+  recurring.push(task);
+  closeModal('modal-recurring');
+  renderRecurring();
+}
+
+async function deleteRecurring(id) {
+  await fetch(`/api/recurring/${id}`, { method: 'DELETE' });
+  recurring = recurring.filter(r => r.id !== id);
+  renderRecurring();
+}
+
+function renderRecurring() {
+  const el = document.getElementById('recurring-list');
+  if (!recurring.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔄</div><div>No recurring tasks yet</div></div>`;
+    return;
+  }
+  const freqOrder = ['daily','weekly','biweekly','monthly','quarterly'];
+  const sorted = [...recurring].sort((a,b) => freqOrder.indexOf(a.frequency) - freqOrder.indexOf(b.frequency));
+  const grouped = {};
+  sorted.forEach(r => {
+    if (!grouped[r.frequency]) grouped[r.frequency] = [];
+    grouped[r.frequency].push(r);
+  });
+
+  el.innerHTML = Object.entries(grouped).map(([freq, items]) => `
+    <div class="section-label">${freq.charAt(0).toUpperCase()+freq.slice(1)}</div>
+    ${items.map(r => `
+      <div class="meeting-item" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <div class="meeting-title">${r.name}</div>
+          ${r.notes ? `<div style="font-size:13px;color:var(--muted);margin-top:4px;">${r.notes}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="freq-badge">${freq}</span>
+          <button class="task-del" onclick="deleteRecurring('${r.id}')">×</button>
+        </div>
+      </div>
+    `).join('')}
+  `).join('');
+}
+
+// ─── LESSONS ─────────────────────────────────────────────────────
+function openLessonModal() {
+  ['les-title','les-desc','les-content','les-tags','les-url'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  openModal('modal-lesson');
+}
+
+async function saveLesson() {
+  const title = document.getElementById('les-title').value.trim();
+  if (!title) return;
+  const lesson = await fetch('/api/lessons', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title,
+      description: document.getElementById('les-desc').value,
+      content: document.getElementById('les-content').value,
+      tags: document.getElementById('les-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+      url: document.getElementById('les-url').value
+    })
+  }).then(r=>r.json());
+  lessons.push(lesson);
+  closeModal('modal-lesson');
+  renderLessons();
+}
+
+async function deleteLesson(id) {
+  await fetch(`/api/lessons/${id}`, { method: 'DELETE' });
+  lessons = lessons.filter(l => l.id !== id);
+  renderLessons();
+}
+
+function renderLessons() {
+  const el = document.getElementById('lessons-grid');
+  if (!lessons.length) {
+    el.innerHTML = `<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">📚</div><div>No lessons added yet</div></div></div>`;
+    return;
+  }
+  el.innerHTML = lessons.map(l => `
+    <div class="lesson-card">
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-desc">${l.description || l.content?.substring(0,120) || 'No description'}</div>
+      ${l.tags?.length ? `<div class="lesson-tags">${l.tags.map(t=>`<span class="lesson-tag">${t}</span>`).join('')}</div>` : ''}
+      <div class="lesson-footer">
+        <span>Added ${fmt(l.createdAt?.split('T')[0])}</span>
+        <div style="display:flex;gap:6px;">
+          ${l.url ? `<a href="${l.url}" target="_blank" class="link-open">Open →</a>` : ''}
+          <button class="task-del" onclick="deleteLesson('${l.id}')">×</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── LINKS ───────────────────────────────────────────────────────
+async function editQuizLink() {
+  const url = prompt('Enter Quiz URL:', links.quizLink || '');
+  if (url === null) return;
+  links.quizLink = url;
+  await fetch('/api/links', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(links)
+  });
+  renderLinks();
+}
+
+function openLessonLinkModal() {
+  document.getElementById('ll-name').value = '';
+  document.getElementById('ll-url').value = '';
+  document.getElementById('ll-desc').value = '';
+  openModal('modal-lesson-link');
+}
+
+async function saveLessonLink() {
+  const name = document.getElementById('ll-name').value.trim();
+  const url = document.getElementById('ll-url').value.trim();
+  if (!name || !url) return;
+  const link = await fetch('/api/links/lesson', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, url, description: document.getElementById('ll-desc').value })
+  }).then(r=>r.json());
+  links.lessonLinks.push(link);
+  closeModal('modal-lesson-link');
+  renderLinks();
+}
+
+async function deleteLessonLink(id) {
+  await fetch(`/api/links/lesson/${id}`, { method: 'DELETE' });
+  links.lessonLinks = links.lessonLinks.filter(l => l.id !== id);
+  renderLinks();
+}
+
+function openResourceLinkModal() {
+  document.getElementById('rl-name').value = '';
+  document.getElementById('rl-url').value = '';
+  openModal('modal-resource-link');
+}
+
+async function saveResourceLink() {
+  const name = document.getElementById('rl-name').value.trim();
+  const url = document.getElementById('rl-url').value.trim();
+  if (!name || !url) return;
+  if (!links.resourceLinks) links.resourceLinks = [];
+  const link = { id: Date.now().toString(), name, url, category: document.getElementById('rl-category').value };
+  links.resourceLinks.push(link);
+  await fetch('/api/links', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(links)
+  });
+  closeModal('modal-resource-link');
+  renderLinks();
+}
+
+async function deleteResourceLink(id) {
+  links.resourceLinks = links.resourceLinks.filter(l => l.id !== id);
+  await fetch('/api/links', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(links)
+  });
+  renderLinks();
+}
+
+const catIcons = { tool:'🛠', curriculum:'📖', research:'🔬', partner:'🤝', admin:'📋', other:'🔗' };
+
+function renderLinks() {
+  // Quiz link
+  const anchor = document.getElementById('quiz-link-anchor');
+  if (links.quizLink) {
+    anchor.href = links.quizLink;
+    anchor.textContent = 'Take the Quiz →';
+  } else {
+    anchor.href = '#';
+    anchor.textContent = 'Set Quiz Link →';
+  }
+
+  // Lesson links
+  const llEl = document.getElementById('lesson-links-list');
+  if (!links.lessonLinks?.length) {
+    llEl.innerHTML = `<div class="empty-state"><div>No lesson links yet</div></div>`;
+  } else {
+    llEl.innerHTML = links.lessonLinks.map(l => `
+      <div class="link-item">
+        <div class="link-icon">📖</div>
+        <div class="link-info">
+          <div class="link-name">${l.name}</div>
+          <div class="link-url">${l.url}</div>
+        </div>
+        <a href="${l.url}" target="_blank" class="link-open">Open</a>
+        <button class="task-del" onclick="deleteLessonLink('${l.id}')">×</button>
+      </div>
+    `).join('');
+  }
+
+  // Resource links
+  const rlEl = document.getElementById('resource-links-list');
+  if (!links.resourceLinks?.length) {
+    rlEl.innerHTML = `<div class="empty-state"><div>No resource links yet</div></div>`;
+  } else {
+    rlEl.innerHTML = links.resourceLinks.map(l => `
+      <div class="link-item">
+        <div class="link-icon">${catIcons[l.category]||'🔗'}</div>
+        <div class="link-info">
+          <div class="link-name">${l.name}</div>
+          <div class="link-url">${l.url}</div>
+        </div>
+        <a href="${l.url}" target="_blank" class="link-open">Open</a>
+        <button class="task-del" onclick="deleteResourceLink('${l.id}')">×</button>
+      </div>
+    `).join('');
+  }
+}
+
+// ─── PRODUCTIVITY ────────────────────────────────────────────────
+async function saveProductivity() {
+  const data = {
+    intentions: document.getElementById('prod-intentions').value.split('\n').filter(Boolean),
+    wins: document.getElementById('prod-wins').value.split('\n').filter(Boolean),
+    blockers: document.getElementById('prod-blockers').value.split('\n').filter(Boolean),
+    notes: document.getElementById('prod-notes').value
+  };
+  await fetch('/api/productivity', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  alert('Saved!');
+}
+
+function renderProductivity() {
+  // Today tasks sidebar
+  const el = document.getElementById('prod-today-tasks');
+  if (el) {
+    const todayTasks = tasks.filter(t => t.userId === currentUser.id && t.category === 'today' && !t.done);
+    if (!todayTasks.length) {
+      el.innerHTML = `<div class="empty-state"><div>No tasks for today</div></div>`;
+    } else {
+      el.innerHTML = todayTasks.map(t => `
+        <div class="task-item">
+          <input type="checkbox" class="task-check" onchange="toggleTask('${t.id}', this.checked)">
+          <div class="task-text">${t.text}</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  const schEl = document.getElementById('prod-today-schedule');
+  if (schEl) renderTodayEvents('prod-today-schedule', currentUser.id);
+}
+
+// ─── MODAL HELPERS ───────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// ─── CHECK SESSION ───────────────────────────────────────────────
+fetch('/api/me').then(async r => {
+  if (r.ok) {
+    const user = await r.json();
+    currentUser = user;
+    initApp();
+  }
+});
+</script>
+</body>
+</html>
