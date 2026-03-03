@@ -1,21 +1,21 @@
 {
   "name": "MSA Organizer",
   "short_name": "MSA",
-  "description": "Mentor Success Academy Co-Founder Organizer",
+  "description": "Mentor Success Academy Organizer",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0A0A",
   "theme_color": "#C9A84C",
-  "orientation": "portrait-primary",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/api/icon",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/api/icon",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
