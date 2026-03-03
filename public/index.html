@@ -1992,125 +1992,105 @@ function closeMobSidebar(){
 
 
 // ═══ IDEA MAPS ════════════════════════════════════════════════════
-let currentMapId = null;
-let mapNodes = [];      // [{id, x, y, text, color, radius}]
-let mapEdges = [];      // [{id, from, to}]
-let dragNode = null, dragOffX = 0, dragOffY = 0;
-let connectMode = false, connectFrom = null;
-let editingNodeId = null;
+let currentMapId=null, mapNodes=[], mapEdges=[];
+let imDragNode=null, imDragOff={x:0,y:0}, imDragMoved=false;
+let imConnectMode=false, imConnectFrom=null;
 
-const NODE_COLORS = [
-  {bg:'#fef9c3',border:'#ca8a04',text:'#713f12'},  // gold
-  {bg:'#dbeafe',border:'#3b82f6',text:'#1e3a8a'},  // blue
-  {bg:'#dcfce7',border:'#22c55e',text:'#14532d'},  // green
-  {bg:'#fce7f3',border:'#ec4899',text:'#831843'},  // pink
-  {bg:'#ede9fe',border:'#8b5cf6',text:'#4c1d95'},  // purple
-  {bg:'#ffedd5',border:'#f97316',text:'#7c2d12'},  // orange
-  {bg:'#e0f2fe',border:'#0ea5e9',text:'#0c4a6e'},  // sky
-  {bg:'#fef2f2',border:'#ef4444',text:'#7f1d1d'},  // red
+const IM_COLORS=[
+  {bg:'#fef9c3',bd:'#ca8a04',tx:'#713f12'},
+  {bg:'#dbeafe',bd:'#3b82f6',tx:'#1e3a8a'},
+  {bg:'#dcfce7',bd:'#22c55e',tx:'#14532d'},
+  {bg:'#fce7f3',bd:'#ec4899',tx:'#831843'},
+  {bg:'#ede9fe',bd:'#8b5cf6',tx:'#4c1d95'},
+  {bg:'#ffedd5',bd:'#f97316',tx:'#7c2d12'},
+  {bg:'#e0f2fe',bd:'#0ea5e9',tx:'#0c4a6e'},
+  {bg:'#fef2f2',bd:'#ef4444',tx:'#7f1d1d'},
 ];
 
+// ── LIST VIEW ─────────────────────────────────────────────────────
 function renderIdeaMaps(){
-  const el = document.getElementById('notes-map-grid');
+  const el=document.getElementById('notes-map-grid');
   if(!el) return;
-  const visible = ideaMaps.filter(m => m.userId===user.id || m.visibility==='shared');
-  let html = `<div class="map-card map-card-new" onclick="newIdeaMap()">
+  const visible=ideaMaps.filter(m=>m.userId===user.id||m.visibility==='shared');
+  let html=`<div class="map-card map-card-new" onclick="newIdeaMap()">
     <div class="map-card-new-icon">💡</div>
     <div class="map-card-new-label">New Idea Map</div>
   </div>`;
-  html += visible.map(m => {
-    const nodeCount = (m.nodes||[]).length;
-    const sharedBadge = m.visibility==='shared'
-      ? `<span style="background:var(--gold-bg);color:var(--gold-dim);border:1px solid var(--gold-border);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;">Shared</span>`
-      : `<span style="background:var(--border);color:var(--muted);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;">Private</span>`;
-    const mine = m.userId === user.id;
+  html+=visible.map(m=>{
+    const nc=(m.nodes||[]).length;
+    const badge=m.visibility==='shared'
+      ?`<span style="background:var(--gold-bg);color:var(--gold-dim);border:1px solid var(--gold-border);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;">Shared</span>`
+      :`<span style="background:var(--border);color:var(--muted);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;">Private</span>`;
+    const mine=m.userId===user.id;
     return `<div class="map-card" onclick="openIdeaMap('${m.id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px;">
         <div class="map-card-title">${m.title||'Untitled Map'}</div>
-        ${mine ? `<button onclick="event.stopPropagation();deleteIdeaMap('${m.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;flex-shrink:0;">×</button>` : ''}
+        ${mine?`<button onclick="event.stopPropagation();deleteIdeaMap('${m.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;flex-shrink:0;">×</button>`:''}
       </div>
-      <div class="map-card-meta">${sharedBadge} &nbsp;${nodeCount} idea${nodeCount!==1?'s':''} · ${fmt(m.updatedAt||m.createdAt)}</div>
-      <div class="map-card-preview">${miniPreview(m)}</div>
+      <div class="map-card-meta">${badge}&nbsp;${nc} idea${nc!==1?'s':''}</div>
+      <div class="map-card-preview">${imMiniPreview(m)}</div>
     </div>`;
   }).join('');
-  el.innerHTML = html;
+  el.innerHTML=html;
 }
 
-function miniPreview(m){
-  const nodes = m.nodes||[];
+function imMiniPreview(m){
+  const nodes=m.nodes||[], edges=m.edges||[];
   if(!nodes.length) return '<span style="color:var(--muted);font-size:12px;">Empty map</span>';
-  const edges = m.edges||[];
-  const W=180, H=88;
-  // normalize coords to fit preview
-  const xs = nodes.map(n=>n.x), ys = nodes.map(n=>n.y);
+  const W=180,H=88;
+  const xs=nodes.map(n=>n.x),ys=nodes.map(n=>n.y);
   const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
-  const scaleX = maxX>minX ? (W-30)/(maxX-minX) : 1;
-  const scaleY = maxY>minY ? (H-30)/(maxY-minY) : 1;
-  const scale = Math.min(scaleX, scaleY, 1);
-  const nx = n => 15 + (n.x-minX)*scale;
-  const ny = n => 15 + (n.y-minY)*scale;
-  const lines = edges.map(e=>{
-    const a=nodes.find(n=>n.id===e.from), b=nodes.find(n=>n.id===e.to);
-    if(!a||!b) return '';
-    return `<line x1="${nx(a)}" y1="${ny(a)}" x2="${nx(b)}" y2="${ny(b)}" stroke="#C9A84C" stroke-width="1.5" opacity="0.6"/>`;
-  }).join('');
-  const circles = nodes.map(n=>{
-    const c = NODE_COLORS[n.colorIdx||0];
-    return `<circle cx="${nx(n)}" cy="${ny(n)}" r="${Math.max(6,Math.min(12,(n.radius||60)/8))}" fill="${c.bg}" stroke="${c.border}" stroke-width="1.5"/>`;
-  }).join('');
+  const sc=Math.min(maxX>minX?(W-30)/(maxX-minX):1, maxY>minY?(H-30)/(maxY-minY):1, 1);
+  const nx=n=>15+(n.x-minX)*sc, ny=n=>15+(n.y-minY)*sc;
+  const lines=edges.map(e=>{const a=nodes.find(n=>n.id===e.from),b=nodes.find(n=>n.id===e.to);if(!a||!b)return '';return `<line x1="${nx(a)}" y1="${ny(a)}" x2="${nx(b)}" y2="${ny(b)}" stroke="#C9A84C" stroke-width="1.5" opacity="0.6"/>`;}).join('');
+  const circles=nodes.map(n=>{const c=IM_COLORS[n.colorIdx||0];return `<circle cx="${nx(n)}" cy="${ny(n)}" r="${Math.max(5,Math.min(11,(n.radius||60)/8))}" fill="${c.bg}" stroke="${c.bd}" stroke-width="1.5"/>`;}).join('');
   return `<svg width="${W}" height="${H}" style="position:absolute;top:0;left:0;">${lines}${circles}</svg>`;
 }
 
 function newIdeaMap(){
-  currentMapId = null;
-  mapNodes = [];
-  mapEdges = [];
-  connectMode = false;
-  connectFrom = null;
-  document.getElementById('map-title-input').value = 'New Idea Map';
-  document.getElementById('map-visibility').value = 'private';
-  document.getElementById('notes-list-view').style.display = 'none';
-  document.getElementById('notes-editor-view').style.display = 'block';
-  renderMapCanvas();
+  currentMapId=null; mapNodes=[]; mapEdges=[];
+  imConnectMode=false; imConnectFrom=null;
+  document.getElementById('map-title-input').value='New Idea Map';
+  document.getElementById('map-visibility').value='private';
+  document.getElementById('notes-list-view').style.display='none';
+  document.getElementById('notes-editor-view').style.display='block';
+  imInitCanvas();
 }
 
 function openIdeaMap(id){
-  const m = ideaMaps.find(m=>m.id===id);
-  if(!m) return;
-  currentMapId = id;
-  mapNodes = JSON.parse(JSON.stringify(m.nodes||[]));
-  mapEdges = JSON.parse(JSON.stringify(m.edges||[]));
-  connectMode = false; connectFrom = null;
-  document.getElementById('map-title-input').value = m.title||'Untitled';
-  document.getElementById('map-visibility').value = m.visibility||'private';
-  // Disable editing if shared and not owner
-  const canEdit = m.userId === user.id;
-  document.getElementById('map-title-input').disabled = !canEdit;
-  document.getElementById('map-visibility').disabled = !canEdit;
-  document.getElementById('notes-list-view').style.display = 'none';
-  document.getElementById('notes-editor-view').style.display = 'block';
-  renderMapCanvas();
+  const m=ideaMaps.find(m=>m.id===id); if(!m) return;
+  currentMapId=id;
+  mapNodes=JSON.parse(JSON.stringify(m.nodes||[]));
+  mapEdges=JSON.parse(JSON.stringify(m.edges||[]));
+  imConnectMode=false; imConnectFrom=null;
+  document.getElementById('map-title-input').value=m.title||'Untitled';
+  document.getElementById('map-visibility').value=m.visibility||'private';
+  const canEdit=m.userId===user.id;
+  document.getElementById('map-title-input').disabled=!canEdit;
+  document.getElementById('map-visibility').disabled=!canEdit;
+  document.getElementById('notes-list-view').style.display='none';
+  document.getElementById('notes-editor-view').style.display='block';
+  imInitCanvas();
 }
 
 function backToMapList(){
-  document.getElementById('notes-list-view').style.display = 'block';
-  document.getElementById('notes-editor-view').style.display = 'none';
-  closeNodePopup();
+  document.getElementById('notes-list-view').style.display='block';
+  document.getElementById('notes-editor-view').style.display='none';
+  imClosePopup();
   renderIdeaMaps();
 }
 
 async function saveCurrentMap(){
-  const title = document.getElementById('map-title-input').value.trim() || 'Untitled Map';
-  const visibility = document.getElementById('map-visibility').value;
-  const payload = {title, visibility, nodes:mapNodes, edges:mapEdges};
+  const title=document.getElementById('map-title-input').value.trim()||'Untitled Map';
+  const visibility=document.getElementById('map-visibility').value;
+  const payload={title,visibility,nodes:mapNodes,edges:mapEdges};
   if(currentMapId){
-    const r = await fetch('/api/idea-maps/'+currentMapId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(x=>x.json());
-    const idx = ideaMaps.findIndex(m=>m.id===currentMapId);
+    const r=await fetch('/api/idea-maps/'+currentMapId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(x=>x.json());
+    const idx=ideaMaps.findIndex(m=>m.id===currentMapId);
     if(idx!==-1) ideaMaps[idx]=r;
   } else {
-    const r = await fetch('/api/idea-maps',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(x=>x.json());
-    ideaMaps.push(r);
-    currentMapId = r.id;
+    const r=await fetch('/api/idea-maps',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(x=>x.json());
+    ideaMaps.push(r); currentMapId=r.id;
   }
   toast('Map saved!');
 }
@@ -2118,172 +2098,205 @@ async function saveCurrentMap(){
 async function deleteIdeaMap(id){
   if(!confirm('Delete this idea map?')) return;
   await fetch('/api/idea-maps/'+id,{method:'DELETE'});
-  ideaMaps = ideaMaps.filter(m=>m.id!==id);
+  ideaMaps=ideaMaps.filter(m=>m.id!==id);
   renderIdeaMaps();
 }
 
-// ── CANVAS ENGINE ──────────────────────────────────────────────────
-let isDragging = false;
-let dragStartX = 0, dragStartY = 0;
-
-function drawEdges(){
-  const svg = document.getElementById('map-svg');
-  if(!svg) return;
-  const marker = `<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#C9A84C" opacity="0.8"/></marker></defs>`;
-  const lines = mapEdges.map(e=>{
-    const a=mapNodes.find(n=>n.id===e.from), b=mapNodes.find(n=>n.id===e.to);
-    if(!a||!b) return '';
-    const dx=b.x-a.x, dy=b.y-a.y, dist=Math.sqrt(dx*dx+dy*dy)||1;
-    const ra=(a.radius||60)/2, rb=(b.radius||60)/2;
-    const x1=a.x+(dx/dist)*ra, y1=a.y+(dy/dist)*ra;
-    const x2=b.x-(dx/dist)*rb, y2=b.y-(dy/dist)*rb;
-    const eid = e.id||e.from+e.to;
-    return `<g>
-      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#C9A84C" stroke-width="2" stroke-opacity="0.6" marker-end="url(#arrow)"/>
-      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="transparent" stroke-width="12" style="cursor:pointer;" onclick="deleteEdge('${eid}')" title="Click to remove connection"/>
-    </g>`;
-  }).join('');
-  svg.innerHTML = marker + lines;
+// ── CANVAS ────────────────────────────────────────────────────────
+function imInitCanvas(){
+  const wrap=document.getElementById('map-canvas-wrap');
+  if(!wrap) return;
+  // Remove old listeners by cloning
+  const fresh=wrap.cloneNode(true);
+  wrap.parentNode.replaceChild(fresh,wrap);
+  const w=document.getElementById('map-canvas-wrap');
+  w.style.touchAction='none';
+  w.addEventListener('pointerdown', imCanvasDown);
+  imRedraw();
 }
 
-function renderMapCanvas(){
-  const wrap = document.getElementById('map-canvas-wrap');
-  const nodesEl = document.getElementById('map-nodes');
-  if(!wrap) return;
+function imRedraw(){
+  const w=document.getElementById('map-canvas-wrap'); if(!w) return;
+  const svg=document.getElementById('map-svg');
+  const nl=document.getElementById('map-nodes');
 
-  drawEdges();
+  // Edges
+  svg.innerHTML=`<defs><marker id="imarrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#C9A84C" opacity="0.8"/></marker></defs>`
+    +mapEdges.map(e=>{
+      const a=mapNodes.find(n=>n.id===e.from),b=mapNodes.find(n=>n.id===e.to);
+      if(!a||!b) return '';
+      const dx=b.x-a.x,dy=b.y-a.y,dist=Math.sqrt(dx*dx+dy*dy)||1;
+      const ra=(a.radius||60)/2,rb=(b.radius||60)/2;
+      return `<line x1="${a.x+dx/dist*ra}" y1="${a.y+dy/dist*ra}" x2="${b.x-dx/dist*rb}" y2="${b.y-dy/dist*rb}" stroke="#C9A84C" stroke-width="2" stroke-opacity="0.7" marker-end="url(#imarrow)"/>`;
+    }).join('');
 
-  nodesEl.innerHTML = mapNodes.map(n=>{
-    const c = NODE_COLORS[n.colorIdx||0];
-    const r = n.radius||60;
-    const isSrc = connectFrom && connectFrom.id===n.id;
-    return `<div class="map-node${isSrc?' connecting':''}"
-      id="node-${n.id}"
-      data-id="${n.id}"
-      style="left:${n.x-r/2}px;top:${n.y-r/2}px;width:${r}px;height:${r}px;background:${c.bg};border:2px solid ${c.border};color:${c.text};font-size:${r>80?13:11}px;"
+  // Nodes
+  nl.innerHTML=mapNodes.map(n=>{
+    const c=IM_COLORS[n.colorIdx||0],r=n.radius||60;
+    const glow=imConnectFrom&&imConnectFrom.id===n.id?`box-shadow:0 0 0 3px #3b82f6;`:'';
+    return `<div class="map-node" id="imn-${n.id}" data-nid="${n.id}"
+      style="left:${n.x-r/2}px;top:${n.y-r/2}px;width:${r}px;height:${r}px;
+             background:${c.bg};border:2px solid ${c.bd};color:${c.tx};
+             font-size:${r>80?13:11}px;${glow}"
     >${n.text||'Idea'}</div>`;
   }).join('');
 
-  // Attach events directly to node elements (not via inline handlers)
+  // Attach events to each node element
   mapNodes.forEach(n=>{
-    const el = document.getElementById('node-'+n.id);
-    if(!el) return;
-    attachNodeEvents(el, n.id);
+    const el=document.getElementById('imn-'+n.id);
+    if(el) imAttachNode(el,n.id);
   });
-
-  // Canvas pointer events
-  wrap.onpointerdown = onCanvasPointerDown;
-  wrap.onpointermove = onCanvasPointerMove;
-  wrap.onpointerup = onCanvasPointerUp;
-  wrap.style.touchAction = 'none';
 }
 
-function attachNodeEvents(el, id){
-  let pointerDownX=0, pointerDownY=0, pointerMoved=false;
-
-  el.onpointerdown = function(e){
+function imAttachNode(el,id){
+  let sx,sy,moved;
+  el.addEventListener('pointerdown',function(e){
     e.stopPropagation();
     el.setPointerCapture(e.pointerId);
-    const n = mapNodes.find(n=>n.id===id);
-    if(!n) return;
-    const wrap = document.getElementById('map-canvas-wrap');
-    const rect = wrap.getBoundingClientRect();
-    dragNode = n;
-    dragOffX = e.clientX - rect.left - n.x;
-    dragOffY = e.clientY - rect.top - n.y;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    pointerDownX = e.clientX;
-    pointerDownY = e.clientY;
-    pointerMoved = false;
-    isDragging = false;
-  };
+    sx=e.clientX; sy=e.clientY; moved=false;
+    const n=mapNodes.find(n=>n.id===id);
+    const rect=document.getElementById('map-canvas-wrap').getBoundingClientRect();
+    imDragNode=n;
+    imDragOff={x:e.clientX-rect.left-n.x, y:e.clientY-rect.top-n.y};
+  });
+  el.addEventListener('pointermove',function(e){
+    if(!imDragNode||imDragNode.id!==id) return;
+    if(Math.abs(e.clientX-sx)>5||Math.abs(e.clientY-sy)>5) moved=true;
+    if(!moved) return;
+    const w=document.getElementById('map-canvas-wrap');
+    const rect=w.getBoundingClientRect();
+    const r=(imDragNode.radius||60)/2;
+    imDragNode.x=Math.max(r,Math.min(w.clientWidth-r, e.clientX-rect.left-imDragOff.x));
+    imDragNode.y=Math.max(r,Math.min(w.clientHeight-r, e.clientY-rect.top-imDragOff.y));
+    el.style.left=(imDragNode.x-r)+'px';
+    el.style.top=(imDragNode.y-r)+'px';
+    // Redraw edges only
+    const svg=document.getElementById('map-svg');
+    svg.innerHTML=`<defs><marker id="imarrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#C9A84C" opacity="0.8"/></marker></defs>`
+      +mapEdges.map(e=>{const a=mapNodes.find(n=>n.id===e.from),b=mapNodes.find(n=>n.id===e.to);if(!a||!b)return '';const dx=b.x-a.x,dy=b.y-a.y,dist=Math.sqrt(dx*dx+dy*dy)||1;const ra=(a.radius||60)/2,rb=(b.radius||60)/2;return `<line x1="${a.x+dx/dist*ra}" y1="${a.y+dy/dist*ra}" x2="${b.x-dx/dist*rb}" y2="${b.y-dy/dist*rb}" stroke="#C9A84C" stroke-width="2" stroke-opacity="0.7" marker-end="url(#imarrow)"/>`;}).join('');
+  });
+  el.addEventListener('pointerup',function(e){
+    const wasMoved=moved; imDragNode=null; moved=false;
+    if(wasMoved) return; // was a drag
 
-  el.onpointermove = function(e){
-    if(dragNode && dragNode.id===id){
-      const dx = e.clientX - pointerDownX;
-      const dy = e.clientY - pointerDownY;
-      if(!isDragging && (Math.abs(dx)>4 || Math.abs(dy)>4)){
-        isDragging = true;
-        closeNodePopup();
-      }
-      if(isDragging){
-        const wrap = document.getElementById('map-canvas-wrap');
-        const rect = wrap.getBoundingClientRect();
-        const r = (dragNode.radius||60)/2;
-        dragNode.x = Math.max(r, Math.min(wrap.clientWidth-r, e.clientX - rect.left - dragOffX));
-        dragNode.y = Math.max(r, Math.min(wrap.clientHeight-r, e.clientY - rect.top - dragOffY));
-        el.style.left = (dragNode.x-r)+'px';
-        el.style.top  = (dragNode.y-r)+'px';
-        drawEdges();
-      }
-    }
-  };
-
-  el.onpointerup = function(e){
-    e.stopPropagation();
-    const wasDragging = isDragging;
-    dragNode = null;
-    isDragging = false;
-
-    if(wasDragging) return; // was a drag, not a click
-
-    // It's a real click
-    if(connectMode && connectFrom){
-      if(connectFrom.id !== id){
-        const exists = mapEdges.find(ex=>(ex.from===connectFrom.id&&ex.to===id)||(ex.from===id&&ex.to===connectFrom.id));
-        if(!exists) mapEdges.push({id:Date.now().toString()+id, from:connectFrom.id, to:id});
-        connectMode=false; connectFrom=null;
-        renderMapCanvas();
+    // It's a tap/click
+    if(imConnectMode&&imConnectFrom){
+      if(imConnectFrom.id!==id){
+        const dup=mapEdges.find(ex=>(ex.from===imConnectFrom.id&&ex.to===id)||(ex.from===id&&ex.to===imConnectFrom.id));
+        if(!dup) mapEdges.push({id:'e'+Date.now(),from:imConnectFrom.id,to:id});
         toast('Connected!');
       }
-      return;
+      imConnectMode=false; imConnectFrom=null;
+      imRedraw(); return;
     }
     // Toggle popup
-    const existing = document.getElementById('node-popup');
-    if(existing && editingNodeId===id){ closeNodePopup(); return; }
-    closeNodePopup();
-    openNodePopup(id);
-  };
+    const existing=document.getElementById('im-popup');
+    if(existing&&existing.dataset.forNode===id){ imClosePopup(); return; }
+    imClosePopup();
+    imOpenPopup(id);
+  });
 }
 
-function onCanvasPointerDown(e){
+function imCanvasDown(e){
+  // Only fire when clicking the canvas background (not a node or popup)
+  if(e.target.dataset.nid) return;  // clicked a node
+  if(e.target.closest('#im-popup')) return;  // clicked popup
   if(e.target.closest('.map-node')) return;
-  if(e.target.closest('.node-edit-popup')) return;
-  dragStartX = e.clientX;
-  dragStartY = e.clientY;
+
+  const w=document.getElementById('map-canvas-wrap');
+  const rect=w.getBoundingClientRect();
+
+  if(imConnectMode){ imConnectMode=false; imConnectFrom=null; imRedraw(); toast('Cancelled'); return; }
+  imClosePopup();
+
+  const x=e.clientX-rect.left, y=e.clientY-rect.top;
+  const id='n'+Date.now()+Math.random().toString(36).slice(2,4);
+  const r=mapNodes.length===0?100:65;
+  mapNodes.push({id,x,y,text:'New Idea',colorIdx:mapNodes.length%IM_COLORS.length,radius:r});
+  imRedraw();
+  setTimeout(()=>imOpenPopup(id),40);
 }
 
-function onCanvasPointerMove(e){ /* handled by nodes */ }
-
-function onCanvasPointerUp(e){
-  if(e.target.closest('.map-node')) return;
-  if(e.target.closest('.node-edit-popup')) return;
-  // Only add node if pointer didn't move (real click not scroll)
-  const moved = Math.abs(e.clientX-dragStartX)>5 || Math.abs(e.clientY-dragStartY)>5;
-  if(moved) return;
-
-  closeNodePopup();
-
-  if(connectMode){
-    connectMode=false; connectFrom=null;
-    renderMapCanvas();
-    toast('Connection cancelled');
-    return;
-  }
-  const wrap = document.getElementById('map-canvas-wrap');
-  const rect = wrap.getBoundingClientRect();
-  addNode(e.clientX - rect.left, e.clientY - rect.top);
+// ── POPUP ─────────────────────────────────────────────────────────
+function imOpenPopup(id){
+  imClosePopup();
+  const n=mapNodes.find(n=>n.id===id); if(!n) return;
+  const w=document.getElementById('map-canvas-wrap');
+  const r=n.radius||60;
+  const popup=document.createElement('div');
+  popup.id='im-popup';
+  popup.dataset.forNode=id;
+  popup.className='node-edit-popup';
+  const pw=215,ph=215;
+  let px=n.x+r/2+10, py=n.y-30;
+  if(px+pw>w.clientWidth-8) px=n.x-r/2-pw-10;
+  if(py+ph>w.clientHeight-8) py=w.clientHeight-ph-8;
+  if(py<5) py=5; if(px<5) px=5;
+  popup.style.cssText=`left:${px}px;top:${py}px;z-index:50;`;
+  const colorDots=IM_COLORS.map((c,i)=>`<div onclick="imSetColor(${i})"
+    style="width:20px;height:20px;border-radius:50%;background:${c.bg};border:2px solid ${c.bd};cursor:pointer;
+    ${n.colorIdx===i?'outline:2px solid #333;':''}" title="Color ${i+1}"></div>`).join('');
+  popup.innerHTML=`
+    <textarea id="im-text" rows="2" style="width:100%;resize:none;background:var(--main-bg);border:1px solid var(--border2);border-radius:8px;padding:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;box-sizing:border-box;">${n.text||''}</textarea>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin:8px 0;">${colorDots}</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+      <span style="font-size:11px;color:var(--muted);">Size</span>
+      <input type="range" min="50" max="140" value="${r}" id="im-size" style="flex:1;" oninput="imResizeNode(this.value,'${id}')">
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button onclick="imStartConnect('${id}')" style="flex:1;background:var(--blue-bg);color:var(--blue);border:1px solid rgba(66,153,225,.3);border-radius:7px;padding:6px 4px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🔗 Connect</button>
+      <button onclick="imDeleteNode('${id}')" style="flex:1;background:var(--red-bg);color:var(--red);border:1px solid rgba(217,48,37,.2);border-radius:7px;padding:6px 4px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🗑 Delete</button>
+      <button onclick="imApplyText('${id}')" style="flex:1;background:var(--gold);color:var(--black);border:none;border-radius:7px;padding:6px 4px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✓ Done</button>
+    </div>`;
+  w.appendChild(popup);
+  const ta=document.getElementById('im-text');
+  ta.focus(); ta.select();
+  ta.addEventListener('input',()=>{ const n2=mapNodes.find(n=>n.id===id); if(n2){n2.text=ta.value; const el=document.getElementById('imn-'+id); if(el) el.textContent=ta.value;} });
+  // Stop popup clicks from bubbling to canvas
+  popup.addEventListener('pointerdown',e=>e.stopPropagation());
 }
 
-function deleteEdge(eid){
-  mapEdges = mapEdges.filter(e=>(e.id||e.from+e.to)!==eid);
-  drawEdges();
-  toast('Connection removed');
+function imClosePopup(){ const p=document.getElementById('im-popup'); if(p) p.remove(); }
+
+function imApplyText(id){
+  const ta=document.getElementById('im-text');
+  const n=mapNodes.find(n=>n.id===id);
+  if(n&&ta) n.text=ta.value;
+  imClosePopup(); imRedraw();
 }
 
-function onMouseUp(e){
-  if(dragNode){ dragNode=null; isDragging=false; renderMapCanvas(); }
+function imSetColor(idx){
+  const popup=document.getElementById('im-popup'); if(!popup) return;
+  const id=popup.dataset.forNode;
+  const n=mapNodes.find(n=>n.id===id); if(!n) return;
+  n.colorIdx=idx;
+  imRedraw();
+  setTimeout(()=>imOpenPopup(id),30);
+}
+
+function imResizeNode(val,id){
+  const n=mapNodes.find(n=>n.id===id); if(!n) return;
+  n.radius=parseInt(val);
+  const el=document.getElementById('imn-'+id);
+  const r=n.radius/2;
+  if(el){el.style.width=val+'px';el.style.height=val+'px';el.style.left=(n.x-r)+'px';el.style.top=(n.y-r)+'px';}
+  // redraw edges
+  const svg=document.getElementById('map-svg');
+  svg.innerHTML=`<defs><marker id="imarrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#C9A84C" opacity="0.8"/></marker></defs>`
+    +mapEdges.map(e=>{const a=mapNodes.find(n=>n.id===e.from),b=mapNodes.find(n=>n.id===e.to);if(!a||!b)return '';const dx=b.x-a.x,dy=b.y-a.y,dist=Math.sqrt(dx*dx+dy*dy)||1;const ra=(a.radius||60)/2,rb=(b.radius||60)/2;return `<line x1="${a.x+dx/dist*ra}" y1="${a.y+dy/dist*ra}" x2="${b.x-dx/dist*rb}" y2="${b.y-dy/dist*rb}" stroke="#C9A84C" stroke-width="2" stroke-opacity="0.7" marker-end="url(#imarrow)"/>`;}).join('');
+}
+
+function imDeleteNode(id){
+  mapNodes=mapNodes.filter(n=>n.id!==id);
+  mapEdges=mapEdges.filter(e=>e.from!==id&&e.to!==id);
+  imClosePopup(); imRedraw();
+}
+
+function imStartConnect(id){
+  imConnectMode=true;
+  imConnectFrom=mapNodes.find(n=>n.id===id);
+  imClosePopup(); imRedraw();
+  toast('Tap another node to connect · tap canvas to cancel');
 }
 
 
