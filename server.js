@@ -33,9 +33,9 @@ const files = {
   notifications:  path.join(DATA_DIR, 'notifications.json'),
 };
 
-// Multer for icon upload
+// Multer for icon upload — save to DATA_DIR so it persists across deploys
 const iconStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, PUBLIC_DIR),
+  destination: (req, file, cb) => cb(null, DATA_DIR),
   filename: (req, file, cb) => cb(null, 'app-icon.png')
 });
 const upload = multer({ storage: iconStorage, limits: { fileSize: 5 * 1024 * 1024 } });
@@ -182,9 +182,20 @@ app.post('/api/change-password', auth, async (req, res) => {
 // ── ICON UPLOAD ───────────────────────────────────────────────────
 app.post('/api/upload-icon', auth, upload.single('icon'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  await fs.copy(path.join(PUBLIC_DIR, 'app-icon.png'), path.join(PUBLIC_DIR, 'icon-192.png'));
-  await fs.copy(path.join(PUBLIC_DIR, 'app-icon.png'), path.join(PUBLIC_DIR, 'icon-512.png'));
-  res.json({ success: true, url: '/app-icon.png' });
+  // Icon is saved to DATA_DIR/app-icon.png — serve it via /api/icon
+  res.json({ success: true, url: '/api/icon' });
+});
+
+// Serve the persistent icon
+app.get('/api/icon', async (req, res) => {
+  const iconPath = path.join(DATA_DIR, 'app-icon.png');
+  if (await fs.pathExists(iconPath)) {
+    res.setHeader('Cache-Control', 'no-cache');
+    res.sendFile(iconPath);
+  } else {
+    // Fall back to default icon in public dir
+    res.sendFile(path.join(PUBLIC_DIR, 'icon-192.png'));
+  }
 });
 
 // ── NOTIFICATIONS ─────────────────────────────────────────────────
