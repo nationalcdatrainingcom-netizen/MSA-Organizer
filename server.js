@@ -8,371 +8,320 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Data file paths
 const DATA_DIR = path.join(__dirname, 'data');
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
-const TASKS_FILE = path.join(DATA_DIR, 'tasks.json');
-const PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
-const MEETINGS_FILE = path.join(DATA_DIR, 'meetings.json');
-const RECURRING_FILE = path.join(DATA_DIR, 'recurring.json');
-const LESSONS_FILE = path.join(DATA_DIR, 'lessons.json');
-const LINKS_FILE = path.join(DATA_DIR, 'links.json');
-const CALENDAR_FILE = path.join(DATA_DIR, 'calendar.json');
-const PRODUCTIVITY_FILE = path.join(DATA_DIR, 'productivity.json');
+const files = {
+  users:        path.join(DATA_DIR, 'users.json'),
+  tasks:        path.join(DATA_DIR, 'tasks.json'),
+  projects:     path.join(DATA_DIR, 'projects.json'),
+  meetings:     path.join(DATA_DIR, 'meetings.json'),
+  recurring:    path.join(DATA_DIR, 'recurring.json'),
+  lessons:      path.join(DATA_DIR, 'lessons.json'),
+  links:        path.join(DATA_DIR, 'links.json'),
+  calendar:     path.join(DATA_DIR, 'calendar.json'),
+  productivity: path.join(DATA_DIR, 'productivity.json'),
+  messages:     path.join(DATA_DIR, 'messages.json'),
+  goals:        path.join(DATA_DIR, 'goals.json'),
+};
 
-// Ensure data directory and files exist
 async function initData() {
   await fs.ensureDir(DATA_DIR);
-
-  if (!await fs.pathExists(USERS_FILE)) {
-    const users = [
-      {
-        id: 'rebecca',
-        username: 'rebecca',
-        name: 'Rebecca Munlyn',
-        title: 'Co-Founder',
-        initials: 'RM',
-        color: '#7C3AED',
-        password: bcrypt.hashSync('msa2024', 10)
-      },
-      {
-        id: 'mary',
-        username: 'mary',
-        name: 'Mary Wardlaw',
-        title: 'Co-Founder',
-        initials: 'MW',
-        color: '#0F766E',
-        password: bcrypt.hashSync('msa2024', 10)
-      }
-    ];
-    await fs.writeJson(USERS_FILE, users, { spaces: 2 });
+  if (!await fs.pathExists(files.users)) {
+    await fs.writeJson(files.users, [
+      { id: 'rebecca', username: 'rebecca', name: 'Rebecca Munlyn', title: 'Co-Founder', initials: 'RM', color: '#7C3AED', password: bcrypt.hashSync('msa2024', 10) },
+      { id: 'mary',    username: 'mary',    name: 'Mary Wardlaw',   title: 'Co-Founder', initials: 'MW', color: '#0F766E', password: bcrypt.hashSync('msa2024', 10) }
+    ], { spaces: 2 });
   }
-
   const defaults = [
-    [TASKS_FILE, []],
-    [PROJECTS_FILE, []],
-    [MEETINGS_FILE, []],
-    [RECURRING_FILE, []],
-    [LESSONS_FILE, []],
-    [LINKS_FILE, {
-      lessonLinks: [],
-      quizLink: '',
-      resourceLinks: []
-    }],
-    [CALENDAR_FILE, []],
-    [PRODUCTIVITY_FILE, {}]
+    [files.tasks,        []],
+    [files.projects,     []],
+    [files.meetings,     []],
+    [files.recurring,    []],
+    [files.lessons,      []],
+    [files.links,        { lessonLinks: [], quizLink: '', resourceLinks: [] }],
+    [files.calendar,     []],
+    [files.productivity, {}],
+    [files.messages,     []],
+    [files.goals,        { featured: null, goals: [], radar: [] }],
   ];
-
-  for (const [file, def] of defaults) {
-    if (!await fs.pathExists(file)) {
-      await fs.writeJson(file, def, { spaces: 2 });
-    }
+  for (const [f, def] of defaults) {
+    if (!await fs.pathExists(f)) await fs.writeJson(f, def, { spaces: 2 });
   }
 }
 
-// Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'msa-secret-2024',
+  secret: process.env.SESSION_SECRET || 'msa-secret-2024-xk9',
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Auth middleware
-function requireAuth(req, res, next) {
+function auth(req, res, next) {
   if (req.session.userId) return next();
   res.status(401).json({ error: 'Not authenticated' });
 }
 
-// ─── AUTH ROUTES ───────────────────────────────────────────────
+// AUTH
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-  const users = await fs.readJson(USERS_FILE);
+  const users = await fs.readJson(files.users);
   const user = users.find(u => u.username === username.toLowerCase());
-  if (!user || !bcrypt.compareSync(password, user.password)) {
+  if (!user || !bcrypt.compareSync(password, user.password))
     return res.status(401).json({ error: 'Invalid credentials' });
-  }
   req.session.userId = user.id;
-  req.session.userName = user.name;
   res.json({ success: true, user: { id: user.id, name: user.name, initials: user.initials, color: user.color, title: user.title } });
 });
-
-app.post('/api/logout', (req, res) => {
-  req.session.destroy();
-  res.json({ success: true });
+app.post('/api/logout', (req, res) => { req.session.destroy(); res.json({ success: true }); });
+app.get('/api/me', auth, async (req, res) => {
+  const users = await fs.readJson(files.users);
+  const u = users.find(u => u.id === req.session.userId);
+  if (!u) return res.status(404).json({ error: 'Not found' });
+  res.json({ id: u.id, name: u.name, initials: u.initials, color: u.color, title: u.title });
 });
-
-app.get('/api/me', requireAuth, async (req, res) => {
-  const users = await fs.readJson(USERS_FILE);
-  const user = users.find(u => u.id === req.session.userId);
-  if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ id: user.id, name: user.name, initials: user.initials, color: user.color, title: user.title });
-});
-
-// ─── TASKS ROUTES ───────────────────────────────────────────────
-app.get('/api/tasks', requireAuth, async (req, res) => {
-  const tasks = await fs.readJson(TASKS_FILE);
-  res.json(tasks.filter(t => t.userId === req.session.userId));
-});
-
-app.post('/api/tasks', requireAuth, async (req, res) => {
-  const tasks = await fs.readJson(TASKS_FILE);
-  const task = {
-    id: Date.now().toString(),
-    userId: req.session.userId,
-    ...req.body,
-    createdAt: new Date().toISOString()
-  };
-  tasks.push(task);
-  await fs.writeJson(TASKS_FILE, tasks, { spaces: 2 });
-  res.json(task);
-});
-
-app.put('/api/tasks/:id', requireAuth, async (req, res) => {
-  const tasks = await fs.readJson(TASKS_FILE);
-  const idx = tasks.findIndex(t => t.id === req.params.id && t.userId === req.session.userId);
+app.post('/api/change-password', auth, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const users = await fs.readJson(files.users);
+  const idx = users.findIndex(u => u.id === req.session.userId);
   if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  tasks[idx] = { ...tasks[idx], ...req.body };
-  await fs.writeJson(TASKS_FILE, tasks, { spaces: 2 });
-  res.json(tasks[idx]);
-});
-
-app.delete('/api/tasks/:id', requireAuth, async (req, res) => {
-  let tasks = await fs.readJson(TASKS_FILE);
-  tasks = tasks.filter(t => !(t.id === req.params.id && t.userId === req.session.userId));
-  await fs.writeJson(TASKS_FILE, tasks, { spaces: 2 });
+  if (!bcrypt.compareSync(currentPassword, users[idx].password))
+    return res.status(401).json({ error: 'Current password incorrect' });
+  users[idx].password = bcrypt.hashSync(newPassword, 10);
+  await fs.writeJson(files.users, users, { spaces: 2 });
   res.json({ success: true });
 });
 
-// ─── PROJECTS ROUTES ────────────────────────────────────────────
-app.get('/api/projects', requireAuth, async (req, res) => {
-  const projects = await fs.readJson(PROJECTS_FILE);
-  res.json(projects);
+// TASKS (personal)
+app.get('/api/tasks', auth, async (req, res) => {
+  const data = await fs.readJson(files.tasks);
+  res.json(data.filter(d => d.userId === req.session.userId));
 });
-
-app.post('/api/projects', requireAuth, async (req, res) => {
-  const projects = await fs.readJson(PROJECTS_FILE);
-  const project = {
-    id: Date.now().toString(),
-    createdBy: req.session.userId,
-    ...req.body,
-    createdAt: new Date().toISOString()
-  };
-  projects.push(project);
-  await fs.writeJson(PROJECTS_FILE, projects, { spaces: 2 });
-  res.json(project);
+app.post('/api/tasks', auth, async (req, res) => {
+  const data = await fs.readJson(files.tasks);
+  const item = { id: Date.now().toString(), userId: req.session.userId, ...req.body, createdAt: new Date().toISOString() };
+  data.push(item);
+  await fs.writeJson(files.tasks, data, { spaces: 2 });
+  res.json(item);
 });
-
-app.put('/api/projects/:id', requireAuth, async (req, res) => {
-  const projects = await fs.readJson(PROJECTS_FILE);
-  const idx = projects.findIndex(p => p.id === req.params.id);
+app.put('/api/tasks/:id', auth, async (req, res) => {
+  const data = await fs.readJson(files.tasks);
+  const idx = data.findIndex(d => d.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  projects[idx] = { ...projects[idx], ...req.body };
-  await fs.writeJson(PROJECTS_FILE, projects, { spaces: 2 });
-  res.json(projects[idx]);
+  data[idx] = { ...data[idx], ...req.body };
+  await fs.writeJson(files.tasks, data, { spaces: 2 });
+  res.json(data[idx]);
 });
-
-app.delete('/api/projects/:id', requireAuth, async (req, res) => {
-  let projects = await fs.readJson(PROJECTS_FILE);
-  projects = projects.filter(p => p.id !== req.params.id);
-  await fs.writeJson(PROJECTS_FILE, projects, { spaces: 2 });
+app.delete('/api/tasks/:id', auth, async (req, res) => {
+  let data = await fs.readJson(files.tasks);
+  data = data.filter(d => d.id !== req.params.id);
+  await fs.writeJson(files.tasks, data, { spaces: 2 });
   res.json({ success: true });
 });
 
-// ─── MEETINGS ROUTES ────────────────────────────────────────────
-app.get('/api/meetings', requireAuth, async (req, res) => {
-  const meetings = await fs.readJson(MEETINGS_FILE);
-  res.json(meetings);
+// PROJECTS (shared or personal)
+app.get('/api/projects', auth, async (req, res) => {
+  const data = await fs.readJson(files.projects);
+  res.json(data.filter(d => d.userId === req.session.userId || d.shared === true));
 });
-
-app.post('/api/meetings', requireAuth, async (req, res) => {
-  const meetings = await fs.readJson(MEETINGS_FILE);
-  const meeting = {
-    id: Date.now().toString(),
-    createdBy: req.session.userId,
-    ...req.body,
-    createdAt: new Date().toISOString()
-  };
-  meetings.push(meeting);
-  await fs.writeJson(MEETINGS_FILE, meetings, { spaces: 2 });
-  res.json(meeting);
+app.post('/api/projects', auth, async (req, res) => {
+  const data = await fs.readJson(files.projects);
+  const item = { id: Date.now().toString(), userId: req.session.userId, ...req.body, createdAt: new Date().toISOString() };
+  data.push(item);
+  await fs.writeJson(files.projects, data, { spaces: 2 });
+  res.json(item);
 });
-
-app.put('/api/meetings/:id', requireAuth, async (req, res) => {
-  const meetings = await fs.readJson(MEETINGS_FILE);
-  const idx = meetings.findIndex(m => m.id === req.params.id);
+app.put('/api/projects/:id', auth, async (req, res) => {
+  const data = await fs.readJson(files.projects);
+  const idx = data.findIndex(d => d.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  meetings[idx] = { ...meetings[idx], ...req.body };
-  await fs.writeJson(MEETINGS_FILE, meetings, { spaces: 2 });
-  res.json(meetings[idx]);
+  data[idx] = { ...data[idx], ...req.body };
+  await fs.writeJson(files.projects, data, { spaces: 2 });
+  res.json(data[idx]);
 });
-
-app.delete('/api/meetings/:id', requireAuth, async (req, res) => {
-  let meetings = await fs.readJson(MEETINGS_FILE);
-  meetings = meetings.filter(m => m.id !== req.params.id);
-  await fs.writeJson(MEETINGS_FILE, meetings, { spaces: 2 });
+app.delete('/api/projects/:id', auth, async (req, res) => {
+  let data = await fs.readJson(files.projects);
+  data = data.filter(d => d.id !== req.params.id);
+  await fs.writeJson(files.projects, data, { spaces: 2 });
   res.json({ success: true });
 });
 
-// ─── RECURRING TASKS ROUTES ─────────────────────────────────────
-app.get('/api/recurring', requireAuth, async (req, res) => {
-  const recurring = await fs.readJson(RECURRING_FILE);
-  res.json(recurring.filter(r => r.userId === req.session.userId));
+// MEETINGS (shared)
+app.get('/api/meetings', auth, async (req, res) => res.json(await fs.readJson(files.meetings)));
+app.post('/api/meetings', auth, async (req, res) => {
+  const data = await fs.readJson(files.meetings);
+  const item = { id: Date.now().toString(), userId: req.session.userId, ...req.body, createdAt: new Date().toISOString() };
+  data.push(item);
+  await fs.writeJson(files.meetings, data, { spaces: 2 });
+  // Also add to calendar
+  if (req.body.date) {
+    const cal = await fs.readJson(files.calendar);
+    cal.push({ id: 'mtg-' + item.id, title: '📋 ' + req.body.title, date: req.body.date, startTime: req.body.time || '', endTime: '', visibility: 'shared', isMeeting: true, meetingId: item.id, userId: req.session.userId, createdAt: new Date().toISOString() });
+    await fs.writeJson(files.calendar, cal, { spaces: 2 });
+  }
+  res.json(item);
 });
-
-app.post('/api/recurring', requireAuth, async (req, res) => {
-  const recurring = await fs.readJson(RECURRING_FILE);
-  const task = {
-    id: Date.now().toString(),
-    userId: req.session.userId,
-    ...req.body,
-    createdAt: new Date().toISOString()
-  };
-  recurring.push(task);
-  await fs.writeJson(RECURRING_FILE, recurring, { spaces: 2 });
-  res.json(task);
-});
-
-app.put('/api/recurring/:id', requireAuth, async (req, res) => {
-  const recurring = await fs.readJson(RECURRING_FILE);
-  const idx = recurring.findIndex(r => r.id === req.params.id);
+app.put('/api/meetings/:id', auth, async (req, res) => {
+  const data = await fs.readJson(files.meetings);
+  const idx = data.findIndex(d => d.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  recurring[idx] = { ...recurring[idx], ...req.body };
-  await fs.writeJson(RECURRING_FILE, recurring, { spaces: 2 });
-  res.json(recurring[idx]);
+  data[idx] = { ...data[idx], ...req.body };
+  await fs.writeJson(files.meetings, data, { spaces: 2 });
+  res.json(data[idx]);
 });
-
-app.delete('/api/recurring/:id', requireAuth, async (req, res) => {
-  let recurring = await fs.readJson(RECURRING_FILE);
-  recurring = recurring.filter(r => r.id !== req.params.id);
-  await fs.writeJson(RECURRING_FILE, recurring, { spaces: 2 });
+app.delete('/api/meetings/:id', auth, async (req, res) => {
+  let data = await fs.readJson(files.meetings);
+  data = data.filter(d => d.id !== req.params.id);
+  await fs.writeJson(files.meetings, data, { spaces: 2 });
+  let cal = await fs.readJson(files.calendar);
+  cal = cal.filter(c => c.meetingId !== req.params.id);
+  await fs.writeJson(files.calendar, cal, { spaces: 2 });
   res.json({ success: true });
 });
 
-// ─── LESSONS ROUTES ─────────────────────────────────────────────
-app.get('/api/lessons', requireAuth, async (req, res) => {
-  const lessons = await fs.readJson(LESSONS_FILE);
-  res.json(lessons);
+// RECURRING (personal or shared)
+app.get('/api/recurring', auth, async (req, res) => {
+  const data = await fs.readJson(files.recurring);
+  res.json(data.filter(d => d.userId === req.session.userId || d.shared === true));
 });
-
-app.post('/api/lessons', requireAuth, async (req, res) => {
-  const lessons = await fs.readJson(LESSONS_FILE);
-  const lesson = {
-    id: Date.now().toString(),
-    createdBy: req.session.userId,
-    ...req.body,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  lessons.push(lesson);
-  await fs.writeJson(LESSONS_FILE, lessons, { spaces: 2 });
-  res.json(lesson);
+app.post('/api/recurring', auth, async (req, res) => {
+  const data = await fs.readJson(files.recurring);
+  const item = { id: Date.now().toString(), userId: req.session.userId, ...req.body, createdAt: new Date().toISOString() };
+  data.push(item);
+  await fs.writeJson(files.recurring, data, { spaces: 2 });
+  res.json(item);
 });
-
-app.put('/api/lessons/:id', requireAuth, async (req, res) => {
-  const lessons = await fs.readJson(LESSONS_FILE);
-  const idx = lessons.findIndex(l => l.id === req.params.id);
+app.put('/api/recurring/:id', auth, async (req, res) => {
+  const data = await fs.readJson(files.recurring);
+  const idx = data.findIndex(d => d.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  lessons[idx] = { ...lessons[idx], ...req.body, updatedAt: new Date().toISOString() };
-  await fs.writeJson(LESSONS_FILE, lessons, { spaces: 2 });
-  res.json(lessons[idx]);
+  data[idx] = { ...data[idx], ...req.body };
+  await fs.writeJson(files.recurring, data, { spaces: 2 });
+  res.json(data[idx]);
 });
-
-app.delete('/api/lessons/:id', requireAuth, async (req, res) => {
-  let lessons = await fs.readJson(LESSONS_FILE);
-  lessons = lessons.filter(l => l.id !== req.params.id);
-  await fs.writeJson(LESSONS_FILE, lessons, { spaces: 2 });
+app.delete('/api/recurring/:id', auth, async (req, res) => {
+  let data = await fs.readJson(files.recurring);
+  data = data.filter(d => d.id !== req.params.id);
+  await fs.writeJson(files.recurring, data, { spaces: 2 });
   res.json({ success: true });
 });
 
-// ─── LINKS ROUTES ───────────────────────────────────────────────
-app.get('/api/links', requireAuth, async (req, res) => {
-  const links = await fs.readJson(LINKS_FILE);
-  res.json(links);
+// CALENDAR (shared)
+app.get('/api/calendar', auth, async (req, res) => res.json(await fs.readJson(files.calendar)));
+app.post('/api/calendar', auth, async (req, res) => {
+  const data = await fs.readJson(files.calendar);
+  const item = { id: Date.now().toString(), userId: req.session.userId, ...req.body, createdAt: new Date().toISOString() };
+  data.push(item);
+  await fs.writeJson(files.calendar, data, { spaces: 2 });
+  res.json(item);
+});
+app.put('/api/calendar/:id', auth, async (req, res) => {
+  const data = await fs.readJson(files.calendar);
+  const idx = data.findIndex(d => d.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  data[idx] = { ...data[idx], ...req.body };
+  await fs.writeJson(files.calendar, data, { spaces: 2 });
+  res.json(data[idx]);
+});
+app.delete('/api/calendar/:id', auth, async (req, res) => {
+  let data = await fs.readJson(files.calendar);
+  data = data.filter(d => d.id !== req.params.id);
+  await fs.writeJson(files.calendar, data, { spaces: 2 });
+  res.json({ success: true });
 });
 
-app.put('/api/links', requireAuth, async (req, res) => {
-  await fs.writeJson(LINKS_FILE, req.body, { spaces: 2 });
+// LESSONS
+app.get('/api/lessons', auth, async (req, res) => res.json(await fs.readJson(files.lessons)));
+app.post('/api/lessons', auth, async (req, res) => {
+  const data = await fs.readJson(files.lessons);
+  const item = { id: Date.now().toString(), userId: req.session.userId, ...req.body, createdAt: new Date().toISOString() };
+  data.push(item);
+  await fs.writeJson(files.lessons, data, { spaces: 2 });
+  res.json(item);
+});
+app.put('/api/lessons/:id', auth, async (req, res) => {
+  const data = await fs.readJson(files.lessons);
+  const idx = data.findIndex(d => d.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  data[idx] = { ...data[idx], ...req.body };
+  await fs.writeJson(files.lessons, data, { spaces: 2 });
+  res.json(data[idx]);
+});
+app.delete('/api/lessons/:id', auth, async (req, res) => {
+  let data = await fs.readJson(files.lessons);
+  data = data.filter(d => d.id !== req.params.id);
+  await fs.writeJson(files.lessons, data, { spaces: 2 });
+  res.json({ success: true });
+});
+
+// PRODUCTIVITY
+app.get('/api/productivity', auth, async (req, res) => {
+  const prod = await fs.readJson(files.productivity);
+  const today = new Date().toISOString().split('T')[0];
+  res.json(prod[`${req.session.userId}-${today}`] || {});
+});
+app.put('/api/productivity', auth, async (req, res) => {
+  const prod = await fs.readJson(files.productivity);
+  const today = new Date().toISOString().split('T')[0];
+  prod[`${req.session.userId}-${today}`] = { ...req.body, userId: req.session.userId, date: today };
+  await fs.writeJson(files.productivity, prod, { spaces: 2 });
+  res.json(prod[`${req.session.userId}-${today}`]);
+});
+
+// MESSAGES
+app.get('/api/messages', auth, async (req, res) => {
+  const msgs = await fs.readJson(files.messages);
+  res.json(msgs.filter(m => m.toId === req.session.userId || m.fromId === req.session.userId));
+});
+app.post('/api/messages', auth, async (req, res) => {
+  const msgs = await fs.readJson(files.messages);
+  const msg = { id: Date.now().toString(), fromId: req.session.userId, ...req.body, createdAt: new Date().toISOString(), readAt: null, savedByRecipient: false, dismissedBySender: false, dismissedByRecipient: false };
+  msgs.push(msg);
+  await fs.writeJson(files.messages, msgs, { spaces: 2 });
+  res.json(msg);
+});
+app.put('/api/messages/:id', auth, async (req, res) => {
+  const msgs = await fs.readJson(files.messages);
+  const idx = msgs.findIndex(m => m.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  msgs[idx] = { ...msgs[idx], ...req.body };
+  await fs.writeJson(files.messages, msgs, { spaces: 2 });
+  res.json(msgs[idx]);
+});
+app.delete('/api/messages/:id', auth, async (req, res) => {
+  let msgs = await fs.readJson(files.messages);
+  msgs = msgs.filter(m => m.id !== req.params.id);
+  await fs.writeJson(files.messages, msgs, { spaces: 2 });
+  res.json({ success: true });
+});
+
+// GOALS (shared)
+app.get('/api/goals', auth, async (req, res) => res.json(await fs.readJson(files.goals)));
+app.put('/api/goals', auth, async (req, res) => {
+  await fs.writeJson(files.goals, req.body, { spaces: 2 });
   res.json(req.body);
 });
 
-app.post('/api/links/lesson', requireAuth, async (req, res) => {
-  const links = await fs.readJson(LINKS_FILE);
+// LINKS
+app.get('/api/links', auth, async (req, res) => res.json(await fs.readJson(files.links)));
+app.put('/api/links', auth, async (req, res) => {
+  await fs.writeJson(files.links, req.body, { spaces: 2 });
+  res.json(req.body);
+});
+app.post('/api/links/lesson', auth, async (req, res) => {
+  const links = await fs.readJson(files.links);
   const link = { id: Date.now().toString(), ...req.body, addedBy: req.session.userId };
   links.lessonLinks.push(link);
-  await fs.writeJson(LINKS_FILE, links, { spaces: 2 });
+  await fs.writeJson(files.links, links, { spaces: 2 });
   res.json(link);
 });
-
-app.delete('/api/links/lesson/:id', requireAuth, async (req, res) => {
-  const links = await fs.readJson(LINKS_FILE);
+app.delete('/api/links/lesson/:id', auth, async (req, res) => {
+  const links = await fs.readJson(files.links);
   links.lessonLinks = links.lessonLinks.filter(l => l.id !== req.params.id);
-  await fs.writeJson(LINKS_FILE, links, { spaces: 2 });
+  await fs.writeJson(files.links, links, { spaces: 2 });
   res.json({ success: true });
 });
 
-// ─── CALENDAR ROUTES ────────────────────────────────────────────
-app.get('/api/calendar', requireAuth, async (req, res) => {
-  const events = await fs.readJson(CALENDAR_FILE);
-  res.json(events);
-});
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-app.post('/api/calendar', requireAuth, async (req, res) => {
-  const events = await fs.readJson(CALENDAR_FILE);
-  const event = {
-    id: Date.now().toString(),
-    createdBy: req.session.userId,
-    ...req.body,
-    createdAt: new Date().toISOString()
-  };
-  events.push(event);
-  await fs.writeJson(CALENDAR_FILE, events, { spaces: 2 });
-  res.json(event);
-});
-
-app.put('/api/calendar/:id', requireAuth, async (req, res) => {
-  const events = await fs.readJson(CALENDAR_FILE);
-  const idx = events.findIndex(e => e.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  events[idx] = { ...events[idx], ...req.body };
-  await fs.writeJson(CALENDAR_FILE, events, { spaces: 2 });
-  res.json(events[idx]);
-});
-
-app.delete('/api/calendar/:id', requireAuth, async (req, res) => {
-  let events = await fs.readJson(CALENDAR_FILE);
-  events = events.filter(e => e.id !== req.params.id);
-  await fs.writeJson(CALENDAR_FILE, events, { spaces: 2 });
-  res.json({ success: true });
-});
-
-// ─── PRODUCTIVITY ROUTES ────────────────────────────────────────
-app.get('/api/productivity', requireAuth, async (req, res) => {
-  const prod = await fs.readJson(PRODUCTIVITY_FILE);
-  const today = new Date().toISOString().split('T')[0];
-  const key = `${req.session.userId}-${today}`;
-  res.json(prod[key] || { notes: '', wins: [], blockers: [], intentions: [] });
-});
-
-app.put('/api/productivity', requireAuth, async (req, res) => {
-  const prod = await fs.readJson(PRODUCTIVITY_FILE);
-  const today = new Date().toISOString().split('T')[0];
-  const key = `${req.session.userId}-${today}`;
-  prod[key] = { ...req.body, date: today, userId: req.session.userId };
-  await fs.writeJson(PRODUCTIVITY_FILE, prod, { spaces: 2 });
-  res.json(prod[key]);
-});
-
-// Serve main app
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-initData().then(() => {
-  app.listen(PORT, () => {
-    console.log(`MSA Organizer running on port ${PORT}`);
-  });
-});
+initData().then(() => app.listen(PORT, () => console.log(`MSA Organizer on port ${PORT}`)));
