@@ -2123,253 +2123,167 @@ async function deleteIdeaMap(id){
 }
 
 // ── CANVAS ENGINE ──────────────────────────────────────────────────
+let isDragging = false;
+let dragStartX = 0, dragStartY = 0;
+
+function drawEdges(){
+  const svg = document.getElementById('map-svg');
+  if(!svg) return;
+  const marker = `<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#C9A84C" opacity="0.8"/></marker></defs>`;
+  const lines = mapEdges.map(e=>{
+    const a=mapNodes.find(n=>n.id===e.from), b=mapNodes.find(n=>n.id===e.to);
+    if(!a||!b) return '';
+    const dx=b.x-a.x, dy=b.y-a.y, dist=Math.sqrt(dx*dx+dy*dy)||1;
+    const ra=(a.radius||60)/2, rb=(b.radius||60)/2;
+    const x1=a.x+(dx/dist)*ra, y1=a.y+(dy/dist)*ra;
+    const x2=b.x-(dx/dist)*rb, y2=b.y-(dy/dist)*rb;
+    const eid = e.id||e.from+e.to;
+    return `<g>
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#C9A84C" stroke-width="2" stroke-opacity="0.6" marker-end="url(#arrow)"/>
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="transparent" stroke-width="12" style="cursor:pointer;" onclick="deleteEdge('${eid}')" title="Click to remove connection"/>
+    </g>`;
+  }).join('');
+  svg.innerHTML = marker + lines;
+}
+
 function renderMapCanvas(){
   const wrap = document.getElementById('map-canvas-wrap');
-  const svg = document.getElementById('map-svg');
   const nodesEl = document.getElementById('map-nodes');
   if(!wrap) return;
 
-  // Draw edges
-  svg.innerHTML = mapEdges.map(e=>{
-    const a=mapNodes.find(n=>n.id===e.from), b=mapNodes.find(n=>n.id===e.to);
-    if(!a||!b) return '';
-    const ra=a.radius||60, rb=b.radius||60;
-    // Calculate edge points on circle circumference
-    const dx=b.x-a.x, dy=b.y-a.y, dist=Math.sqrt(dx*dx+dy*dy)||1;
-    const x1=a.x+(dx/dist)*(ra/2), y1=a.y+(dy/dist)*(ra/2);
-    const x2=b.x-(dx/dist)*(rb/2), y2=b.y-(dy/dist)*(rb/2);
-    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#C9A84C" stroke-width="2" stroke-opacity="0.6" marker-end="url(#arrow)"/>`;
-  }).join('');
-  // Arrow marker
-  svg.innerHTML = `<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#C9A84C" opacity="0.8"/></marker></defs>` + svg.innerHTML;
+  drawEdges();
 
-  // Draw nodes
   nodesEl.innerHTML = mapNodes.map(n=>{
     const c = NODE_COLORS[n.colorIdx||0];
     const r = n.radius||60;
-    const isConnectSrc = connectFrom && connectFrom.id===n.id;
-    return `<div class="map-node${isConnectSrc?' connecting':''}"
+    const isSrc = connectFrom && connectFrom.id===n.id;
+    return `<div class="map-node${isSrc?' connecting':''}"
       id="node-${n.id}"
       data-id="${n.id}"
       style="left:${n.x-r/2}px;top:${n.y-r/2}px;width:${r}px;height:${r}px;background:${c.bg};border:2px solid ${c.border};color:${c.text};font-size:${r>80?13:11}px;"
-      onclick="onNodeClick(event,'${n.id}')"
-      ondblclick="onNodeDblClick(event,'${n.id}')"
-      onmousedown="onNodeMouseDown(event,'${n.id}')"
-      ontouchstart="onNodeTouchStart(event,'${n.id}')"
     >${n.text||'Idea'}</div>`;
   }).join('');
 
-  // Canvas click = add node
-  wrap.onclick = onCanvasClick;
-  wrap.onmouseup = onMouseUp;
-  wrap.onmousemove = onMouseMove;
-  wrap.ontouchmove = onTouchMove;
-  wrap.ontouchend = onMouseUp;
+  // Attach events directly to node elements (not via inline handlers)
+  mapNodes.forEach(n=>{
+    const el = document.getElementById('node-'+n.id);
+    if(!el) return;
+    attachNodeEvents(el, n.id);
+  });
+
+  // Canvas pointer events
+  wrap.onpointerdown = onCanvasPointerDown;
+  wrap.onpointermove = onCanvasPointerMove;
+  wrap.onpointerup = onCanvasPointerUp;
+  wrap.style.touchAction = 'none';
 }
 
-function onCanvasClick(e){
+function attachNodeEvents(el, id){
+  let pointerDownX=0, pointerDownY=0, pointerMoved=false;
+
+  el.onpointerdown = function(e){
+    e.stopPropagation();
+    el.setPointerCapture(e.pointerId);
+    const n = mapNodes.find(n=>n.id===id);
+    if(!n) return;
+    const wrap = document.getElementById('map-canvas-wrap');
+    const rect = wrap.getBoundingClientRect();
+    dragNode = n;
+    dragOffX = e.clientX - rect.left - n.x;
+    dragOffY = e.clientY - rect.top - n.y;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    pointerDownX = e.clientX;
+    pointerDownY = e.clientY;
+    pointerMoved = false;
+    isDragging = false;
+  };
+
+  el.onpointermove = function(e){
+    if(dragNode && dragNode.id===id){
+      const dx = e.clientX - pointerDownX;
+      const dy = e.clientY - pointerDownY;
+      if(!isDragging && (Math.abs(dx)>4 || Math.abs(dy)>4)){
+        isDragging = true;
+        closeNodePopup();
+      }
+      if(isDragging){
+        const wrap = document.getElementById('map-canvas-wrap');
+        const rect = wrap.getBoundingClientRect();
+        const r = (dragNode.radius||60)/2;
+        dragNode.x = Math.max(r, Math.min(wrap.clientWidth-r, e.clientX - rect.left - dragOffX));
+        dragNode.y = Math.max(r, Math.min(wrap.clientHeight-r, e.clientY - rect.top - dragOffY));
+        el.style.left = (dragNode.x-r)+'px';
+        el.style.top  = (dragNode.y-r)+'px';
+        drawEdges();
+      }
+    }
+  };
+
+  el.onpointerup = function(e){
+    e.stopPropagation();
+    const wasDragging = isDragging;
+    dragNode = null;
+    isDragging = false;
+
+    if(wasDragging) return; // was a drag, not a click
+
+    // It's a real click
+    if(connectMode && connectFrom){
+      if(connectFrom.id !== id){
+        const exists = mapEdges.find(ex=>(ex.from===connectFrom.id&&ex.to===id)||(ex.from===id&&ex.to===connectFrom.id));
+        if(!exists) mapEdges.push({id:Date.now().toString()+id, from:connectFrom.id, to:id});
+        connectMode=false; connectFrom=null;
+        renderMapCanvas();
+        toast('Connected!');
+      }
+      return;
+    }
+    // Toggle popup
+    const existing = document.getElementById('node-popup');
+    if(existing && editingNodeId===id){ closeNodePopup(); return; }
+    closeNodePopup();
+    openNodePopup(id);
+  };
+}
+
+function onCanvasPointerDown(e){
   if(e.target.closest('.map-node')) return;
   if(e.target.closest('.node-edit-popup')) return;
+  dragStartX = e.clientX;
+  dragStartY = e.clientY;
+}
+
+function onCanvasPointerMove(e){ /* handled by nodes */ }
+
+function onCanvasPointerUp(e){
+  if(e.target.closest('.map-node')) return;
+  if(e.target.closest('.node-edit-popup')) return;
+  // Only add node if pointer didn't move (real click not scroll)
+  const moved = Math.abs(e.clientX-dragStartX)>5 || Math.abs(e.clientY-dragStartY)>5;
+  if(moved) return;
+
   closeNodePopup();
+
   if(connectMode){
-    connectMode=false; connectFrom=null; renderMapCanvas(); return;
-  }
-  const wrap = document.getElementById('map-canvas-wrap');
-  const rect = wrap.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  addNode(x, y);
-}
-
-function addNode(x, y, text='New Idea'){
-  const id = Date.now().toString()+Math.random().toString(36).slice(2,5);
-  const colorIdx = mapNodes.length % NODE_COLORS.length;
-  // First node is bigger (main idea)
-  const radius = mapNodes.length===0 ? 100 : 70;
-  mapNodes.push({id, x, y, text, colorIdx, radius});
-  renderMapCanvas();
-  // Open edit popup immediately for new node
-  setTimeout(()=>openNodePopup(id), 50);
-}
-
-function onNodeClick(e, id){
-  e.stopPropagation();
-  if(dragNode) return;
-  if(connectMode && connectFrom){
-    if(connectFrom.id !== id){
-      // Create edge
-      const exists = mapEdges.find(e=>(e.from===connectFrom.id&&e.to===id)||(e.from===id&&e.to===connectFrom.id));
-      if(!exists) mapEdges.push({id:Date.now().toString(), from:connectFrom.id, to:id});
-      connectMode=false; connectFrom=null;
-      renderMapCanvas();
-    }
+    connectMode=false; connectFrom=null;
+    renderMapCanvas();
+    toast('Connection cancelled');
     return;
   }
-  closeNodePopup();
-  openNodePopup(id);
-}
-
-function onNodeDblClick(e, id){
-  e.stopPropagation();
-  if(confirm('Delete this idea?')){
-    mapNodes = mapNodes.filter(n=>n.id!==id);
-    mapEdges = mapEdges.filter(e=>e.from!==id&&e.to!==id);
-    closeNodePopup();
-    renderMapCanvas();
-  }
-}
-
-function openNodePopup(id){
-  closeNodePopup();
-  const n = mapNodes.find(n=>n.id===id);
-  if(!n) return;
-  editingNodeId = id;
-  const wrap = document.getElementById('map-canvas-wrap');
-  const r = n.radius||60;
-  const popup = document.createElement('div');
-  popup.className = 'node-edit-popup';
-  popup.id = 'node-popup';
-  // Position popup — keep inside canvas
-  const pw = 210, ph = 200;
-  let px = n.x + r/2 + 8;
-  let py = n.y - 20;
-  if(px + pw > wrap.clientWidth - 10) px = n.x - r/2 - pw - 8;
-  if(py + ph > wrap.clientHeight - 10) py = wrap.clientHeight - ph - 10;
-  if(py < 5) py = 5;
-  popup.style.cssText = `left:${px}px;top:${py}px;`;
-  const colorBtns = NODE_COLORS.map((c,i)=>
-    `<div onclick="changeNodeColor(${i})" style="width:20px;height:20px;border-radius:50%;background:${c.bg};border:2px solid ${c.border};cursor:pointer;flex-shrink:0;${n.colorIdx===i?'box-shadow:0 0 0 2px #333;':''}"></div>`
-  ).join('');
-  popup.innerHTML = `
-    <textarea id="node-text-input" style="width:100%;min-height:60px;resize:vertical;background:var(--main-bg);border:1px solid var(--border2);border-radius:8px;padding:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;">${n.text||''}</textarea>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;">${colorBtns}</div>
-    <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
-      <label style="font-size:11px;color:var(--muted);flex-shrink:0;">Size</label>
-      <input type="range" min="50" max="140" value="${r}" oninput="resizeNode(this.value)" style="flex:1;">
-    </div>
-    <div style="display:flex;gap:6px;">
-      <button onclick="startConnect('${id}')" style="flex:1;background:var(--blue-bg);color:var(--blue);border:1px solid rgba(66,153,225,.3);border-radius:7px;padding:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🔗 Connect</button>
-      <button onclick="applyNodeEdit('${id}')" style="flex:1;background:var(--gold);color:var(--black);border:none;border-radius:7px;padding:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✓ Done</button>
-    </div>`;
-  wrap.appendChild(popup);
-  document.getElementById('node-text-input').focus();
-  document.getElementById('node-text-input').oninput = ()=>liveUpdateNodeText(id);
-}
-
-function closeNodePopup(){
-  const p = document.getElementById('node-popup');
-  if(p) p.remove();
-  editingNodeId = null;
-}
-
-function liveUpdateNodeText(id){
-  const n = mapNodes.find(n=>n.id===id);
-  const inp = document.getElementById('node-text-input');
-  if(n && inp){ n.text = inp.value; document.getElementById('node-'+id).textContent = inp.value; }
-}
-
-function applyNodeEdit(id){
-  const inp = document.getElementById('node-text-input');
-  const n = mapNodes.find(n=>n.id===id);
-  if(n && inp) n.text = inp.value;
-  closeNodePopup();
-  renderMapCanvas();
-}
-
-function changeNodeColor(idx){
-  const n = mapNodes.find(n=>n.id===editingNodeId);
-  if(!n) return;
-  n.colorIdx = idx;
-  renderMapCanvas();
-  setTimeout(()=>openNodePopup(editingNodeId), 30);
-}
-
-function resizeNode(val){
-  const n = mapNodes.find(n=>n.id===editingNodeId);
-  if(!n) return;
-  n.radius = parseInt(val);
-  const el = document.getElementById('node-'+n.id);
-  if(el){
-    el.style.width = val+'px';
-    el.style.height = val+'px';
-    el.style.left = (n.x - val/2)+'px';
-    el.style.top = (n.y - val/2)+'px';
-  }
-  // Re-draw edges
-  renderMapCanvas();
-  setTimeout(()=>openNodePopup(editingNodeId), 30);
-}
-
-function startConnect(id){
-  connectMode = true;
-  connectFrom = mapNodes.find(n=>n.id===id);
-  closeNodePopup();
-  renderMapCanvas();
-  toast('Now click another node to connect, or click the canvas to cancel');
-}
-
-// ── DRAG ───────────────────────────────────────────────────────────
-function onNodeMouseDown(e, id){
-  if(e.button !== 0) return;
-  e.stopPropagation();
-  const n = mapNodes.find(n=>n.id===id);
-  if(!n) return;
   const wrap = document.getElementById('map-canvas-wrap');
   const rect = wrap.getBoundingClientRect();
-  dragNode = n;
-  dragOffX = e.clientX - rect.left - n.x;
-  dragOffY = e.clientY - rect.top - n.y;
+  addNode(e.clientX - rect.left, e.clientY - rect.top);
 }
 
-function onNodeTouchStart(e, id){
-  e.stopPropagation();
-  const n = mapNodes.find(n=>n.id===id);
-  if(!n) return;
-  const wrap = document.getElementById('map-canvas-wrap');
-  const rect = wrap.getBoundingClientRect();
-  const t = e.touches[0];
-  dragNode = n;
-  dragOffX = t.clientX - rect.left - n.x;
-  dragOffY = t.clientY - rect.top - n.y;
-}
-
-function onMouseMove(e){
-  if(!dragNode) return;
-  e.preventDefault();
-  const wrap = document.getElementById('map-canvas-wrap');
-  const rect = wrap.getBoundingClientRect();
-  const r = (dragNode.radius||60)/2;
-  dragNode.x = Math.max(r, Math.min(wrap.clientWidth-r, e.clientX - rect.left - dragOffX));
-  dragNode.y = Math.max(r, Math.min(wrap.clientHeight-r, e.clientY - rect.top - dragOffY));
-  const el = document.getElementById('node-'+dragNode.id);
-  if(el){ el.style.left=(dragNode.x-r)+'px'; el.style.top=(dragNode.y-r)+'px'; }
-  // Redraw svg edges
-  const svg = document.getElementById('map-svg');
-  svg.innerHTML = `<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#C9A84C" opacity="0.8"/></marker></defs>` +
-    mapEdges.map(e=>{
-      const a=mapNodes.find(n=>n.id===e.from), b=mapNodes.find(n=>n.id===e.to);
-      if(!a||!b) return '';
-      const dx=b.x-a.x, dy=b.y-a.y, dist=Math.sqrt(dx*dx+dy*dy)||1;
-      const ra=a.radius||60, rb=b.radius||60;
-      return `<line x1="${a.x+(dx/dist)*(ra/2)}" y1="${a.y+(dy/dist)*(ra/2)}" x2="${b.x-(dx/dist)*(rb/2)}" y2="${b.y-(dy/dist)*(rb/2)}" stroke="#C9A84C" stroke-width="2" stroke-opacity="0.6" marker-end="url(#arrow)"/>`;
-    }).join('');
-}
-
-function onTouchMove(e){
-  if(!dragNode) return;
-  e.preventDefault();
-  const t = e.touches[0];
-  const wrap = document.getElementById('map-canvas-wrap');
-  const rect = wrap.getBoundingClientRect();
-  const r = (dragNode.radius||60)/2;
-  dragNode.x = Math.max(r, Math.min(wrap.clientWidth-r, t.clientX - rect.left - dragOffX));
-  dragNode.y = Math.max(r, Math.min(wrap.clientHeight-r, t.clientY - rect.top - dragOffY));
-  const el = document.getElementById('node-'+dragNode.id);
-  if(el){ el.style.left=(dragNode.x-r)+'px'; el.style.top=(dragNode.y-r)+'px'; }
+function deleteEdge(eid){
+  mapEdges = mapEdges.filter(e=>(e.id||e.from+e.to)!==eid);
+  drawEdges();
+  toast('Connection removed');
 }
 
 function onMouseUp(e){
-  if(dragNode){ dragNode=null; renderMapCanvas(); }
+  if(dragNode){ dragNode=null; isDragging=false; renderMapCanvas(); }
 }
 
 
