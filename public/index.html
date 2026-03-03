@@ -367,6 +367,23 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
   .mob-menu-btn{display:none!important;}
   .mob-backdrop{display:none!important;}
 }
+
+/* ═══ IDEA MAPS ═══════════════════════════════════════════════ */
+.notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:20px;}
+.map-card{background:var(--card-bg);border:1px solid var(--gold-border);border-radius:14px;padding:18px;cursor:pointer;transition:all .18s;position:relative;}
+.map-card:hover{border-color:var(--gold);box-shadow:0 4px 20px rgba(201,168,76,.15);transform:translateY(-2px);}
+.map-card-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.map-card-meta{font-size:11px;color:var(--muted);margin-bottom:10px;}
+.map-card-preview{width:100%;height:90px;border-radius:8px;background:linear-gradient(135deg,#fffdf5,#f8f6f1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;position:relative;}
+.map-card-new{border:2px dashed var(--gold-border);background:var(--gold-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:160px;}
+.map-card-new:hover{border-color:var(--gold);background:var(--gold-bg2);}
+.map-card-new-icon{font-size:28px;}
+.map-card-new-label{font-size:13px;font-weight:600;color:var(--gold-dim);}
+.map-node{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;user-select:none;transition:box-shadow .15s;text-align:center;word-break:break-word;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;line-height:1.3;padding:8px;}
+.map-node:hover{box-shadow:0 0 0 3px rgba(201,168,76,.4);}
+.map-node.selected{box-shadow:0 0 0 3px var(--gold);}
+.map-node.connecting{box-shadow:0 0 0 3px var(--blue);}
+.node-edit-popup{position:absolute;background:var(--card-bg);border:1px solid var(--gold-border);border-radius:12px;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:100;min-width:200px;}
 </style>
 </head>
 <body>
@@ -415,6 +432,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
       <div class="sb-sect">Resources</div>
       <div class="sb-item" data-tab="lessons" onclick="nav('lessons')"><span class="sb-icon">📚</span>Lesson Library</div>
       <div class="sb-item" data-tab="links" onclick="nav('links')"><span class="sb-icon">🔗</span>Links & Tools</div>
+      <div class="sb-item" data-tab="notes" onclick="nav('notes')"><span class="sb-icon">💡</span>Idea Maps</div>
       <div class="sb-item" data-tab="settings" onclick="nav('settings')"><span class="sb-icon">⚙️</span>Settings</div>
     </div>
     <div class="sb-footer">
@@ -664,6 +682,33 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
         </div>
       </div>
 
+      <!-- IDEA MAPS PANEL -->
+      <div class="panel" id="panel-notes">
+        <!-- MAP LIST VIEW -->
+        <div id="notes-list-view">
+          <div id="notes-map-grid" class="notes-grid"></div>
+        </div>
+        <!-- MAP EDITOR VIEW -->
+        <div id="notes-editor-view" style="display:none;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+            <button onclick="backToMapList()" style="background:none;border:1px solid var(--gold-border);border-radius:8px;padding:6px 14px;color:var(--text2);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">← Back</button>
+            <input id="map-title-input" placeholder="Map title…" style="flex:1;min-width:120px;background:transparent;border:none;border-bottom:2px solid var(--gold-border);padding:4px 8px;font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--text);outline:none;">
+            <select id="map-visibility" style="background:var(--card-bg);border:1px solid var(--gold-border);border-radius:8px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);cursor:pointer;">
+              <option value="private">🔒 Private</option>
+              <option value="shared">👥 Shared</option>
+            </select>
+            <button onclick="saveCurrentMap()" style="background:var(--gold);color:var(--black);border:none;border-radius:8px;padding:7px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Save</button>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+            <strong>Click canvas</strong> to add a node · <strong>Drag</strong> nodes to move · <strong>Click node</strong> to edit/connect · <strong>Double-click node</strong> to delete
+          </div>
+          <div id="map-canvas-wrap" style="position:relative;width:100%;height:520px;background:linear-gradient(135deg,#f8f6f1,#fdfbf7);border:1px solid var(--gold-border);border-radius:14px;overflow:hidden;cursor:crosshair;">
+            <svg id="map-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></svg>
+            <div id="map-nodes"></div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 
@@ -882,7 +927,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
 
 <script>
 // ═══ STATE ═══════════════════════════════════════════════════════
-let user=null, tasks=[], projects=[], meetings=[], recurringMtgs=[], recurring=[], lessons=[], links={lessonLinks:[],quizLink:'',resourceLinks:[]}, calEvents=[], messages=[], goals={featured:null,goals:[],radar:[]}, notifications=[];
+let user=null, tasks=[], projects=[], meetings=[], recurringMtgs=[], recurring=[], lessons=[], links={lessonLinks:[],quizLink:'',resourceLinks:[]}, calEvents=[], messages=[], goals={featured:null,goals:[],radar:[]}, notifications=[], ideaMaps=[];
 let calY=new Date().getFullYear(), calM=new Date().getMonth();
 const td=()=>new Date().toISOString().split('T')[0];
 let notifPollInterval=null, deferredInstallPrompt=null;
@@ -984,7 +1029,7 @@ async function startApp(){
 }
 
 async function loadAll(){
-  const [t,p,m,rm,r,l,lk,c,ms,g,n]=await Promise.all([
+  const [t,p,m,rm,r,l,lk,c,ms,g,n,im]=await Promise.all([
     fetch('/api/tasks').then(x=>x.json()),
     fetch('/api/projects').then(x=>x.json()),
     fetch('/api/meetings').then(x=>x.json()),
@@ -996,8 +1041,9 @@ async function loadAll(){
     fetch('/api/messages').then(x=>x.json()),
     fetch('/api/goals').then(x=>x.json()),
     fetch('/api/notifications').then(x=>x.json()),
+    fetch('/api/idea-maps').then(x=>x.json()),
   ]);
-  tasks=t;projects=p;meetings=m;recurringMtgs=rm;recurring=r;lessons=l;links=lk;calEvents=c;messages=ms;goals=g;notifications=n;
+  tasks=t;projects=p;meetings=m;recurringMtgs=rm;recurring=r;lessons=l;links=lk;calEvents=c;messages=ms;goals=g;notifications=n;ideaMaps=im;
   const prod=await fetch('/api/productivity').then(x=>x.json());
   if(prod.notes)document.getElementById('dp-notes').value=prod.notes;
 }
@@ -1028,12 +1074,13 @@ function renderAll(){
   renderComms();
   renderLessons();
   renderLinks();
+  renderIdeaMaps();
   renderNotifications();
   updateNotifBadge();
 }
 
 // ═══ NAV ══════════════════════════════════════════════════════════
-const TAB_TITLES={command:'Command Center',productivity:'Daily Productivity',projects:'Projects',recurring:'Recurring Tasks',goals:'Goals',calendar:'Calendar',meetings:'Meetings',comms:'Communications',lessons:'Lesson Library',links:'Links & Tools',settings:'Settings'};
+const TAB_TITLES={command:'Command Center',productivity:'Daily Productivity',projects:'Projects',recurring:'Recurring Tasks',goals:'Goals',calendar:'Calendar',meetings:'Meetings',comms:'Communications',lessons:'Lesson Library',links:'Links & Tools',notes:'Idea Maps',settings:'Settings'};
 function nav(tab){
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.toggle('active',i.dataset.tab===tab));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -1055,6 +1102,7 @@ function setPageActions(tab){
     recurring:`<button class="ph-btn primary" onclick="om('m-recurring')">+ Add Task</button>`,
     goals:`<button class="ph-btn primary" onclick="om('m-goal')">+ Add Goal</button>`,
     lessons:`<button class="ph-btn primary" onclick="om('m-lesson')">+ Add Lesson</button>`,
+    notes:`<button class="ph-btn primary" onclick="newIdeaMap()">+ New Idea Map</button>`,
   };
   el.innerHTML=btns[tab]||'';
 }
@@ -1941,6 +1989,389 @@ function closeMobSidebar(){
   document.querySelector('.sidebar').classList.remove('open');
   document.getElementById('mob-backdrop').classList.remove('open');
 }
+
+
+// ═══ IDEA MAPS ════════════════════════════════════════════════════
+let currentMapId = null;
+let mapNodes = [];      // [{id, x, y, text, color, radius}]
+let mapEdges = [];      // [{id, from, to}]
+let dragNode = null, dragOffX = 0, dragOffY = 0;
+let connectMode = false, connectFrom = null;
+let editingNodeId = null;
+
+const NODE_COLORS = [
+  {bg:'#fef9c3',border:'#ca8a04',text:'#713f12'},  // gold
+  {bg:'#dbeafe',border:'#3b82f6',text:'#1e3a8a'},  // blue
+  {bg:'#dcfce7',border:'#22c55e',text:'#14532d'},  // green
+  {bg:'#fce7f3',border:'#ec4899',text:'#831843'},  // pink
+  {bg:'#ede9fe',border:'#8b5cf6',text:'#4c1d95'},  // purple
+  {bg:'#ffedd5',border:'#f97316',text:'#7c2d12'},  // orange
+  {bg:'#e0f2fe',border:'#0ea5e9',text:'#0c4a6e'},  // sky
+  {bg:'#fef2f2',border:'#ef4444',text:'#7f1d1d'},  // red
+];
+
+function renderIdeaMaps(){
+  const el = document.getElementById('notes-map-grid');
+  if(!el) return;
+  const visible = ideaMaps.filter(m => m.userId===user.id || m.visibility==='shared');
+  let html = `<div class="map-card map-card-new" onclick="newIdeaMap()">
+    <div class="map-card-new-icon">💡</div>
+    <div class="map-card-new-label">New Idea Map</div>
+  </div>`;
+  html += visible.map(m => {
+    const nodeCount = (m.nodes||[]).length;
+    const sharedBadge = m.visibility==='shared'
+      ? `<span style="background:var(--gold-bg);color:var(--gold-dim);border:1px solid var(--gold-border);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;">Shared</span>`
+      : `<span style="background:var(--border);color:var(--muted);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;">Private</span>`;
+    const mine = m.userId === user.id;
+    return `<div class="map-card" onclick="openIdeaMap('${m.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px;">
+        <div class="map-card-title">${m.title||'Untitled Map'}</div>
+        ${mine ? `<button onclick="event.stopPropagation();deleteIdeaMap('${m.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;flex-shrink:0;">×</button>` : ''}
+      </div>
+      <div class="map-card-meta">${sharedBadge} &nbsp;${nodeCount} idea${nodeCount!==1?'s':''} · ${fmt(m.updatedAt||m.createdAt)}</div>
+      <div class="map-card-preview">${miniPreview(m)}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML = html;
+}
+
+function miniPreview(m){
+  const nodes = m.nodes||[];
+  if(!nodes.length) return '<span style="color:var(--muted);font-size:12px;">Empty map</span>';
+  const edges = m.edges||[];
+  const W=180, H=88;
+  // normalize coords to fit preview
+  const xs = nodes.map(n=>n.x), ys = nodes.map(n=>n.y);
+  const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  const scaleX = maxX>minX ? (W-30)/(maxX-minX) : 1;
+  const scaleY = maxY>minY ? (H-30)/(maxY-minY) : 1;
+  const scale = Math.min(scaleX, scaleY, 1);
+  const nx = n => 15 + (n.x-minX)*scale;
+  const ny = n => 15 + (n.y-minY)*scale;
+  const lines = edges.map(e=>{
+    const a=nodes.find(n=>n.id===e.from), b=nodes.find(n=>n.id===e.to);
+    if(!a||!b) return '';
+    return `<line x1="${nx(a)}" y1="${ny(a)}" x2="${nx(b)}" y2="${ny(b)}" stroke="#C9A84C" stroke-width="1.5" opacity="0.6"/>`;
+  }).join('');
+  const circles = nodes.map(n=>{
+    const c = NODE_COLORS[n.colorIdx||0];
+    return `<circle cx="${nx(n)}" cy="${ny(n)}" r="${Math.max(6,Math.min(12,(n.radius||60)/8))}" fill="${c.bg}" stroke="${c.border}" stroke-width="1.5"/>`;
+  }).join('');
+  return `<svg width="${W}" height="${H}" style="position:absolute;top:0;left:0;">${lines}${circles}</svg>`;
+}
+
+function newIdeaMap(){
+  currentMapId = null;
+  mapNodes = [];
+  mapEdges = [];
+  connectMode = false;
+  connectFrom = null;
+  document.getElementById('map-title-input').value = 'New Idea Map';
+  document.getElementById('map-visibility').value = 'private';
+  document.getElementById('notes-list-view').style.display = 'none';
+  document.getElementById('notes-editor-view').style.display = 'block';
+  renderMapCanvas();
+}
+
+function openIdeaMap(id){
+  const m = ideaMaps.find(m=>m.id===id);
+  if(!m) return;
+  currentMapId = id;
+  mapNodes = JSON.parse(JSON.stringify(m.nodes||[]));
+  mapEdges = JSON.parse(JSON.stringify(m.edges||[]));
+  connectMode = false; connectFrom = null;
+  document.getElementById('map-title-input').value = m.title||'Untitled';
+  document.getElementById('map-visibility').value = m.visibility||'private';
+  // Disable editing if shared and not owner
+  const canEdit = m.userId === user.id;
+  document.getElementById('map-title-input').disabled = !canEdit;
+  document.getElementById('map-visibility').disabled = !canEdit;
+  document.getElementById('notes-list-view').style.display = 'none';
+  document.getElementById('notes-editor-view').style.display = 'block';
+  renderMapCanvas();
+}
+
+function backToMapList(){
+  document.getElementById('notes-list-view').style.display = 'block';
+  document.getElementById('notes-editor-view').style.display = 'none';
+  closeNodePopup();
+  renderIdeaMaps();
+}
+
+async function saveCurrentMap(){
+  const title = document.getElementById('map-title-input').value.trim() || 'Untitled Map';
+  const visibility = document.getElementById('map-visibility').value;
+  const payload = {title, visibility, nodes:mapNodes, edges:mapEdges};
+  if(currentMapId){
+    const r = await fetch('/api/idea-maps/'+currentMapId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(x=>x.json());
+    const idx = ideaMaps.findIndex(m=>m.id===currentMapId);
+    if(idx!==-1) ideaMaps[idx]=r;
+  } else {
+    const r = await fetch('/api/idea-maps',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(x=>x.json());
+    ideaMaps.push(r);
+    currentMapId = r.id;
+  }
+  toast('Map saved!');
+}
+
+async function deleteIdeaMap(id){
+  if(!confirm('Delete this idea map?')) return;
+  await fetch('/api/idea-maps/'+id,{method:'DELETE'});
+  ideaMaps = ideaMaps.filter(m=>m.id!==id);
+  renderIdeaMaps();
+}
+
+// ── CANVAS ENGINE ──────────────────────────────────────────────────
+function renderMapCanvas(){
+  const wrap = document.getElementById('map-canvas-wrap');
+  const svg = document.getElementById('map-svg');
+  const nodesEl = document.getElementById('map-nodes');
+  if(!wrap) return;
+
+  // Draw edges
+  svg.innerHTML = mapEdges.map(e=>{
+    const a=mapNodes.find(n=>n.id===e.from), b=mapNodes.find(n=>n.id===e.to);
+    if(!a||!b) return '';
+    const ra=a.radius||60, rb=b.radius||60;
+    // Calculate edge points on circle circumference
+    const dx=b.x-a.x, dy=b.y-a.y, dist=Math.sqrt(dx*dx+dy*dy)||1;
+    const x1=a.x+(dx/dist)*(ra/2), y1=a.y+(dy/dist)*(ra/2);
+    const x2=b.x-(dx/dist)*(rb/2), y2=b.y-(dy/dist)*(rb/2);
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#C9A84C" stroke-width="2" stroke-opacity="0.6" marker-end="url(#arrow)"/>`;
+  }).join('');
+  // Arrow marker
+  svg.innerHTML = `<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#C9A84C" opacity="0.8"/></marker></defs>` + svg.innerHTML;
+
+  // Draw nodes
+  nodesEl.innerHTML = mapNodes.map(n=>{
+    const c = NODE_COLORS[n.colorIdx||0];
+    const r = n.radius||60;
+    const isConnectSrc = connectFrom && connectFrom.id===n.id;
+    return `<div class="map-node${isConnectSrc?' connecting':''}"
+      id="node-${n.id}"
+      data-id="${n.id}"
+      style="left:${n.x-r/2}px;top:${n.y-r/2}px;width:${r}px;height:${r}px;background:${c.bg};border:2px solid ${c.border};color:${c.text};font-size:${r>80?13:11}px;"
+      onclick="onNodeClick(event,'${n.id}')"
+      ondblclick="onNodeDblClick(event,'${n.id}')"
+      onmousedown="onNodeMouseDown(event,'${n.id}')"
+      ontouchstart="onNodeTouchStart(event,'${n.id}')"
+    >${n.text||'Idea'}</div>`;
+  }).join('');
+
+  // Canvas click = add node
+  wrap.onclick = onCanvasClick;
+  wrap.onmouseup = onMouseUp;
+  wrap.onmousemove = onMouseMove;
+  wrap.ontouchmove = onTouchMove;
+  wrap.ontouchend = onMouseUp;
+}
+
+function onCanvasClick(e){
+  if(e.target.closest('.map-node')) return;
+  if(e.target.closest('.node-edit-popup')) return;
+  closeNodePopup();
+  if(connectMode){
+    connectMode=false; connectFrom=null; renderMapCanvas(); return;
+  }
+  const wrap = document.getElementById('map-canvas-wrap');
+  const rect = wrap.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  addNode(x, y);
+}
+
+function addNode(x, y, text='New Idea'){
+  const id = Date.now().toString()+Math.random().toString(36).slice(2,5);
+  const colorIdx = mapNodes.length % NODE_COLORS.length;
+  // First node is bigger (main idea)
+  const radius = mapNodes.length===0 ? 100 : 70;
+  mapNodes.push({id, x, y, text, colorIdx, radius});
+  renderMapCanvas();
+  // Open edit popup immediately for new node
+  setTimeout(()=>openNodePopup(id), 50);
+}
+
+function onNodeClick(e, id){
+  e.stopPropagation();
+  if(dragNode) return;
+  if(connectMode && connectFrom){
+    if(connectFrom.id !== id){
+      // Create edge
+      const exists = mapEdges.find(e=>(e.from===connectFrom.id&&e.to===id)||(e.from===id&&e.to===connectFrom.id));
+      if(!exists) mapEdges.push({id:Date.now().toString(), from:connectFrom.id, to:id});
+      connectMode=false; connectFrom=null;
+      renderMapCanvas();
+    }
+    return;
+  }
+  closeNodePopup();
+  openNodePopup(id);
+}
+
+function onNodeDblClick(e, id){
+  e.stopPropagation();
+  if(confirm('Delete this idea?')){
+    mapNodes = mapNodes.filter(n=>n.id!==id);
+    mapEdges = mapEdges.filter(e=>e.from!==id&&e.to!==id);
+    closeNodePopup();
+    renderMapCanvas();
+  }
+}
+
+function openNodePopup(id){
+  closeNodePopup();
+  const n = mapNodes.find(n=>n.id===id);
+  if(!n) return;
+  editingNodeId = id;
+  const wrap = document.getElementById('map-canvas-wrap');
+  const r = n.radius||60;
+  const popup = document.createElement('div');
+  popup.className = 'node-edit-popup';
+  popup.id = 'node-popup';
+  // Position popup — keep inside canvas
+  const pw = 210, ph = 200;
+  let px = n.x + r/2 + 8;
+  let py = n.y - 20;
+  if(px + pw > wrap.clientWidth - 10) px = n.x - r/2 - pw - 8;
+  if(py + ph > wrap.clientHeight - 10) py = wrap.clientHeight - ph - 10;
+  if(py < 5) py = 5;
+  popup.style.cssText = `left:${px}px;top:${py}px;`;
+  const colorBtns = NODE_COLORS.map((c,i)=>
+    `<div onclick="changeNodeColor(${i})" style="width:20px;height:20px;border-radius:50%;background:${c.bg};border:2px solid ${c.border};cursor:pointer;flex-shrink:0;${n.colorIdx===i?'box-shadow:0 0 0 2px #333;':''}"></div>`
+  ).join('');
+  popup.innerHTML = `
+    <textarea id="node-text-input" style="width:100%;min-height:60px;resize:vertical;background:var(--main-bg);border:1px solid var(--border2);border-radius:8px;padding:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;">${n.text||''}</textarea>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;">${colorBtns}</div>
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+      <label style="font-size:11px;color:var(--muted);flex-shrink:0;">Size</label>
+      <input type="range" min="50" max="140" value="${r}" oninput="resizeNode(this.value)" style="flex:1;">
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button onclick="startConnect('${id}')" style="flex:1;background:var(--blue-bg);color:var(--blue);border:1px solid rgba(66,153,225,.3);border-radius:7px;padding:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🔗 Connect</button>
+      <button onclick="applyNodeEdit('${id}')" style="flex:1;background:var(--gold);color:var(--black);border:none;border-radius:7px;padding:5px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">✓ Done</button>
+    </div>`;
+  wrap.appendChild(popup);
+  document.getElementById('node-text-input').focus();
+  document.getElementById('node-text-input').oninput = ()=>liveUpdateNodeText(id);
+}
+
+function closeNodePopup(){
+  const p = document.getElementById('node-popup');
+  if(p) p.remove();
+  editingNodeId = null;
+}
+
+function liveUpdateNodeText(id){
+  const n = mapNodes.find(n=>n.id===id);
+  const inp = document.getElementById('node-text-input');
+  if(n && inp){ n.text = inp.value; document.getElementById('node-'+id).textContent = inp.value; }
+}
+
+function applyNodeEdit(id){
+  const inp = document.getElementById('node-text-input');
+  const n = mapNodes.find(n=>n.id===id);
+  if(n && inp) n.text = inp.value;
+  closeNodePopup();
+  renderMapCanvas();
+}
+
+function changeNodeColor(idx){
+  const n = mapNodes.find(n=>n.id===editingNodeId);
+  if(!n) return;
+  n.colorIdx = idx;
+  renderMapCanvas();
+  setTimeout(()=>openNodePopup(editingNodeId), 30);
+}
+
+function resizeNode(val){
+  const n = mapNodes.find(n=>n.id===editingNodeId);
+  if(!n) return;
+  n.radius = parseInt(val);
+  const el = document.getElementById('node-'+n.id);
+  if(el){
+    el.style.width = val+'px';
+    el.style.height = val+'px';
+    el.style.left = (n.x - val/2)+'px';
+    el.style.top = (n.y - val/2)+'px';
+  }
+  // Re-draw edges
+  renderMapCanvas();
+  setTimeout(()=>openNodePopup(editingNodeId), 30);
+}
+
+function startConnect(id){
+  connectMode = true;
+  connectFrom = mapNodes.find(n=>n.id===id);
+  closeNodePopup();
+  renderMapCanvas();
+  toast('Now click another node to connect, or click the canvas to cancel');
+}
+
+// ── DRAG ───────────────────────────────────────────────────────────
+function onNodeMouseDown(e, id){
+  if(e.button !== 0) return;
+  e.stopPropagation();
+  const n = mapNodes.find(n=>n.id===id);
+  if(!n) return;
+  const wrap = document.getElementById('map-canvas-wrap');
+  const rect = wrap.getBoundingClientRect();
+  dragNode = n;
+  dragOffX = e.clientX - rect.left - n.x;
+  dragOffY = e.clientY - rect.top - n.y;
+}
+
+function onNodeTouchStart(e, id){
+  e.stopPropagation();
+  const n = mapNodes.find(n=>n.id===id);
+  if(!n) return;
+  const wrap = document.getElementById('map-canvas-wrap');
+  const rect = wrap.getBoundingClientRect();
+  const t = e.touches[0];
+  dragNode = n;
+  dragOffX = t.clientX - rect.left - n.x;
+  dragOffY = t.clientY - rect.top - n.y;
+}
+
+function onMouseMove(e){
+  if(!dragNode) return;
+  e.preventDefault();
+  const wrap = document.getElementById('map-canvas-wrap');
+  const rect = wrap.getBoundingClientRect();
+  const r = (dragNode.radius||60)/2;
+  dragNode.x = Math.max(r, Math.min(wrap.clientWidth-r, e.clientX - rect.left - dragOffX));
+  dragNode.y = Math.max(r, Math.min(wrap.clientHeight-r, e.clientY - rect.top - dragOffY));
+  const el = document.getElementById('node-'+dragNode.id);
+  if(el){ el.style.left=(dragNode.x-r)+'px'; el.style.top=(dragNode.y-r)+'px'; }
+  // Redraw svg edges
+  const svg = document.getElementById('map-svg');
+  svg.innerHTML = `<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#C9A84C" opacity="0.8"/></marker></defs>` +
+    mapEdges.map(e=>{
+      const a=mapNodes.find(n=>n.id===e.from), b=mapNodes.find(n=>n.id===e.to);
+      if(!a||!b) return '';
+      const dx=b.x-a.x, dy=b.y-a.y, dist=Math.sqrt(dx*dx+dy*dy)||1;
+      const ra=a.radius||60, rb=b.radius||60;
+      return `<line x1="${a.x+(dx/dist)*(ra/2)}" y1="${a.y+(dy/dist)*(ra/2)}" x2="${b.x-(dx/dist)*(rb/2)}" y2="${b.y-(dy/dist)*(rb/2)}" stroke="#C9A84C" stroke-width="2" stroke-opacity="0.6" marker-end="url(#arrow)"/>`;
+    }).join('');
+}
+
+function onTouchMove(e){
+  if(!dragNode) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  const wrap = document.getElementById('map-canvas-wrap');
+  const rect = wrap.getBoundingClientRect();
+  const r = (dragNode.radius||60)/2;
+  dragNode.x = Math.max(r, Math.min(wrap.clientWidth-r, t.clientX - rect.left - dragOffX));
+  dragNode.y = Math.max(r, Math.min(wrap.clientHeight-r, t.clientY - rect.top - dragOffY));
+  const el = document.getElementById('node-'+dragNode.id);
+  if(el){ el.style.left=(dragNode.x-r)+'px'; el.style.top=(dragNode.y-r)+'px'; }
+}
+
+function onMouseUp(e){
+  if(dragNode){ dragNode=null; renderMapCanvas(); }
+}
+
 
 // ═══ SESSION CHECK ════════════════════════════════════════════════
 fetch('/api/me').then(async r=>{if(r.ok){const u=await r.json();user=u;startApp();}});
