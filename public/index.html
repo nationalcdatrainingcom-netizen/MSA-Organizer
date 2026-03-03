@@ -855,9 +855,22 @@ function setVerse(){const v=VERSES[Math.floor(Date.now()/(1000*60*60*4))%VERSES.
 // ═══ AUTH ════════════════════════════════════════════════════════
 async function doLogin(){
   const un=document.getElementById('li-user').value.trim(), pw=document.getElementById('li-pass').value;
-  const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:un,password:pw})});
-  if(r.ok){const d=await r.json();user=d.user;startApp();}
-  else document.getElementById('lerr').textContent='Invalid username or password.';
+  const errEl=document.getElementById('lerr');
+  errEl.textContent='Signing in...';
+  try {
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:un,password:pw})});
+    if(r.ok){
+      const d=await r.json();
+      user=d.user;
+      errEl.textContent='';
+      startApp();
+    } else {
+      const d=await r.json().catch(()=>({}));
+      errEl.textContent = d.error || 'Invalid username or password.';
+    }
+  } catch(e) {
+    errEl.textContent = 'Connection error — is the server running? ' + e.message;
+  }
 }
 async function doLogout(){await fetch('/api/logout',{method:'POST'});location.reload();}
 document.getElementById('li-pass').onkeydown=e=>{if(e.key==='Enter')doLogin();};
