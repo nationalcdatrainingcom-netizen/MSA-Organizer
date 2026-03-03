@@ -31,6 +31,7 @@ const files = {
   messages:       path.join(DATA_DIR, 'messages.json'),
   goals:          path.join(DATA_DIR, 'goals.json'),
   notifications:  path.join(DATA_DIR, 'notifications.json'),
+  ideaMaps:       path.join(DATA_DIR, 'ideaMaps.json'),
 };
 
 // Multer for icon upload — save to DATA_DIR so it persists across deploys
@@ -66,6 +67,7 @@ async function initData() {
       [files.messages,     []],
       [files.goals,        { featured: null, goals: [], radar: [] }],
       [files.notifications,[]],
+      [files.ideaMaps,      []],
     ];
     for (const [f, def] of defaults) {
       if (!await fs.pathExists(f)) {
@@ -500,6 +502,36 @@ app.delete('/api/links/lesson/:id', auth, async (req, res) => {
   const links = await fs.readJson(files.links);
   links.lessonLinks = links.lessonLinks.filter(l => l.id !== req.params.id);
   await fs.writeJson(files.links, links, { spaces: 2 });
+  res.json({ success: true });
+});
+
+// ── IDEA MAPS ─────────────────────────────────────────────────────
+app.get('/api/idea-maps', auth, async (req, res) => {
+  const data = await fs.readJson(files.ideaMaps);
+  res.json(data.filter(m => m.userId === req.session.userId || m.visibility === 'shared'));
+});
+app.post('/api/idea-maps', auth, async (req, res) => {
+  const data = await fs.readJson(files.ideaMaps);
+  const item = { id: Date.now().toString(), userId: req.session.userId, ...req.body, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  data.push(item);
+  await fs.writeJson(files.ideaMaps, data, { spaces: 2 });
+  res.json(item);
+});
+app.put('/api/idea-maps/:id', auth, async (req, res) => {
+  const data = await fs.readJson(files.ideaMaps);
+  const idx = data.findIndex(m => m.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  if (data[idx].userId !== req.session.userId) return res.status(403).json({ error: 'Forbidden' });
+  data[idx] = { ...data[idx], ...req.body, updatedAt: new Date().toISOString() };
+  await fs.writeJson(files.ideaMaps, data, { spaces: 2 });
+  res.json(data[idx]);
+});
+app.delete('/api/idea-maps/:id', auth, async (req, res) => {
+  let data = await fs.readJson(files.ideaMaps);
+  const map = data.find(m => m.id === req.params.id);
+  if (map && map.userId !== req.session.userId) return res.status(403).json({ error: 'Forbidden' });
+  data = data.filter(m => m.id !== req.params.id);
+  await fs.writeJson(files.ideaMaps, data, { spaces: 2 });
   res.json({ success: true });
 });
 
