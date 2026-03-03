@@ -1730,8 +1730,8 @@ function icsDate(dateStr, timeStr) {
 }
 
 function escICS(str) {
-  return (str || '').replace(/\/g,'\\').replace(/;/g,'\;').replace(/,/g,'\,').replace(/
-/g,'\n');
+  if (!str) return '';
+  return str.split('\\').join('\\\\').split(';').join('\\;').split(',').join('\\,').split('\n').join('\\n');
 }
 
 function buildICS(events) {
