@@ -9,6 +9,8 @@ services:
         generateValue: true
       - key: NODE_ENV
         value: production
+      - key: DATA_DIR
+        value: /opt/render/project/src/data
     disk:
       name: msa-data
       mountPath: /opt/render/project/src/data
