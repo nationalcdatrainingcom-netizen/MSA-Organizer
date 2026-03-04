@@ -368,7 +368,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
   .mob-backdrop{display:none!important;}
 }
 
-/* ═══ IDEA MAPS ═══════════════════════════════════════════════ */
+/* ═══ IDEA MAPS & NOTES ══════════════════════════════════════ */
 .notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:20px;}
 .map-card{background:var(--card-bg);border:1px solid var(--gold-border);border-radius:14px;padding:18px;cursor:pointer;transition:all .18s;position:relative;}
 .map-card:hover{border-color:var(--gold);box-shadow:0 4px 20px rgba(201,168,76,.15);transform:translateY(-2px);}
@@ -384,6 +384,13 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
 .map-node.selected{box-shadow:0 0 0 3px var(--gold);}
 .map-node.connecting{box-shadow:0 0 0 3px var(--blue);}
 .node-edit-popup{position:absolute;background:var(--card-bg);border:1px solid var(--gold-border);border-radius:12px;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:100;min-width:200px;}
+.note-card{background:var(--card-bg);border:1px solid var(--gold-border);border-radius:14px;padding:18px;cursor:pointer;transition:all .18s;position:relative;}
+.note-card:hover{border-color:var(--gold);box-shadow:0 4px 20px rgba(201,168,76,.15);transform:translateY(-2px);}
+.note-card-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.note-card-preview{font-size:12px;color:var(--muted);line-height:1.6;margin-top:6px;max-height:52px;overflow:hidden;}
+#np-editor h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);margin:16px 0 6px;}
+#np-editor ul,#np-editor ol{padding-left:22px;margin:6px 0;}
+#np-editor li{margin-bottom:3px;}
 </style>
 </head>
 <body>
@@ -432,7 +439,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
       <div class="sb-sect">Resources</div>
       <div class="sb-item" data-tab="lessons" onclick="nav('lessons')"><span class="sb-icon">📚</span>Lesson Library</div>
       <div class="sb-item" data-tab="links" onclick="nav('links')"><span class="sb-icon">🔗</span>Links & Tools</div>
-      <div class="sb-item" data-tab="notes" onclick="nav('notes')"><span class="sb-icon">💡</span>Idea Maps</div>
+      <div class="sb-item" data-tab="notes" onclick="nav('notes')"><span class="sb-icon">💡</span>Maps & Notes</div>
       <div class="sb-item" data-tab="settings" onclick="nav('settings')"><span class="sb-icon">⚙️</span>Settings</div>
     </div>
     <div class="sb-footer">
@@ -684,9 +691,18 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
 
       <!-- IDEA MAPS PANEL -->
       <div class="panel" id="panel-notes">
-        <!-- MAP LIST VIEW -->
+        <!-- LIST VIEW -->
         <div id="notes-list-view">
-          <div id="notes-map-grid" class="notes-grid"></div>
+          <div style="display:flex;gap:10px;margin-bottom:16px;border-bottom:2px solid var(--gold-border);padding-bottom:12px;">
+            <button id="notes-tab-maps" onclick="notesShowTab('maps')" style="background:var(--gold);color:var(--black);border:none;border-radius:8px;padding:7px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">🗺 Idea Maps</button>
+            <button id="notes-tab-pages" onclick="notesShowTab('pages')" style="background:none;border:1px solid var(--gold-border);border-radius:8px;padding:7px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;">📝 Notes Pages</button>
+          </div>
+          <div id="notes-tab-maps-content">
+            <div id="notes-map-grid" class="notes-grid"></div>
+          </div>
+          <div id="notes-tab-pages-content" style="display:none;">
+            <div id="notes-pages-grid" class="notes-grid"></div>
+          </div>
         </div>
         <!-- MAP EDITOR VIEW -->
         <div id="notes-editor-view" style="display:none;">
@@ -700,12 +716,42 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
             <button onclick="saveCurrentMap()" style="background:var(--gold);color:var(--black);border:none;border-radius:8px;padding:7px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Save</button>
           </div>
           <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
-            <strong>Click canvas</strong> to add a node · <strong>Drag</strong> nodes to move · <strong>Click node</strong> to edit/connect · <strong>Double-click node</strong> to delete
+            <strong>Click canvas</strong> to add a node · <strong>Drag</strong> to move · <strong>Click node</strong> to edit/connect · <strong>Delete</strong> button in popup to remove
           </div>
-          <div id="map-canvas-wrap" style="position:relative;width:100%;height:520px;background:linear-gradient(135deg,#f8f6f1,#fdfbf7);border:1px solid var(--gold-border);border-radius:14px;overflow:hidden;cursor:crosshair;">
+          <div id="map-canvas-wrap" style="position:relative;width:100%;height:1040px;background:linear-gradient(135deg,#f8f6f1,#fdfbf7);border:1px solid var(--gold-border);border-radius:14px;overflow:hidden;cursor:crosshair;">
             <svg id="map-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></svg>
             <div id="map-nodes"></div>
           </div>
+        </div>
+        <!-- NOTES PAGE EDITOR VIEW -->
+        <div id="notes-page-editor-view" style="display:none;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+            <button onclick="backToNotesList()" style="background:none;border:1px solid var(--gold-border);border-radius:8px;padding:6px 14px;color:var(--text2);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;">← Back</button>
+            <input id="np-title-input" placeholder="Note title…" style="flex:1;min-width:120px;background:transparent;border:none;border-bottom:2px solid var(--gold-border);padding:4px 8px;font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--text);outline:none;">
+            <select id="np-visibility" style="background:var(--card-bg);border:1px solid var(--gold-border);border-radius:8px;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);cursor:pointer;">
+              <option value="private">🔒 Private</option>
+              <option value="shared">👥 Shared</option>
+            </select>
+            <button onclick="saveNotePage()" style="background:var(--gold);color:var(--black);border:none;border-radius:8px;padding:7px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Save</button>
+          </div>
+          <!-- Formatting toolbar -->
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;padding:8px 12px;background:var(--card-bg);border:1px solid var(--gold-border);border-radius:10px;">
+            <button onclick="npFormat('bold')" title="Bold" style="background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:700;font-size:13px;">B</button>
+            <button onclick="npFormat('italic')" title="Italic" style="background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;cursor:pointer;font-style:italic;font-size:13px;">I</button>
+            <button onclick="npFormat('underline')" title="Underline" style="background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;cursor:pointer;text-decoration:underline;font-size:13px;">U</button>
+            <div style="width:1px;background:var(--border2);margin:0 2px;"></div>
+            <button onclick="npFormatBlock('h2')" title="Heading" style="background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;font-weight:700;">H</button>
+            <button onclick="npFormatBlock('p')" title="Paragraph" style="background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">¶</button>
+            <button onclick="npFormat('insertUnorderedList')" title="Bullet list" style="background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">• List</button>
+            <button onclick="npFormat('insertOrderedList')" title="Numbered list" style="background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">1. List</button>
+            <div style="width:1px;background:var(--border2);margin:0 2px;"></div>
+            <button onclick="npHighlight('gold')" title="Gold highlight" style="background:#fef9c3;border:1px solid #ca8a04;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✦</button>
+            <button onclick="npHighlight('green')" title="Green highlight" style="background:#dcfce7;border:1px solid #22c55e;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✦</button>
+            <button onclick="npHighlight('blue')" title="Blue highlight" style="background:#dbeafe;border:1px solid #3b82f6;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✦</button>
+            <button onclick="npHighlight('pink')" title="Pink highlight" style="background:#fce7f3;border:1px solid #ec4899;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✦</button>
+            <button onclick="npHighlight('none')" title="Clear highlight" style="background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;">✕</button>
+          </div>
+          <div id="np-editor" contenteditable="true" style="min-height:600px;padding:20px 24px;background:var(--card-bg);border:1px solid var(--gold-border);border-radius:14px;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.8;color:var(--text);outline:none;"></div>
         </div>
       </div>
 
@@ -927,7 +973,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
 
 <script>
 // ═══ STATE ═══════════════════════════════════════════════════════
-let user=null, tasks=[], projects=[], meetings=[], recurringMtgs=[], recurring=[], lessons=[], links={lessonLinks:[],quizLink:'',resourceLinks:[]}, calEvents=[], messages=[], goals={featured:null,goals:[],radar:[]}, notifications=[], ideaMaps=[];
+let user=null, tasks=[], projects=[], meetings=[], recurringMtgs=[], recurring=[], lessons=[], links={lessonLinks:[],quizLink:'',resourceLinks:[]}, calEvents=[], messages=[], goals={featured:null,goals:[],radar:[]}, notifications=[], ideaMaps=[], notesPages=[];
 let calY=new Date().getFullYear(), calM=new Date().getMonth();
 const td=()=>new Date().toISOString().split('T')[0];
 let notifPollInterval=null, deferredInstallPrompt=null;
@@ -1029,7 +1075,7 @@ async function startApp(){
 }
 
 async function loadAll(){
-  const [t,p,m,rm,r,l,lk,c,ms,g,n,im]=await Promise.all([
+  const [t,p,m,rm,r,l,lk,c,ms,g,n,im,np]=await Promise.all([
     fetch('/api/tasks').then(x=>x.json()),
     fetch('/api/projects').then(x=>x.json()),
     fetch('/api/meetings').then(x=>x.json()),
@@ -1042,8 +1088,9 @@ async function loadAll(){
     fetch('/api/goals').then(x=>x.json()),
     fetch('/api/notifications').then(x=>x.json()),
     fetch('/api/idea-maps').then(x=>x.json()),
+    fetch('/api/notes-pages').then(x=>x.json()),
   ]);
-  tasks=t;projects=p;meetings=m;recurringMtgs=rm;recurring=r;lessons=l;links=lk;calEvents=c;messages=ms;goals=g;notifications=n;ideaMaps=im;
+  tasks=t;projects=p;meetings=m;recurringMtgs=rm;recurring=r;lessons=l;links=lk;calEvents=c;messages=ms;goals=g;notifications=n;ideaMaps=im;notesPages=np;
   const prod=await fetch('/api/productivity').then(x=>x.json());
   if(prod.notes)document.getElementById('dp-notes').value=prod.notes;
 }
@@ -1080,7 +1127,7 @@ function renderAll(){
 }
 
 // ═══ NAV ══════════════════════════════════════════════════════════
-const TAB_TITLES={command:'Command Center',productivity:'Daily Productivity',projects:'Projects',recurring:'Recurring Tasks',goals:'Goals',calendar:'Calendar',meetings:'Meetings',comms:'Communications',lessons:'Lesson Library',links:'Links & Tools',notes:'Idea Maps',settings:'Settings'};
+const TAB_TITLES={command:'Command Center',productivity:'Daily Productivity',projects:'Projects',recurring:'Recurring Tasks',goals:'Goals',calendar:'Calendar',meetings:'Meetings',comms:'Communications',lessons:'Lesson Library',links:'Links & Tools',notes:'Maps & Notes',settings:'Settings'};
 function nav(tab){
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.toggle('active',i.dataset.tab===tab));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -1102,7 +1149,7 @@ function setPageActions(tab){
     recurring:`<button class="ph-btn primary" onclick="om('m-recurring')">+ Add Task</button>`,
     goals:`<button class="ph-btn primary" onclick="om('m-goal')">+ Add Goal</button>`,
     lessons:`<button class="ph-btn primary" onclick="om('m-lesson')">+ Add Lesson</button>`,
-    notes:`<button class="ph-btn primary" onclick="newIdeaMap()">+ New Idea Map</button>`,
+    notes:`<button class="ph-btn" onclick="newIdeaMap()" style="margin-right:4px;">+ Idea Map</button><button class="ph-btn primary" onclick="newNotePage()">+ Notes Page</button>`,
   };
   el.innerHTML=btns[tab]||'';
 }
@@ -1991,8 +2038,112 @@ function closeMobSidebar(){
 }
 
 
+
+// ═══ NOTES PAGES ══════════════════════════════════════════════════
+function notesShowTab(tab){
+  notesActiveTab = tab;
+  const isMaps = tab==='maps';
+  document.getElementById('notes-tab-maps-content').style.display = isMaps?'block':'none';
+  document.getElementById('notes-tab-pages-content').style.display = isMaps?'none':'block';
+  document.getElementById('notes-tab-maps').style.cssText = isMaps
+    ? 'background:var(--gold);color:var(--black);border:none;border-radius:8px;padding:7px 18px;font-family:DM Sans,sans-serif;font-size:13px;font-weight:700;cursor:pointer;'
+    : 'background:none;border:1px solid var(--gold-border);border-radius:8px;padding:7px 18px;font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;';
+  document.getElementById('notes-tab-pages').style.cssText = !isMaps
+    ? 'background:var(--gold);color:var(--black);border:none;border-radius:8px;padding:7px 18px;font-family:DM Sans,sans-serif;font-size:13px;font-weight:700;cursor:pointer;'
+    : 'background:none;border:1px solid var(--gold-border);border-radius:8px;padding:7px 18px;font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;';
+  if(!isMaps) renderNotePages();
+}
+
+function renderNotePages(){
+  const el=document.getElementById('notes-pages-grid'); if(!el) return;
+  const visible=notesPages.filter(p=>p.userId===user.id||p.visibility==='shared');
+  let html=`<div class="map-card map-card-new" onclick="newNotePage()">
+    <div class="map-card-new-icon">📝</div>
+    <div class="map-card-new-label">New Notes Page</div>
+  </div>`;
+  html+=visible.map(p=>{
+    const mine=p.userId===user.id;
+    const badge=p.visibility==='shared'
+      ?`<span style="background:var(--gold-bg);color:var(--gold-dim);border:1px solid var(--gold-border);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;">Shared</span>`
+      :`<span style="background:var(--border);color:var(--muted);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;">Private</span>`;
+    const preview=(p.content||'').replace(/<[^>]+>/g,'').slice(0,120);
+    return `<div class="note-card" onclick="openNotePage('${p.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:4px;">
+        <div class="note-card-title">${p.title||'Untitled Note'}</div>
+        ${mine?`<button onclick="event.stopPropagation();deleteNotePage('${p.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;flex-shrink:0;">×</button>`:''}
+      </div>
+      <div style="margin-bottom:4px;">${badge}</div>
+      <div class="note-card-preview">${preview||'<em style="color:var(--muted);">Empty note</em>'}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML=html;
+}
+
+function newNotePage(){
+  currentNotePageId=null;
+  document.getElementById('np-title-input').value='New Note';
+  document.getElementById('np-visibility').value='private';
+  document.getElementById('np-editor').innerHTML='<p>Start writing…</p>';
+  document.getElementById('notes-list-view').style.display='none';
+  document.getElementById('notes-page-editor-view').style.display='block';
+  document.getElementById('np-editor').focus();
+}
+
+function openNotePage(id){
+  const p=notesPages.find(p=>p.id===id); if(!p) return;
+  currentNotePageId=id;
+  document.getElementById('np-title-input').value=p.title||'Untitled';
+  document.getElementById('np-visibility').value=p.visibility||'private';
+  document.getElementById('np-editor').innerHTML=p.content||'';
+  const canEdit=p.userId===user.id;
+  document.getElementById('np-editor').contentEditable=canEdit?'true':'false';
+  document.getElementById('np-title-input').disabled=!canEdit;
+  document.getElementById('np-visibility').disabled=!canEdit;
+  document.getElementById('notes-list-view').style.display='none';
+  document.getElementById('notes-page-editor-view').style.display='block';
+  if(canEdit) document.getElementById('np-editor').focus();
+}
+
+function backToNotesList(){
+  document.getElementById('notes-list-view').style.display='block';
+  document.getElementById('notes-page-editor-view').style.display='none';
+  notesShowTab('pages');
+}
+
+async function saveNotePage(){
+  const title=document.getElementById('np-title-input').value.trim()||'Untitled Note';
+  const visibility=document.getElementById('np-visibility').value;
+  const content=document.getElementById('np-editor').innerHTML;
+  const payload={title,visibility,content};
+  if(currentNotePageId){
+    const r=await fetch('/api/notes-pages/'+currentNotePageId,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(x=>x.json());
+    const idx=notesPages.findIndex(p=>p.id===currentNotePageId);
+    if(idx!==-1) notesPages[idx]=r;
+  } else {
+    const r=await fetch('/api/notes-pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(x=>x.json());
+    notesPages.push(r); currentNotePageId=r.id;
+  }
+  toast('Note saved!');
+}
+
+async function deleteNotePage(id){
+  if(!confirm('Delete this note?')) return;
+  await fetch('/api/notes-pages/'+id,{method:'DELETE'});
+  notesPages=notesPages.filter(p=>p.id!==id);
+  renderNotePages();
+}
+
+// Rich text formatting
+function npFormat(cmd){ document.getElementById('np-editor').focus(); document.execCommand(cmd,false,null); }
+function npFormatBlock(tag){ document.getElementById('np-editor').focus(); document.execCommand('formatBlock',false,tag); }
+function npHighlight(color){
+  document.getElementById('np-editor').focus();
+  const colors={gold:'#fef9c3',green:'#dcfce7',blue:'#dbeafe',pink:'#fce7f3',none:'transparent'};
+  document.execCommand('hiliteColor',false,colors[color]||'transparent');
+}
+
 // ═══ IDEA MAPS ════════════════════════════════════════════════════
-let currentMapId=null, mapNodes=[], mapEdges=[];
+let currentMapId=null, mapNodes=[], mapEdges=[], currentNotePageId=null, notesActiveTab='maps';
 let imDragNode=null, imDragOff={x:0,y:0}, imDragMoved=false;
 let imConnectMode=false, imConnectFrom=null;
 
@@ -2013,7 +2164,7 @@ function renderIdeaMaps(){
   if(!el) return;
   const visible=ideaMaps.filter(m=>m.userId===user.id||m.visibility==='shared');
   let html=`<div class="map-card map-card-new" onclick="newIdeaMap()">
-    <div class="map-card-new-icon">💡</div>
+    <div class="map-card-new-icon">🗺</div>
     <div class="map-card-new-label">New Idea Map</div>
   </div>`;
   html+=visible.map(m=>{
@@ -2078,6 +2229,7 @@ function backToMapList(){
   document.getElementById('notes-editor-view').style.display='none';
   imClosePopup();
   renderIdeaMaps();
+  notesShowTab('maps');
 }
 
 async function saveCurrentMap(){
