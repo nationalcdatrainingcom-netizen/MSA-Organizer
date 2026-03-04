@@ -507,6 +507,47 @@ app.delete('/api/links/lesson/:id', auth, async (req, res) => {
   res.json({ success: true });
 });
 
+
+// ── BACKUP & RESTORE ──────────────────────────────────────────────
+// Download all data as a single JSON backup
+app.get('/api/backup', auth, async (req, res) => {
+  try {
+    const backup = {};
+    for (const [key, filePath] of Object.entries(files)) {
+      if (key === 'users') continue; // skip passwords
+      try { backup[key] = await fs.readJson(filePath); }
+      catch(e) { backup[key] = null; }
+    }
+    backup._exportedAt = new Date().toISOString();
+    backup._exportedBy = req.session.userId;
+    res.setHeader('Content-Disposition', `attachment; filename="msa-backup-${new Date().toISOString().slice(0,10)}.json"`);
+    res.json(backup);
+  } catch(err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Restore from backup JSON
+app.post('/api/restore', auth, async (req, res) => {
+  try {
+    const backup = req.body;
+    const restored = [];
+    const skipped = [];
+    for (const [key, data] of Object.entries(backup)) {
+      if (key.startsWith('_') || key === 'users') continue;
+      if (files[key] && data !== null) {
+        await fs.writeJson(files[key], data, { spaces: 2 });
+        restored.push(key);
+      } else {
+        skipped.push(key);
+      }
+    }
+    res.json({ success: true, restored, skipped });
+  } catch(err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── NOTES PAGES ───────────────────────────────────────────────────
 app.get('/api/notes-pages', auth, async (req, res) => {
   const data = await fs.readJson(files.notesPages);
