@@ -32,6 +32,7 @@ const files = {
   goals:          path.join(DATA_DIR, 'goals.json'),
   notifications:  path.join(DATA_DIR, 'notifications.json'),
   ideaMaps:       path.join(DATA_DIR, 'ideaMaps.json'),
+  notesPages:     path.join(DATA_DIR, 'notesPages.json'),
 };
 
 // Multer for icon upload — save to DATA_DIR so it persists across deploys
@@ -68,6 +69,7 @@ async function initData() {
       [files.goals,        { featured: null, goals: [], radar: [] }],
       [files.notifications,[]],
       [files.ideaMaps,      []],
+      [files.notesPages,    []],
     ];
     for (const [f, def] of defaults) {
       if (!await fs.pathExists(f)) {
@@ -502,6 +504,36 @@ app.delete('/api/links/lesson/:id', auth, async (req, res) => {
   const links = await fs.readJson(files.links);
   links.lessonLinks = links.lessonLinks.filter(l => l.id !== req.params.id);
   await fs.writeJson(files.links, links, { spaces: 2 });
+  res.json({ success: true });
+});
+
+// ── NOTES PAGES ───────────────────────────────────────────────────
+app.get('/api/notes-pages', auth, async (req, res) => {
+  const data = await fs.readJson(files.notesPages);
+  res.json(data.filter(p => p.userId === req.session.userId || p.visibility === 'shared'));
+});
+app.post('/api/notes-pages', auth, async (req, res) => {
+  const data = await fs.readJson(files.notesPages);
+  const item = { id: Date.now().toString(), userId: req.session.userId, ...req.body, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  data.push(item);
+  await fs.writeJson(files.notesPages, data, { spaces: 2 });
+  res.json(item);
+});
+app.put('/api/notes-pages/:id', auth, async (req, res) => {
+  const data = await fs.readJson(files.notesPages);
+  const idx = data.findIndex(p => p.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  if (data[idx].userId !== req.session.userId) return res.status(403).json({ error: 'Forbidden' });
+  data[idx] = { ...data[idx], ...req.body, updatedAt: new Date().toISOString() };
+  await fs.writeJson(files.notesPages, data, { spaces: 2 });
+  res.json(data[idx]);
+});
+app.delete('/api/notes-pages/:id', auth, async (req, res) => {
+  let data = await fs.readJson(files.notesPages);
+  const page = data.find(p => p.id === req.params.id);
+  if (page && page.userId !== req.session.userId) return res.status(403).json({ error: 'Forbidden' });
+  data = data.filter(p => p.id !== req.params.id);
+  await fs.writeJson(files.notesPages, data, { spaces: 2 });
   res.json({ success: true });
 });
 
