@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const fs = require('fs-extra');
@@ -45,6 +46,7 @@ const upload = multer({ storage: iconStorage, limits: { fileSize: 5 * 1024 * 102
 async function initData() {
   try {
     await fs.ensureDir(DATA_DIR);
+    await fs.ensureDir(path.join(DATA_DIR, 'sessions'));
     console.log('Data directory ready:', DATA_DIR);
 
     if (!await fs.pathExists(files.users)) {
@@ -86,11 +88,19 @@ async function initData() {
 
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+const SESSION_DIR = path.join(DATA_DIR, 'sessions');
+// Sessions saved to disk so server restarts don't log everyone out
 app.use(session({
+  store: new FileStore({
+    path: SESSION_DIR,
+    ttl: 7 * 24 * 60 * 60,  // 7 days
+    retries: 1,
+    logFn: function(){}      // silence verbose logs
+  }),
   secret: process.env.SESSION_SECRET || 'msa-secret-2024-xk9',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 }
+  cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }  // 7 days
 }));
 app.use(express.static(PUBLIC_DIR));
 
