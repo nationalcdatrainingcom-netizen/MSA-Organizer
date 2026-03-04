@@ -2132,12 +2132,14 @@ function imRedraw(){
 
   // Nodes
   nl.innerHTML=mapNodes.map(n=>{
-    const c=IM_COLORS[n.colorIdx||0],r=n.radius||60;
+    const c=IM_COLORS[n.colorIdx||0];
+    n.radius=imCalcRadius(n.text||'Idea', mapNodes.indexOf(n)===0);
+    const r=n.radius;
     const glow=imConnectFrom&&imConnectFrom.id===n.id?`box-shadow:0 0 0 3px #3b82f6;`:'';
     return `<div class="map-node" id="imn-${n.id}" data-nid="${n.id}"
       style="left:${n.x-r/2}px;top:${n.y-r/2}px;width:${r}px;height:${r}px;
              background:${c.bg};border:2px solid ${c.bd};color:${c.tx};
-             font-size:${r>80?13:11}px;${glow}"
+             font-size:13px;${glow}"
     >${n.text||'Idea'}</div>`;
   }).join('');
 
@@ -2211,13 +2213,27 @@ function imCanvasDown(e){
 
   const x=e.clientX-rect.left, y=e.clientY-rect.top;
   const id='n'+Date.now()+Math.random().toString(36).slice(2,4);
-  const r=mapNodes.length===0?100:65;
-  mapNodes.push({id,x,y,text:'New Idea',colorIdx:mapNodes.length%IM_COLORS.length,radius:r});
+  mapNodes.push({id,x,y,text:'New Idea',colorIdx:mapNodes.length%IM_COLORS.length,radius:imCalcRadius('New Idea', mapNodes.length===0)});
   imRedraw();
   setTimeout(()=>imOpenPopup(id),40);
 }
 
 // ── POPUP ─────────────────────────────────────────────────────────
+function imCalcRadius(text, isRoot=false){
+  // Measure text size using a hidden element
+  const MIN = isRoot ? 90 : 60;
+  const MAX = 200;
+  const PADDING = 24; // padding inside circle
+  const lines = (text||'Idea').split('\n');
+  const longestLine = lines.reduce((a,b)=>a.length>b.length?a:b,'');
+  // Approximate char width at 13px ≈ 7.5px per char
+  const textW = longestLine.length * 7.5 + PADDING * 2;
+  const textH = lines.length * 18 + PADDING * 2;
+  // For a circle, diameter must fit the diagonal of the text bounding box
+  const needed = Math.ceil(Math.sqrt(textW*textW + textH*textH) * 0.7);
+  return Math.max(MIN, Math.min(MAX, needed));
+}
+
 function imOpenPopup(id){
   imClosePopup();
   const n=mapNodes.find(n=>n.id===id); if(!n) return;
@@ -2239,10 +2255,7 @@ function imOpenPopup(id){
   popup.innerHTML=`
     <textarea id="im-text" rows="2" style="width:100%;resize:none;background:var(--main-bg);border:1px solid var(--border2);border-radius:8px;padding:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;box-sizing:border-box;">${n.text||''}</textarea>
     <div style="display:flex;gap:5px;flex-wrap:wrap;margin:8px 0;">${colorDots}</div>
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-      <span style="font-size:11px;color:var(--muted);">Size</span>
-      <input type="range" min="50" max="140" value="${r}" id="im-size" style="flex:1;" oninput="imResizeNode(this.value,'${id}')">
-    </div>
+
     <div style="display:flex;gap:6px;">
       <button onclick="imStartConnect('${id}')" style="flex:1;background:var(--blue-bg);color:var(--blue);border:1px solid rgba(66,153,225,.3);border-radius:7px;padding:6px 4px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🔗 Connect</button>
       <button onclick="imDeleteNode('${id}')" style="flex:1;background:var(--red-bg);color:var(--red);border:1px solid rgba(217,48,37,.2);border-radius:7px;padding:6px 4px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🗑 Delete</button>
@@ -2251,7 +2264,16 @@ function imOpenPopup(id){
   w.appendChild(popup);
   const ta=document.getElementById('im-text');
   ta.focus(); ta.select();
-  ta.addEventListener('input',()=>{ const n2=mapNodes.find(n=>n.id===id); if(n2){n2.text=ta.value; const el=document.getElementById('imn-'+id); if(el) el.textContent=ta.value;} });
+  ta.addEventListener('input',()=>{
+    const n2=mapNodes.find(n=>n.id===id); if(!n2) return;
+    n2.text=ta.value;
+    n2.radius=imCalcRadius(ta.value, mapNodes.indexOf(n2)===0);
+    const r=n2.radius, el=document.getElementById('imn-'+id);
+    if(el){el.textContent=ta.value;el.style.width=r+'px';el.style.height=r+'px';el.style.left=(n2.x-r/2)+'px';el.style.top=(n2.y-r/2)+'px';}
+    // reposition popup too
+    const pop=document.getElementById('im-popup');
+    if(pop){const pw=215,w=document.getElementById('map-canvas-wrap');let px=n2.x+r/2+10;if(px+pw>w.clientWidth-8)px=n2.x-r/2-pw-10;pop.style.left=Math.max(5,px)+'px';}
+  });
   // Stop popup clicks from bubbling to canvas
   popup.addEventListener('pointerdown',e=>e.stopPropagation());
 }
