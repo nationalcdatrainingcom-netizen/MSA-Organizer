@@ -1422,19 +1422,20 @@ let taskQcat='today';
 function openTaskQ(cat){taskQcat=cat;document.getElementById('t-cat').value=cat;document.getElementById('t-text').value='';document.getElementById('t-due').value='';document.getElementById('t-notes').value='';om('m-task');}
 async function addTask(text,cat){
   if(!text)return;
-  const t=await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,cat,done:false})}).then(r=>r.json());
+  const t=await api('/api/tasks',{method:'POST',body:{text,cat,done:false}});
+  if(!t)return;
   tasks.push(t);renderCommand();renderProductivity();
 }
 async function saveTask(){const text=document.getElementById('t-text').value.trim();if(!text)return;await addTask(text,document.getElementById('t-cat').value);cm('m-task');}
 async function qiAdd(cat){const sid={'waiting':'wait','today':'today','reach':'reach','week':'week'}[cat]||cat;const i=document.getElementById('qi-'+sid);if(!i)return;await addTask(i.value.trim(),cat);i.value='';}
 async function toggleTask(id,done){
-  await fetch('/api/tasks/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({done})});
+  await api('/api/tasks/'+id,{method:'PUT',body:{done}});
   const t=tasks.find(t=>t.id===id);if(t)t.done=done;
   if(done) launchConfetti();
   renderCommand();renderProductivity();
 }
 async function delTask(id){
-  await fetch('/api/tasks/'+id,{method:'DELETE'});
+  await api('/api/tasks/'+id,{method:'DELETE'});
   tasks=tasks.filter(t=>t.id!==id);renderCommand();renderProductivity();
 }
 
@@ -1442,21 +1443,22 @@ async function delTask(id){
 async function saveProject(){
   const name=document.getElementById('pj-name').value.trim();if(!name)return;
   const taskTexts=['pj-t1','pj-t2','pj-t3','pj-t4','pj-t5'].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
-  const p=await fetch('/api/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+  const p=await api('/api/projects',{method:'POST',body:{
     name,dueDate:document.getElementById('pj-due').value,shared:document.getElementById('pj-shared').value==='shared',
     status:'active',tasks:taskTexts.map((text,i)=>({id:Date.now()+i,text,done:false}))
-  })}).then(r=>r.json());
+  }});
+  if(!p)return;
   projects.push(p);cm('m-project');renderProjects();renderCommand();
 }
 async function toggleProjTask(pid,idx,done){
   const p=projects.find(p=>p.id===pid);if(!p)return;
   p.tasks[idx].done=done;
-  await fetch('/api/projects/'+pid,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
+  await api('/api/projects/'+pid,{method:'PUT',body:p});
   renderProjects();renderCommand();
 }
 async function delProject(id){
   if(!confirm('Delete this project?'))return;
-  await fetch('/api/projects/'+id,{method:'DELETE'});
+  await api('/api/projects/'+id,{method:'DELETE'});
   projects=projects.filter(p=>p.id!==id);renderProjects();renderCommand();
 }
 async function activateProject(id){
@@ -2597,6 +2599,34 @@ async function restoreBackup(input){
     msg.style.color = 'var(--red)';
   }
   input.value = '';
+}
+
+
+// ═══ API HELPER ════════════════════════════════════════════════════
+// Central fetch wrapper — catches 401 session expiry everywhere
+async function api(url, opts={}){
+  const res = await fetch(url, {
+    headers:{'Content-Type':'application/json', ...(opts.headers||{})},
+    ...opts,
+    body: opts.body ? (typeof opts.body==='string' ? opts.body : JSON.stringify(opts.body)) : undefined
+  });
+  if(res.status===401){ showLoginExpired(); return null; }
+  const data = await res.json();
+  if(data && data.error){ toast('⚠️ '+data.error); return null; }
+  return data;
+}
+
+function showLoginExpired(){
+  // Show a prominent message and redirect to login
+  const banner = document.createElement('div');
+  banner.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#ef4444;color:#fff;text-align:center;padding:16px;font-family:DM Sans,sans-serif;font-size:15px;font-weight:600;';
+  banner.textContent='⚠️ Your session expired — please log in again to save your work.';
+  const btn = document.createElement('button');
+  btn.textContent='Log In';
+  btn.style.cssText='margin-left:16px;background:#fff;color:#ef4444;border:none;border-radius:6px;padding:6px 16px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;';
+  btn.onclick=()=>{ document.getElementById('app').style.display='none'; document.getElementById('login-screen').style.display='flex'; banner.remove(); };
+  banner.appendChild(btn);
+  document.body.prepend(banner);
 }
 
 // ═══ SESSION CHECK ════════════════════════════════════════════════
