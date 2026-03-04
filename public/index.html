@@ -682,6 +682,21 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--main-bg)
             </div>
           </div>
           <div class="settings-card" style="grid-column:1/-1;">
+            <h3>💾 Data Backup & Restore</h3>
+            <p style="margin-bottom:14px;">Download a full backup of all your data at any time. If data is ever lost after a deploy, use Restore to re-import a backup file.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;">
+              <button onclick="downloadBackup()" style="background:var(--gold);color:var(--black);border:none;border-radius:10px;padding:10px 22px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">⬇ Download Backup</button>
+              <label style="background:var(--card-bg);border:1px solid var(--gold-border);border-radius:10px;padding:10px 22px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:var(--text2);">
+                ⬆ Restore from Backup
+                <input type="file" accept=".json" style="display:none" onchange="restoreBackup(this)">
+              </label>
+            </div>
+            <div id="backup-msg" style="font-size:13px;color:var(--green);"></div>
+            <div style="margin-top:12px;padding:12px;background:#fef9c3;border:1px solid #ca8a04;border-radius:10px;font-size:12px;color:#713f12;line-height:1.7;">
+              <strong>⚠️ Important — Render Persistent Disk:</strong> Data is saved to a persistent disk on Render. If you see data disappear after a redeploy, go to your <strong>Render Dashboard → msa-organizer → Disks</strong> and confirm a disk named <strong>msa-data</strong> is mounted at <strong>/opt/render/project/src/data</strong>. If not, add it manually. Always download a backup before deploying updates.
+            </div>
+          </div>
+          <div class="settings-card" style="grid-column:1/-1;">
             <h3>ℹ️ About MSA Organizer</h3>
             <p>Built for Rebecca Munlyn & Mary Wardlaw · Mentor Success Academy Co-Founders<br><br>
             Each co-founder has a private command center, daily productivity tracker, personal tasks, and projects. Calendar, meetings, and communications are shared. Install as a phone app using the instructions in the Icon settings above.</p>
@@ -2542,6 +2557,46 @@ function launchConfetti(){
     else canvas.remove();
   }
   requestAnimationFrame(draw);
+}
+
+
+// ═══ BACKUP & RESTORE ═════════════════════════════════════════════
+async function downloadBackup(){
+  try {
+    const r = await fetch('/api/backup');
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `msa-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Backup downloaded!');
+  } catch(e) { toast('Backup failed: '+e.message); }
+}
+
+async function restoreBackup(input){
+  const file = input.files[0]; if(!file) return;
+  const msg = document.getElementById('backup-msg');
+  msg.textContent = 'Restoring…';
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    const r = await fetch('/api/restore', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)}).then(x=>x.json());
+    if(r.success){
+      msg.textContent = `✓ Restored: ${r.restored.join(', ')}`;
+      msg.style.color = 'var(--green)';
+      await loadAll(); renderAll();
+      toast('Data restored successfully!');
+    } else {
+      msg.textContent = 'Restore failed: ' + (r.error||'unknown error');
+      msg.style.color = 'var(--red)';
+    }
+  } catch(e) {
+    msg.textContent = 'Error: '+e.message;
+    msg.style.color = 'var(--red)';
+  }
+  input.value = '';
 }
 
 // ═══ SESSION CHECK ════════════════════════════════════════════════
