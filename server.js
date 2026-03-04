@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
-const FileStore = require('session-file-store')(session);
+let FileStore;
+try { FileStore = require('session-file-store')(session); } catch(e) { FileStore = null; }
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const fs = require('fs-extra');
@@ -90,18 +91,19 @@ app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 const SESSION_DIR = path.join(DATA_DIR, 'sessions');
 // Sessions saved to disk so server restarts don't log everyone out
-app.use(session({
-  store: new FileStore({
-    path: SESSION_DIR,
-    ttl: 7 * 24 * 60 * 60,  // 7 days
-    retries: 1,
-    logFn: function(){}      // silence verbose logs
-  }),
+const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'msa-secret-2024-xk9',
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }  // 7 days
-}));
+};
+if (FileStore) {
+  sessionConfig.store = new FileStore({ path: SESSION_DIR, ttl: 7 * 24 * 60 * 60, retries: 1, logFn: function(){} });
+  console.log('Using file-based session store');
+} else {
+  console.log('session-file-store not found — using memory store (install it for persistence)');
+}
+app.use(session(sessionConfig));
 app.use(express.static(PUBLIC_DIR));
 
 function auth(req, res, next) {
