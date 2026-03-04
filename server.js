@@ -106,7 +106,13 @@ if (FileStore) {
 app.use(session(sessionConfig));
 app.use(express.static(PUBLIC_DIR));
 
+const MVC_API_KEY = process.env.MVC_API_KEY || 'mvc-readonly-2024-xk9';
 function auth(req, res, next) {
+  // Allow Mary's Vision Center via API key
+  if (req.headers['x-mvc-key'] === MVC_API_KEY) {
+    req.session.userId = 'mary'; // read as mary
+    return next();
+  }
   if (req.session.userId) return next();
   res.status(401).json({ error: 'Not authenticated' });
 }
