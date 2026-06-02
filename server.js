@@ -7,9 +7,15 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs-extra');
 const path = require('path');
 const multer = require('multer');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Shared secret with the MSA Hub — must match the Hub's HUB_JWT_SECRET.
+// Both apps default to the same value, so SSO works even if neither
+// Render service sets the env var explicitly.
+const HUB_JWT_SECRET = process.env.HUB_JWT_SECRET || 'msa-hub-jwt-2024';
 
 // DATA_DIR: use env var if set, otherwise fall back to local ./data
 // On Render with persistent disk mounted at /opt/render/project/src/data this just works.
@@ -624,6 +630,41 @@ app.delete('/api/idea-maps/:id', auth, async (req, res) => {
   data = data.filter(m => m.id !== req.params.id);
   await fs.writeJson(files.ideaMaps, data, { spaces: 2 });
   res.json({ success: true });
+});
+
+// ── SSO FROM THE MSA HUB ──────────────────────────────────────────
+// The Hub opens this in a NEW TAB with ?token=<hub JWT>. We verify the
+// token (same secret the Hub signs with), set the normal session, and
+// drop the user straight onto their dashboard — no password needed.
+// Because this loads as a top-level tab (not an embedded iframe), the
+// session cookie sticks on every browser, including Safari/iPhone.
+app.get('/sso', async (req, res) => {
+  const token = req.query.token || req.query.hub_token || '';
+  if (!token) return res.redirect('/');
+  let payload;
+  try {
+    payload = jwt.verify(token, HUB_JWT_SECRET);
+  } catch (e) {
+    console.log('SSO token rejected:', e.message);
+    return res.redirect('/?sso=invalid');
+  }
+  try {
+    const users = await fs.readJson(files.users);
+    const uname = String(payload.username || '').toLowerCase().trim();
+    const user = users.find(u => u.username === uname);
+    if (!user) {
+      console.log('SSO: no matching organizer user for', uname);
+      return res.redirect('/?sso=nouser');
+    }
+    req.session.userId = user.id;
+    req.session.save(err => {
+      if (err) { console.error('SSO session save failed:', err); return res.redirect('/?sso=error'); }
+      res.redirect('/');
+    });
+  } catch (e) {
+    console.error('SSO error:', e.message);
+    res.redirect('/?sso=error');
+  }
 });
 
 app.get('*', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
